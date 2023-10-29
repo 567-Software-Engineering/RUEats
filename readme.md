@@ -32,6 +32,8 @@
 
 ```git checkout -b <branch_name>```
 
+- Branch name pattern ```feature-<featureName>```
+
 - Replace <branch_name> with the name of your new branch.
 
 ## Make Changes
