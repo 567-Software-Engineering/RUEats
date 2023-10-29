@@ -71,4 +71,4 @@ Go to your repository on GitHub.
 
 - Review your changes and click on ‘Create pull request’.
 
-## Atleast 2 reviewers approval required to merge PR.
+## Atleast 1 reviewers approval required to merge PR.
