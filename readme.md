@@ -30,7 +30,7 @@
 ## Create a New Branch for every new Feature
 
 
-```git checkout -b <branch_name>```
+- ```git checkout -b <branch_name>```
 
 - Branch name pattern ```feature-<featureName>```
 
