@@ -79,4 +79,4 @@ Go to your repository on GitHub.
 
 ## Creating Database queries.
 - Your Database queries can be placed inside ```RUEatsRepository.js```
-- Each new query/ operation can be a new method inside ```class RUEatsRepository``` eg. ```function getRestaurant(id)``` which can take necessary arguments and contains the logic for the queries to execute and return output in the end.
+- Each new query/ operation can be a new method inside ```class RUEatsRepository``` eg. ```function getRestaurant(id)``` which can take necessary arguments, run queries with that input and return output.
