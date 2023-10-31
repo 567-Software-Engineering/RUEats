@@ -4,7 +4,7 @@
 
 ## Clone the Repository
 
-- Open a terminal.
+- Open a terminal
 - Navigate to the directory where you want to clone the repository.
 - Run the following command:
 
