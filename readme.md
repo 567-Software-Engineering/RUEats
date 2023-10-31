@@ -75,3 +75,8 @@ Go to your repository on GitHub.
 - Review your changes and click on ‘Create pull request’.
 
 ## Atleast 1 reviewers approval required to merge PR.
+
+
+## Creating Database queries.
+- Your Database queries can be placed inside ```RUEatsRepository.js```
+- Each new query/ operation can be a new method inside ```class RUEatsRepository``` eg. ```function getRestaurant(id)``` which can take necessary arguments, run queries with that input and return output.
