@@ -1,6 +1,10 @@
 
-const connection = require('./../../app');
-class RUEatsRepository{
+const DatabaseConfig = require('./../../config/DatabaseConfig');
+module.exports = class RUEatsRepository{
+
+    constructor() {
+        this.connection = new DatabaseConfig().connection;
+    }
 
     //Create new method below
     // Sample Code
@@ -23,5 +27,3 @@ class RUEatsRepository{
 
 
 }
-
-module.exports = { RUEatsRepository};
