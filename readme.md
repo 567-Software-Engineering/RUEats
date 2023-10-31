@@ -1,5 +1,8 @@
 # Repository for software engineering project RUEats.
 
+![RUEats_logo](https://github.com/567-Software-Engineering/RUEats/assets/48671736/b5d85245-aa09-4490-a8d9-635f0a6e61da)
+
+
 ## Initial Instructions:
 
 ## Clone the Repository
