@@ -4,10 +4,10 @@ module.exports = class DatabaseConfig{
     constructor() {
         this.connection = mysql.createConnection({
 
-            host: "se-db-1.cn6ajpioczny.us-east-1.rds.amazonaws.com",
-              user: "app_user",
-              password: "xYHj-FIOpbha-Fhswq",
-              database: "SE_DB_1",
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
         });
 
         this.connectDatabase(this.connection);
