@@ -1,6 +1,6 @@
 const response = require('./../utils/response');
-const controller = require('./../controllers/Controller');
-
+const controllerClass = require('./../controllers/Controller');
+const controller = new controllerClass();
 
 const routes = {
     "/" : {
