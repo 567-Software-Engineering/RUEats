@@ -27,12 +27,8 @@ module.exports = class DatabaseConfig{
 
          connection.query('SHOW TABLES',[], function (error, results, fields) {
                      if (error){
-                         res.statusCode = 400;
-                         res.setHeader('Content-Type', 'text/plain');
-                         res.end("fetching record");
                          throw error;
                      }
-
                      console.log(results);
 
                  });
