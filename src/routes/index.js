@@ -41,6 +41,17 @@ const routes = {
       },
     },
 
+    "/delivery-associate/login":{
+      POST: (req, res) => {
+          validateUserData(req, res, controller.loginAssociate);
+        },
+    },
+    "/delivery-associate/register": {
+        POST: (req, res) => {
+          validateUserData(req, res, controller.createAssociate);
+        },
+      },
+
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
     }
