@@ -55,8 +55,6 @@ const server = http.createServer((req, res) => {
     handler(req,res);
 });
 
-const dbConfig = require('./config/DatabaseConfig');
-const connection = new dbConfig().connection
 const serverInstance = server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
