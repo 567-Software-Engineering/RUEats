@@ -129,4 +129,21 @@ module.exports = class RUEatsRepository {
       }
     });
   }
+
+  updateOrderStatus(orderID, restaurantID, status) {
+    return new Promise((resolve, reject) => {
+        this.connection.query(
+            'UPDATE orders SET status = ? WHERE order_id = ? AND restaurant_id = ?',
+            [status, orderID, restaurantID],
+            function(error, results) {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            }
+        );
+    });
+}
+
 }
