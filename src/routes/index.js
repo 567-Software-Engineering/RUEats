@@ -38,6 +38,15 @@ const routes = {
     "/respond-feedback/:restaurantID" : {
         POST : controller.respondToFeedback
     },
+    "/add-menu/:restaurantID/menu" : {
+        POST : controller.addMenuItem
+    },
+    "/restaurants/:restaurantID/reviews" : {
+        POST : controller.postRestaurantReview
+    },
+    "/view-insights/:restaurantID/insights": {
+        GET: controller.getRestaurantInsights
+    },
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
     }

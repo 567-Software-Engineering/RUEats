@@ -131,4 +131,50 @@ module.exports = class Controller{
         response(res, {status: 400, data: error.message});
     }
   }
+
+  async addMenuItem(req, res) {
+    try {
+        const { restaurantID } = req.params; 
+        const { itemName, description, price, spiceLevel, isAvailable, category, imageUrl, isFeatured } = req.body;
+
+        const result = await dbRepo.addMenuItem(restaurantID, itemName, description, price, spiceLevel, isAvailable, category, imageUrl, isFeatured);
+        if(result) {
+            response(res, {data: "Menu item added successfully!"});
+        } else {
+            throw new Error("Failed to add menu item.");
+        }
+    } catch(error) {
+        response(res, {status: 400, data: error.message});
+    }
+  }
+
+  async postRestaurantReview(req, res) {
+    try {
+        const { restaurantID } = req.params;
+        const { review_title, description, stars, media, author_id } = req.body;
+
+        // needs to be updated to check for user authentication
+
+        const reviewId = await dbRepo.addReview(review_title, description, stars, media, author_id, restaurantID);
+        
+        if (reviewId) {
+            response(res, { data: "Review added successfully!", reviewId });
+        } else {
+            throw new Error("Failed to add review.");
+        }
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async getRestaurantInsights(req, res) {
+    try {
+        const { restaurantID } = req.params;
+        const insights = await dbRepo.getInsightsByRestaurantID(restaurantID);
+        response(res, {data: insights});
+    } catch(error) {
+        response(res, {status: 400, data: error.message});
+    }
+  }
+
 };

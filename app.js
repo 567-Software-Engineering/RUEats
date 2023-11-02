@@ -1,5 +1,3 @@
-// change as Required... following code is just for starters
-
 const http = require('http');
 const url = require('url');
 require('dotenv').config();
@@ -9,7 +7,6 @@ const routes = require('./src/routes');
 const port = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-
     const parsedUrl = url.parse(req.url, true);
     const query = parsedUrl.query;
     const path = parsedUrl.pathname;
@@ -52,7 +49,26 @@ const server = http.createServer((req, res) => {
         req.query[key] = query[key];
     }
 
-    handler(req,res);
+    let body = [];
+    req.on('data', (chunk) => {
+        body.push(chunk);
+    }).on('end', () => {
+        body = Buffer.concat(body).toString();
+
+        if (body && req.headers['content-type'] === 'application/json') {
+            try {
+                req.body = JSON.parse(body);
+            } catch (err) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Invalid JSON format' }));
+                return;
+            }
+        } else {
+            req.body = {};
+        }
+
+        handler(req, res);
+    });
 });
 
 const serverInstance = server.listen(port, () => {
