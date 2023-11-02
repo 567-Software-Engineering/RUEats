@@ -51,6 +51,20 @@ const routes = {
           validateUserData(req, res, controller.createAssociate);
         },
       },
+      "/restaurants/login": {
+        POST: (req, res) => {
+            validateUserData(req, res, controller.loginRestaurant);
+        },
+    },
+    "/restaurants/register": {
+        POST: (req, res) => {
+            validateUserData(req, res, controller.createRestaurant);
+        },
+    },
+  "/get-notifications/:restaurant_id/notifications": {
+    GET: controller.getRestaurantNotifications
+  },
+
 
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
