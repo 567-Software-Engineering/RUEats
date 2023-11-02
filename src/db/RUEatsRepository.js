@@ -81,6 +81,36 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  insertRestaurant(newRestaurant) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const values = [
+          newRestaurant.name,
+          newRestaurant.email,
+          newRestaurant.phone_number,
+          newRestaurant.address,
+          newRestaurant.cuisine_type,
+          newRestaurant.rating || null, // Assuming it can be null
+          newRestaurant.operating_hours || null, // Assuming it can be null
+          newRestaurant.is_active || true, // Assuming default is active 
+          newRestaurant.password
+        ];
+
+        this.connection.query(query, values, (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+
 
   getAllAssociates() {
     return new Promise((resolve, reject) => {
@@ -147,6 +177,20 @@ module.exports = class RUEatsRepository {
       this.connection.query(
         "UPDATE delivery_associates SET latitude = ? , longitude = ? WHERE associate_id = ?",
         [latitude, longitude, associate_id],
+        function (error, results, fields) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        }
+      );
+    });
+  }
+  getFreeDeliveryAssociate() {
+    return new Promise((resolve, reject) => {
+      this.connection.query(
+        "SELECT * FROM delivery_associates WHERE delivery_in_progress = 0",
         function (error, results, fields) {
           if (error) {
             reject(error);
