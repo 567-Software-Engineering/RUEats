@@ -160,30 +160,38 @@ async loginRestaurant(req, res) {
       const requestData = req.body;
       const address = requestData.address;
       const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.API_KEY}`;
-      https.get(geocodingEndpoint, (geocodingResponse) => {
-        let geocodingData = '';
-
-        geocodingResponse.on('data', (chunk) => {
-            geocodingData += chunk;
-        });
-
-        geocodingResponse.on('end', () => {
-            try {
-                const parsedData = JSON.parse(geocodingData);
-
-                if (parsedData.status === 'OK') {
-                    const data = parsedData.results[0].geometry.location;
-                    response(res, { data });
-                } else {
-                  response(res, { status: 400, data: {error: "Geocoding failed"} });
+      const token = req.headers.authorization;
+      
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          https.get(geocodingEndpoint, (geocodingResponse) => {
+            let geocodingData = '';
+    
+            geocodingResponse.on('data', (chunk) => {
+                geocodingData += chunk;
+            });
+    
+            geocodingResponse.on('end', () => {
+                try {
+                    const parsedData = JSON.parse(geocodingData);
+    
+                    if (parsedData.status === 'OK') {
+                        const data = parsedData.results[0].geometry.location;
+                        response(res, { data });
+                    } else {
+                      response(res, { status: 400, data: {error: "Geocoding failed"} });
+                    }
+                } catch (error) {
+                  response(res, { status: 400, data: error.message });
                 }
-            } catch (error) {
-              response(res, { status: 400, data: error.message });
-            }
-        });
-    }).on('error', (error) => {
-      response(res, { status: 400, data: error.message });
-    });    
+            });
+          }).on('error', (error) => {
+            response(res, { status: 400, data: error.message });
+          });
+        }
+      });    
     } catch (error) {
       response(res, { status: 400, data: error.message });
     }
@@ -269,5 +277,27 @@ async loginRestaurant(req, res) {
     }
 }
 
+  async setLocationDeliveryAssociates(req, res) {
+    try {
+      const requestData = req.body;
+      const latitude = requestData.latitude;
+      const longitude = requestData.longitude;
+      const associate_id = requestData.associate_id;
+
+      const token = req.headers.authorization;
+      
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          await dbRepo.updateDeliveryAssociatesLocation(associate_id,latitude,longitude);
+          response(res, { status: 201, data: {message: "success"} });
+        }
+      });
+     
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
 
 };

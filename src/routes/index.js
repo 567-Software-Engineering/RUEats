@@ -2,6 +2,7 @@ const response = require('./../utils/response');
 const controllerClass = require('./../controllers/Controller');
 const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
+const validateSetLocationData = require('./../validations/validateSetLocationData');
 
 const controller = new controllerClass();
 
@@ -65,6 +66,11 @@ const routes = {
     GET: controller.getRestaurantNotifications
   },
 
+    "/set-location":{
+      POST: (req, res) => {
+        validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
+      },
+    },
 
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
