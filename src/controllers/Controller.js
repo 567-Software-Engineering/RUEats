@@ -77,9 +77,6 @@ module.exports = class Controller{
         });
       }
     const result = bcrypt.compareSync(body.password, user.password);
-
-    console.log('isPasswordValid:', result);
-    console.log('Hashed password from the database:', user.password);
     
     if (result) {
         const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
@@ -138,6 +135,67 @@ module.exports = class Controller{
     });    
     } catch (error) {
       response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async getAssociates (req, res){
+    try {
+      const users = await dbRepo.getAllAssociates();
+  
+      response(res, { data: users });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  };
+
+  async createAssociate (req, res) {
+    try {
+      let body = req.body;
+      const associate = await dbRepo.getAllAssociates();
+  
+      const foundUser = associate.find((associate) => associate.name === body.name);
+  
+      if (foundUser) {
+        return response(res, {
+          data: { message: `'${body.name}' already exists!` },
+          status: 409,
+        });
+      }
+      const salt = bcrypt.genSaltSync(saltRounds);
+      const hashVal = bcrypt.hashSync(body.password, salt)
+      body.password = hashVal;
+      await dbRepo.insertAssociate(body);
+      response(res, { status: 201, data: {message: "success"} });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  };
+
+  async loginAssociate(req, res) {
+    try {
+      const body = req.body;
+      const users = await dbRepo.getAllAssociates();
+
+      const user = users.find((user) => user.name === body.name || user.email === body.email);
+
+      if (!user) {
+        return response(res, {
+          data: { message: 'Delivery Associate not found' },
+          status: 404,
+        });
+      }
+    const result = bcrypt.compareSync(body.password, user.password);
+    
+    if (result) {
+        const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
+          expiresIn: '1h',
+        });
+        response(res, { status: 200, data: { token } });
+      } else {
+        response(res, { status: 401, data: { message: 'Authentication failed' } });
+      }
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
     }
   }
 };
