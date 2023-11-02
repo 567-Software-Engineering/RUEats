@@ -1,4 +1,6 @@
 const response = require('./../utils/response');
+const axios = require('axios');
+
 const RUEatsRepository = require('./../db/RUEatsRepository');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -159,7 +161,7 @@ module.exports = class Controller {
     try {
       const requestData = req.body;
       const address = requestData.address;
-      const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.API_KEY}`;
+      const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.GOOGLE_API_KEY}`;
       const token = req.headers.authorization;
 
       jwt.verify(token, secretKey, async (err, decoded) => {
@@ -300,6 +302,70 @@ module.exports = class Controller {
     }
   }
 
+   
+  async getClosestAssociate(req, res) {
+    try {
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+            const delivery_associates = await dbRepo.getFreeDeliveryAssociate();
+            let destinations = [];
+        
+            for (let index = 0; index < delivery_associates.length; index++) {
+              const row = delivery_associates[index];
+              const coordinateString = `${row.latitude},${row.longitude}`;
+              destinations.push(coordinateString);
+            }
+        
+            const { originLatitude, originLongitude } = req.body;
+            const origin = originLatitude + ',' + originLongitude;
+        
+            let closestDistance = Infinity;
+            let closestPoint = null;
+        
+            await Promise.all(
+              destinations.map(async (destination, index) => {
+                try {
+                  const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${process.env.GOOGLE_API_KEY}`);
+        
+                  if (response.data.status === 'OK') {
+                    const distance = response.data.rows[0].elements[0].distance.value;
+        
+                    if (distance < closestDistance) {
+                      closestDistance = distance;
+                      closestPoint = destinations[index];
+                    }
+                  } else {
+                    console.error('Google Maps API returned a non-OK status:', response.data.status);
+                  }
+                } catch (error) {
+                  console.error('Error fetching data from the Google Maps API:', error);
+                }
+              })
+            );
+        
+          if (closestPoint) {
+            const indexOfClosestPoint = destinations.indexOf(closestPoint);
+      
+            if (indexOfClosestPoint !== -1) {
+              const closestAssociate = delivery_associates[indexOfClosestPoint];
+              response(res, { data: closestAssociate });
+            } else {
+              response(res, { data: 'No associate found for the closest point' });
+            }
+          } else {
+            response(res, { data: 'No valid closest point found' });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+  
 
   async acceptOrDeclineOrder(req, res) {
     try {

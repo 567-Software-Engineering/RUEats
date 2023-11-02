@@ -4,6 +4,7 @@ const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
 
+const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
 
 const routes = {
@@ -51,7 +52,7 @@ const routes = {
         POST: (req, res) => {
             validateUserData(req, res, controller.createAssociate);
         },
-    },
+      },
     "/restaurants/login": {
         POST: (req, res) => {
             validateUserData(req, res, controller.loginRestaurant);
@@ -63,15 +64,18 @@ const routes = {
         },
     },
     "/get-notifications/:restaurant_id/notifications": {
-        GET: controller.getRestaurantNotifications
+      GET: controller.getRestaurantNotifications
     },
-
-    "/set-location": {
-        POST: (req, res) => {
-            validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
-        },
+    "/set-location":{
+      POST: (req, res) => {
+        validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
+      },
     },
-
+    "/findRider": {
+      POST: (req, res) => {
+        validateDeliveryAssociate(req, res, controller.getClosestAssociate);
+      },
+    },
     "/accept-order/:restaurant_id/:order_id": {
         PATCH: controller.acceptOrDeclineOrder
     },
