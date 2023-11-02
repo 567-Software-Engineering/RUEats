@@ -1,6 +1,6 @@
 const response = require('./../utils/response');
 const axios = require('axios');
-
+const getPostBodyAsync = require("./../utils/getPostBodyAsync");
 const RUEatsRepository = require('./../db/RUEatsRepository');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -370,7 +370,8 @@ module.exports = class Controller {
   async acceptOrDeclineOrder(req, res) {
     try {
       const { restaurant_id, order_id } = req.params;
-      const { status } = req.body;
+      const body = await getPostBodyAsync(req);
+      const { status } = body;
       const token = req.headers.authorization;
 
       jwt.verify(token, secretKey, async (err, decoded) => {
