@@ -47,6 +47,9 @@ const routes = {
     "/view-insights/:restaurantID/insights": {
         GET: controller.getRestaurantInsights
     },
+    "/delete-item/:restaurantID/:itemID": {
+        DELETE: controller.deleteMenuItem
+    },
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
     }

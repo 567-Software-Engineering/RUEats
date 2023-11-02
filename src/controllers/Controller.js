@@ -119,7 +119,7 @@ module.exports = class Controller{
   async respondToFeedback(req, res) {
     try {
         const { restaurantID } = req.params;
-        const { reviewID, response } = req.body; // assuming the review ID and the response text are sent in the request body
+        const { reviewID, response } = req.body;
 
         const result = await dbRepo.respondToReview(reviewID, restaurantID, response);
         if(result) {
@@ -133,6 +133,7 @@ module.exports = class Controller{
   }
 
   async addMenuItem(req, res) {
+    console.log(req.body);
     try {
         const { restaurantID } = req.params; 
         const { itemName, description, price, spiceLevel, isAvailable, category, imageUrl, isFeatured } = req.body;
@@ -173,6 +174,20 @@ module.exports = class Controller{
         const insights = await dbRepo.getInsightsByRestaurantID(restaurantID);
         response(res, {data: insights});
     } catch(error) {
+        response(res, {status: 400, data: error.message});
+    }
+  }
+
+  async deleteMenuItem(req, res) {
+    try {
+        const { restaurantID, itemID } = req.params;
+        const result = await dbRepo.deleteMenuItem(restaurantID, itemID);
+        if (result.affectedRows > 0) {
+            response(res, {data: "Menu item deleted successfully!"});
+        } else {
+            throw new Error("Menu item not found or failed to delete.");
+        }
+    } catch (error) {
         response(res, {status: 400, data: error.message});
     }
   }

@@ -69,7 +69,7 @@ module.exports = class RUEatsRepository {
   getAllRestaurants() {
     return new Promise((resolve, reject) => {
       this.connection.query(
-        "SELECT * FROM restaurants WHERE is_active = 1",
+        "SELECT * FROM menu",
         function (error, results, fields) {
           if (error) {
             reject(error);
@@ -140,19 +140,24 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  deleteMenuItem(restaurantID, itemID) {
+    return new Promise((resolve, reject) => {
+        this.connection.query('DELETE FROM menu WHERE item_id = ? AND restaurant_id = ?', [itemID, restaurantID], function (error, results) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+  }
+
   getInsightsByRestaurantID(restaurantID) {
     return new Promise(async (resolve, reject) => {
         try {
-            // Get number of times ordered from the restaurant
             const orderCount = await this._getOrderCount(restaurantID);
-
-            // Get average rating for the restaurant
             const averageRating = await this._getAverageRating(restaurantID);
-
-            // Get total earnings for the restaurant
             const totalEarnings = await this._getTotalEarnings(restaurantID);
-
-            // Get number of orders in each status
             const orderStatusCounts = await this._getOrderStatusCounts(restaurantID);
 
             resolve({
@@ -167,56 +172,56 @@ module.exports = class RUEatsRepository {
     });
 }
 
-_getOrderCount(restaurantID) {
-    return new Promise((resolve, reject) => {
-        this.connection.query('SELECT COUNT(*) as count FROM orders WHERE restaurant_id = ?', [restaurantID], function (error, results) {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results[0].count);
-            }
-        });
-    });
-}
-
-_getAverageRating(restaurantID) {
-    return new Promise((resolve, reject) => {
-        this.connection.query('SELECT AVG(stars) as averageRating FROM reviews WHERE restaurant_id = ?', [restaurantID], function (error, results) {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results[0].averageRating);
-            }
-        });
-    });
-}
-
-_getTotalEarnings(restaurantID) {
-    return new Promise((resolve, reject) => {
-        this.connection.query('SELECT SUM(total_amount) as totalEarnings FROM orders WHERE restaurant_id = ?', [restaurantID], function (error, results) {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results[0].totalEarnings);
-            }
-        });
-    });
-}
-
-_getOrderStatusCounts(restaurantID) {
-    return new Promise((resolve, reject) => {
-        this.connection.query('SELECT status, COUNT(*) as count FROM orders WHERE restaurant_id = ? GROUP BY status', [restaurantID], function (error, results) {
-            if (error) {
-                reject(error);
-            } else {
-                let counts = {0: 0, 1: 0, 2: 0, 3: 0};
-                results.forEach(result => {
-                    counts[result.status] = result.count;
-                });
-                resolve(counts);
-            }
-        });
-    });
+  _getOrderCount(restaurantID) {
+      return new Promise((resolve, reject) => {
+          this.connection.query('SELECT COUNT(*) as count FROM orders WHERE restaurant_id = ?', [restaurantID], function (error, results) {
+              if (error) {
+                  reject(error);
+              } else {
+                  resolve(results[0].count);
+              }
+          });
+      });
   }
-  
+
+  _getAverageRating(restaurantID) {
+      return new Promise((resolve, reject) => {
+          this.connection.query('SELECT AVG(stars) as averageRating FROM reviews WHERE restaurant_id = ?', [restaurantID], function (error, results) {
+              if (error) {
+                  reject(error);
+              } else {
+                  resolve(results[0].averageRating);
+              }
+          });
+      });
+  }
+
+  _getTotalEarnings(restaurantID) {
+      return new Promise((resolve, reject) => {
+          this.connection.query('SELECT SUM(total_amount) as totalEarnings FROM orders WHERE restaurant_id = ?', [restaurantID], function (error, results) {
+              if (error) {
+                  reject(error);
+              } else {
+                  resolve(results[0].totalEarnings);
+              }
+          });
+      });
+  }
+
+  _getOrderStatusCounts(restaurantID) {
+      return new Promise((resolve, reject) => {
+          this.connection.query('SELECT status, COUNT(*) as count FROM orders WHERE restaurant_id = ? GROUP BY status', [restaurantID], function (error, results) {
+              if (error) {
+                  reject(error);
+              } else {
+                  let counts = {0: 0, 1: 0, 2: 0, 3: 0};
+                  results.forEach(result => {
+                      counts[result.status] = result.count;
+                  });
+                  resolve(counts);
+              }
+          });
+      });
+  }
+
 }
