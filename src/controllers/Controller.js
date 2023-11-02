@@ -106,53 +106,53 @@ module.exports = class Controller {
 
   async createRestaurant(req, res) {
     try {
-        let body = req.body;
-        const restaurants = await dbRepo.getAllRestaurants(); 
+      let body = req.body;
+      const restaurants = await dbRepo.getAllRestaurants();
 
-        const foundRestaurant = restaurants.find((restaurant) => restaurant.name === body.name); 
+      const foundRestaurant = restaurants.find((restaurant) => restaurant.name === body.name);
 
-        if (foundRestaurant) {
-            return response(res, {
-                data: { message: `'${body.name}' already exists as a restaurant!` }, 
-                status: 409,
-            });
-        }
-        const salt = bcrypt.genSaltSync(saltRounds);
-        const hashVal = bcrypt.hashSync(body.password, salt);
-        body.password = hashVal;
-        await dbRepo.insertRestaurant(body); 
-        response(res, { status: 201, data: { message: "success" } });
+      if (foundRestaurant) {
+        return response(res, {
+          data: { message: `'${body.name}' already exists as a restaurant!` },
+          status: 409,
+        });
+      }
+      const salt = bcrypt.genSaltSync(saltRounds);
+      const hashVal = bcrypt.hashSync(body.password, salt);
+      body.password = hashVal;
+      await dbRepo.insertRestaurant(body);
+      response(res, { status: 201, data: { message: "success" } });
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
     }
-};
+  };
 
-async loginRestaurant(req, res) {
+  async loginRestaurant(req, res) {
     try {
-        const body = req.body;
-        const restaurants = await dbRepo.getAllRestaurants(); 
+      const body = req.body;
+      const restaurants = await dbRepo.getAllRestaurants();
 
-        const restaurant = restaurants.find((restaurant) => restaurant.name === body.name || restaurant.email === body.email); 
+      const restaurant = restaurants.find((restaurant) => restaurant.name === body.name || restaurant.email === body.email);
 
-        if (!restaurant) {
-            return response(res, {
-                data: { message: 'Restaurant not found' }, 
-            });
-        }
-        const result = bcrypt.compareSync(body.password, restaurant.password); 
+      if (!restaurant) {
+        return response(res, {
+          data: { message: 'Restaurant not found' },
+        });
+      }
+      const result = bcrypt.compareSync(body.password, restaurant.password);
 
-        if (result) {
-            const token = jwt.sign({ name: restaurant.name, restaurant_id: restaurant.restaurant_id }, secretKey, { 
-                expiresIn: '1h',
-            });
-            response(res, { status: 200, data: { token } });
-        } else {
-            response(res, { status: 401, data: { message: 'Authentication failed' } });
-        }
+      if (result) {
+        const token = jwt.sign({ name: restaurant.name, restaurant_id: restaurant.restaurant_id }, secretKey, {
+          expiresIn: '1h',
+        });
+        response(res, { status: 200, data: { token } });
+      } else {
+        response(res, { status: 401, data: { message: 'Authentication failed' } });
+      }
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
     }
-};
+  };
 
 
   async getLatitudeLongitude(req, res) {
@@ -161,37 +161,37 @@ async loginRestaurant(req, res) {
       const address = requestData.address;
       const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.API_KEY}`;
       const token = req.headers.authorization;
-      
+
       jwt.verify(token, secretKey, async (err, decoded) => {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
           https.get(geocodingEndpoint, (geocodingResponse) => {
             let geocodingData = '';
-    
+
             geocodingResponse.on('data', (chunk) => {
-                geocodingData += chunk;
+              geocodingData += chunk;
             });
-    
+
             geocodingResponse.on('end', () => {
-                try {
-                    const parsedData = JSON.parse(geocodingData);
-    
-                    if (parsedData.status === 'OK') {
-                        const data = parsedData.results[0].geometry.location;
-                        response(res, { data });
-                    } else {
-                      response(res, { status: 400, data: {error: "Geocoding failed"} });
-                    }
-                } catch (error) {
-                  response(res, { status: 400, data: error.message });
+              try {
+                const parsedData = JSON.parse(geocodingData);
+
+                if (parsedData.status === 'OK') {
+                  const data = parsedData.results[0].geometry.location;
+                  response(res, { data });
+                } else {
+                  response(res, { status: 400, data: { error: "Geocoding failed" } });
                 }
+              } catch (error) {
+                response(res, { status: 400, data: error.message });
+              }
             });
           }).on('error', (error) => {
             response(res, { status: 400, data: error.message });
           });
         }
-      });    
+      });
     } catch (error) {
       response(res, { status: 400, data: error.message });
     }
@@ -260,22 +260,22 @@ async loginRestaurant(req, res) {
 
   async getRestaurantNotifications(req, res) {
     try {
-        const { restaurant_id } = req.params;
-        const token = req.headers.authorization;
+      const { restaurant_id } = req.params;
+      const token = req.headers.authorization;
 
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
-            } else {
-                const notifications = await dbRepo.getNotificationsByRestaurantID(restaurant_id);
-                const data = notifications.length ? notifications : `No notifications found for RestaurantID: ${restaurant_id}`;
-                response(res, { data });
-            }
-        });
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const notifications = await dbRepo.getNotificationsByRestaurantID(restaurant_id);
+          const data = notifications.length ? notifications : `No notifications found for RestaurantID: ${restaurant_id}`;
+          response(res, { data });
+        }
+      });
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
     }
-}
+  }
 
   async setLocationDeliveryAssociates(req, res) {
     try {
@@ -285,16 +285,16 @@ async loginRestaurant(req, res) {
       const associate_id = requestData.associate_id;
 
       const token = req.headers.authorization;
-      
+
       jwt.verify(token, secretKey, async (err, decoded) => {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          await dbRepo.updateDeliveryAssociatesLocation(associate_id,latitude,longitude);
-          response(res, { status: 201, data: {message: "success"} });
+          await dbRepo.updateDeliveryAssociatesLocation(associate_id, latitude, longitude);
+          response(res, { status: 201, data: { message: "success" } });
         }
       });
-     
+
     } catch (error) {
       response(res, { status: 400, data: error.message });
     }

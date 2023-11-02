@@ -3,8 +3,8 @@ module.exports = class RUEatsRepository {
   constructor() {
     this.connection = new DatabaseConfig().connection;
   }
-    // Function to insert a new user into the users database
-    insertUser(newUser) {
+  // Function to insert a new user into the users database
+  insertUser(newUser) {
     return new Promise((resolve, reject) => {
       try {
         const query = 'INSERT INTO users (name, email, password, home_address, zip_code, city, state) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -17,7 +17,7 @@ module.exports = class RUEatsRepository {
           newUser.city || null,
           newUser.state || null,
         ];
-  
+
         this.connection.query(query, values, (error, results) => {
           if (error) {
             reject(error);
@@ -30,9 +30,9 @@ module.exports = class RUEatsRepository {
       }
     });
   }
-  
+
   // Function to retrieve all users from the users database
-    getAllUsers() {
+  getAllUsers() {
     return new Promise((resolve, reject) => {
       try {
         // Select all users from the users table
@@ -49,7 +49,7 @@ module.exports = class RUEatsRepository {
       }
     });
   }
- 
+
   getOrderByOrderIDUserID(orderID, userID) {
     return new Promise((resolve, reject) => {
       this.connection.query(
@@ -116,7 +116,7 @@ module.exports = class RUEatsRepository {
           newUser.delivery_in_progress || 0, // Assuming it's a boolean or integer field
           newUser.password,
         ];
-  
+
         this.connection.query(query, values, (error, results) => {
           if (error) {
             reject(error);
@@ -132,21 +132,21 @@ module.exports = class RUEatsRepository {
 
   getNotificationsByRestaurantID(restaurantID) {
     return new Promise((resolve, reject) => {
-        this.connection.query('SELECT * FROM orders WHERE restaurant_id = ? AND status = 0', [restaurantID], function (error, results, fields) {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results);
-            }
-        });
+      this.connection.query('SELECT * FROM orders WHERE restaurant_id = ? AND status = 0', [restaurantID], function (error, results, fields) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
     });
-}
+  }
 
-  updateDeliveryAssociatesLocation(associate_id,latitude,longitude) {
+  updateDeliveryAssociatesLocation(associate_id, latitude, longitude) {
     return new Promise((resolve, reject) => {
       this.connection.query(
         "UPDATE delivery_associates SET latitude = ? , longitude = ? WHERE associate_id = ?",
-        [latitude, longitude,associate_id],
+        [latitude, longitude, associate_id],
         function (error, results, fields) {
           if (error) {
             reject(error);
@@ -160,18 +160,18 @@ module.exports = class RUEatsRepository {
 
   updateOrderStatus(orderID, restaurantID, status) {
     return new Promise((resolve, reject) => {
-        this.connection.query(
-            'UPDATE orders SET status = ? WHERE order_id = ? AND restaurant_id = ?',
-            [status, orderID, restaurantID],
-            function(error, results) {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(results);
-                }
-            }
-        );
+      this.connection.query(
+        'UPDATE orders SET status = ? WHERE order_id = ? AND restaurant_id = ?',
+        [status, orderID, restaurantID],
+        function (error, results) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        }
+      );
     });
-}
+  }
 
 }

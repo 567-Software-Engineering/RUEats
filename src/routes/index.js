@@ -49,10 +49,10 @@ const routes = {
     },
     "/delivery-associate/register": {
         POST: (req, res) => {
-          validateUserData(req, res, controller.createAssociate);
+            validateUserData(req, res, controller.createAssociate);
         },
-      },
-      "/restaurants/login": {
+    },
+    "/restaurants/login": {
         POST: (req, res) => {
             validateUserData(req, res, controller.loginRestaurant);
         },
@@ -62,14 +62,14 @@ const routes = {
             validateUserData(req, res, controller.createRestaurant);
         },
     },
-  "/get-notifications/:restaurant_id/notifications": {
-    GET: controller.getRestaurantNotifications
-  },
+    "/get-notifications/:restaurant_id/notifications": {
+        GET: controller.getRestaurantNotifications
+    },
 
-    "/set-location":{
-      POST: (req, res) => {
-        validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
-      },
+    "/set-location": {
+        POST: (req, res) => {
+            validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
+        },
     },
 
     "/accept-order/:restaurant_id/:order_id": {
