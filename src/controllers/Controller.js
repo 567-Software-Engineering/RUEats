@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const secretKey = "1234qwerasdfzxcv";
 const dbRepo = new RUEatsRepository();
 const saltRounds = 10;
+const https = require('https');
 
 module.exports = class Controller{
 
@@ -101,6 +102,40 @@ module.exports = class Controller{
           ? restaurants
           : "No active restaurants found";
       response(res, { data });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async getLatitudeLongitude(req, res) {
+    try {
+      const requestData = req.body;
+      const address = requestData.address;
+      const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.API_KEY}`;
+      https.get(geocodingEndpoint, (geocodingResponse) => {
+        let geocodingData = '';
+
+        geocodingResponse.on('data', (chunk) => {
+            geocodingData += chunk;
+        });
+
+        geocodingResponse.on('end', () => {
+            try {
+                const parsedData = JSON.parse(geocodingData);
+
+                if (parsedData.status === 'OK') {
+                    const data = parsedData.results[0].geometry.location;
+                    response(res, { data });
+                } else {
+                  response(res, { status: 400, data: {error: "Geocoding failed"} });
+                }
+            } catch (error) {
+              response(res, { status: 400, data: error.message });
+            }
+        });
+    }).on('error', (error) => {
+      response(res, { status: 400, data: error.message });
+    });    
     } catch (error) {
       response(res, { status: 400, data: error.message });
     }
