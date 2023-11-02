@@ -1,6 +1,8 @@
 const response = require('./../utils/response');
 const controllerClass = require('./../controllers/Controller');
 const validateUserData = require('./../validations/validateUserData');
+const validateLocationData = require('./../validations/validateLocationData');
+
 const controller = new controllerClass();
 
 const routes = {
@@ -31,7 +33,24 @@ const routes = {
     },
     "/restaurants": {
         GET: controller.getAllRestaurants,
-      },    
+      },
+      
+    "/get-location":{
+      POST: (req, res) => {
+        validateLocationData(req, res, controller.getLatitudeLongitude);
+      },
+    },
+
+    "/delivery-associate/login":{
+      POST: (req, res) => {
+          validateUserData(req, res, controller.loginAssociate);
+        },
+    },
+    "/delivery-associate/register": {
+        POST: (req, res) => {
+          validateUserData(req, res, controller.createAssociate);
+        },
+      },
   "/get-notifications/:restaurant_id/notifications": {
     GET: controller.getRestaurantNotifications
   },
