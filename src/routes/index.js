@@ -14,6 +14,10 @@ const routes = {
   "/restaurants": {
     GET: controller.getAllRestaurants,
   },
+  "/get-notifications/:restaurant_id/notifications": {
+    GET: controller.getRestaurantNotifications
+  },
+
 
   notFound: (_req, res) => {
     response(res, { status: 404, data: "Requested URL not found" });

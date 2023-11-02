@@ -28,4 +28,16 @@ module.exports = class Controller {
       response(res, { status: 400, data: error.message });
     }
   }
+
+  async getRestaurantNotifications(req, res) {
+    try {
+        const { restaurant_id } = req.params;
+        const notifications = await dbRepo.getNotificationsByRestaurantID(restaurant_id);
+        const data = notifications.length ? notifications : `No notifications found for RestaurantID: ${restaurant_id}`;
+        response(res, { data });
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
+}
+
 };
