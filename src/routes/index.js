@@ -4,6 +4,7 @@ const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
 
+const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
 
 const routes = {
@@ -52,7 +53,7 @@ const routes = {
           validateUserData(req, res, controller.createAssociate);
         },
       },
-      "/restaurants/login": {
+    "/restaurants/login": {
         POST: (req, res) => {
             validateUserData(req, res, controller.loginRestaurant);
         },
@@ -62,16 +63,19 @@ const routes = {
             validateUserData(req, res, controller.createRestaurant);
         },
     },
-  "/get-notifications/:restaurant_id/notifications": {
-    GET: controller.getRestaurantNotifications
-  },
-
+    "/get-notifications/:restaurant_id/notifications": {
+      GET: controller.getRestaurantNotifications
+    },
     "/set-location":{
       POST: (req, res) => {
         validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
       },
     },
-
+    "/findRider": {
+      POST: (req, res) => {
+        validateDeliveryAssociate(req, res, controller.getClosestAssociate);
+      },
+    },
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
     }
