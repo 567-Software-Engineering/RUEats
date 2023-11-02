@@ -1,6 +1,8 @@
 const response = require('./../utils/response');
 const controllerClass = require('./../controllers/Controller');
 const validateUserData = require('./../validations/validateUserData');
+const validateLocationData = require('./../validations/validateLocationData');
+
 const controller = new controllerClass();
 
 const routes = {
@@ -31,7 +33,13 @@ const routes = {
     },
     "/restaurants": {
         GET: controller.getAllRestaurants,
-      },    
+      },
+      
+    "/get-location":{
+      POST: (req, res) => {
+        validateLocationData(req, res, controller.getLatitudeLongitude);
+      },
+    },
 
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
