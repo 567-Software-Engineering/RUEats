@@ -365,24 +365,29 @@ module.exports = class Controller {
 }
 
 
-  async postRestaurantReview(req, res) {
-    try {
-        const { restaurantID } = req.params;
-        const token = req.headers.authorization;
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
-            } else {
-                const { review_title, description, stars, media } = req.body;
-                const author_id = decoded.user_id;
-                const reviewId = await dbRepo.addReview(review_title, description, stars, media, author_id, restaurantID);
-                if (reviewId) {
-                    response(res, { data: "Review added successfully!", reviewId });
-                } else {
-                    throw new Error("Failed to add review.");
-                }
-            }
-        });
+async postRestaurantReview(req, res) {
+  try {
+      const { restaurantID } = req.params;
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+          if (err) {
+              response(res, { status: 401, data: { message: 'Unauthorized' } });
+          } else {
+              const author_id = decoded.user_id;
+              const hasOrdered = await dbRepo.hasUserOrderedFromRestaurant(author_id, restaurantID);
+              if (!hasOrdered) {
+                  response(res, { status: 403, data: { message: 'You have not ordered from this restaurant!' } });
+                  return;
+              }
+              const { review_title, description, stars, media } = req.body;
+              const reviewId = await dbRepo.addReview(review_title, description, stars, media, author_id, restaurantID);
+              if (reviewId) {
+                  response(res, { data: "Review added successfully!", reviewId });
+              } else {
+                  throw new Error("Failed to add review.");
+              }
+          }
+      });
     } catch (error) {
         response(res, { status: 400, data: { message: error.message } });
     }

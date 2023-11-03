@@ -215,7 +215,6 @@ module.exports = class RUEatsRepository {
     });
 }
 
-
   addReview(review_title, description, stars, media, author_id, restaurant_id) {
     return new Promise((resolve, reject) => {
         const date_created = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -229,6 +228,20 @@ module.exports = class RUEatsRepository {
         });
     });
   }
+
+  hasUserOrderedFromRestaurant(author_id, restaurant_id) {
+    return new Promise((resolve, reject) => {
+        const query = 'SELECT EXISTS(SELECT 1 FROM orders WHERE user_id = ? AND restaurant_id = ? LIMIT 1) as hasOrdered';
+        this.connection.query(query, [author_id, restaurant_id], function (error, results) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results[0].hasOrdered);
+            }
+        });
+    });
+  }
+
 
   deleteMenuItem(restaurantID, itemID) {
     return new Promise((resolve, reject) => {
