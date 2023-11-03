@@ -9,6 +9,12 @@ const secretKey = "1234qwerasdfzxcv";
 const dbRepo = new RUEatsRepository();
 const saltRounds = 10;
 const https = require('https');
+const fs = require('fs');
+
+const stripe = require('stripe')(
+  process.env.PAYMENT_SECRET_KEY
+);
+
 
 module.exports = class Controller {
 
@@ -512,5 +518,126 @@ async postRestaurantReview(req, res) {
       response(res, { status: 400, data: error.message });
     }
   }
-  
+
+          
+
+  async servePaymentForm(req, res) {
+    try {
+      const filePath = './public/payment-form.html';
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
+          response(res, { status: 400, data: error.message });
+        } else {
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(data);
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async getClientPaymentToken(req, res) {
+    try {
+      const filePath = './public/scripts/get-client-token.js';
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
+          response(res, { status: 400, data: error.message });
+        } else {
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(data);
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async submitPayment(req, res) {
+      try {
+
+        const requestBody = req.body;
+        
+        await stripe.charges
+          .create({
+            amount: 10000, // Amount in cents
+            currency: 'usd',
+            description: 'Example Charge',
+            source: requestBody.token,
+          })
+          .then((charge) => {
+            response(res, { status: 200, data: { message: 'Payment successful' } });
+          })
+          .catch((error) => {
+            response(res, { status: 400, data: { message: error.message } });
+          });
+      } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+      }
+  }
+
+   
+  async getClosestAssociate(req, res) {
+    try {
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+            const delivery_associates = await dbRepo.getFreeDeliveryAssociate();
+            let destinations = [];
+        
+            for (let index = 0; index < delivery_associates.length; index++) {
+              const row = delivery_associates[index];
+              const coordinateString = `${row.latitude},${row.longitude}`;
+              destinations.push(coordinateString);
+            }
+        
+            const { originLatitude, originLongitude } = req.body;
+            const origin = originLatitude + ',' + originLongitude;
+        
+            let closestDistance = Infinity;
+            let closestPoint = null;
+        
+            await Promise.all(
+              destinations.map(async (destination, index) => {
+                try {
+                  const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${process.env.GOOGLE_API_KEY}`);
+        
+                  if (response.data.status === 'OK') {
+                    const distance = response.data.rows[0].elements[0].distance.value;
+        
+                    if (distance < closestDistance) {
+                      closestDistance = distance;
+                      closestPoint = destinations[index];
+                    }
+                  } else {
+                    console.error('Google Maps API returned a non-OK status:', response.data.status);
+                  }
+                } catch (error) {
+                  console.error('Error fetching data from the Google Maps API:', error);
+                }
+              })
+            );
+        
+          if (closestPoint) {
+            const indexOfClosestPoint = destinations.indexOf(closestPoint);
+      
+            if (indexOfClosestPoint !== -1) {
+              const closestAssociate = delivery_associates[indexOfClosestPoint];
+              response(res, { data: closestAssociate });
+            } else {
+              response(res, { data: 'No associate found for the closest point' });
+            }
+          } else {
+            response(res, { data: 'No valid closest point found' });
+          }
+        }
+      });
+
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
 };

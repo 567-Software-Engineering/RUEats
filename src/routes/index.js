@@ -4,6 +4,7 @@ const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
 const validatePostRequests = require('./../validations/validatePostRequests');
+const validatePaymentToken = require('./../validations/validatePaymentToken');
 
 const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
@@ -78,6 +79,7 @@ const routes = {
         validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
       },
     },
+    
     "/findRider": {
       POST: (req, res) => {
         validateDeliveryAssociate(req, res, controller.getClosestAssociate);
@@ -110,6 +112,20 @@ const routes = {
 
     "/delete-item/:restaurantID/:itemID": {
         DELETE : controller.deleteMenuItem
+    },
+
+    '/payment-form': {
+      GET: controller.servePaymentForm,
+    },
+  
+    '/payment-client-token': {
+      GET: controller.getClientPaymentToken,
+    },
+  
+    '/submit-token': {
+      POST: (req, res) => {
+        validatePaymentToken(req, res, controller.submitPayment);
+      },
     },
 
     notFound : (_req, res) => {
