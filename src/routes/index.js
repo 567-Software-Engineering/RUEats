@@ -112,6 +112,18 @@ const routes = {
         DELETE : controller.deleteMenuItem
     },
 
+    "/deactivate-restaurant/:restaurantID": {
+      PATCH : controller.deactivateRestaurant
+    },
+  
+  
+
+    "/update-restaurant/:restaurantID" : {
+      PUT : (req, res) => {
+          validatePostRequests(req, res, controller.updateRestaurantDetails);
+      },
+  },
+
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
     }
