@@ -73,14 +73,17 @@ const routes = {
     "/get-notifications/:restaurant_id/notifications": {
       GET: controller.getRestaurantNotifications
     },
+
     "/get-active-orders/:restaurant_id/orders": {
         GET: controller.getActiveRestaurantOrders
       },
+
     "/set-location":{
       POST: (req, res) => {
         validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
       },
     },
+    
     "/findRider": {
       POST: (req, res) => {
         validateDeliveryAssociate(req, res, controller.getClosestAssociate);
@@ -155,12 +158,9 @@ const routes = {
         DELETE : controller.deleteMenuItem
     },
 
-
     "/deactivate-restaurant/:restaurantID": {
       PATCH : controller.deactivateRestaurant
     },
-  
-  
 
     "/update-restaurant/:restaurantID" : {
       PUT : (req, res) => {
