@@ -71,7 +71,10 @@ const routes = {
     },
   
     "/get-notifications/:restaurant_id/notifications": {
-          GET : controller.getRestaurantNotifications
+      GET: controller.getRestaurantNotifications
+    },
+    "/get-active-orders/:restaurant_id/orders": {
+        GET: controller.getActiveRestaurantOrders
       },
     "/set-location":{
       POST: (req, res) => {
@@ -124,8 +127,40 @@ const routes = {
       },
   },
 
-    notFound : (_req, res) => {
-        response(res, {status : 404, data : "Requested URL not found"});
+    "/deactivate-restaurant/:restaurantID": {
+      PATCH : controller.deactivateRestaurant
+    },
+  
+  
+
+    "/update-restaurant/:restaurantID" : {
+      PUT : (req, res) => {
+          validatePostRequests(req, res, controller.updateRestaurantDetails);
+      },
+  },
+
+    '/payment-form': {
+      GET: controller.servePaymentForm,
+    },
+  
+    '/payment-client-token': {
+      GET: controller.getClientPaymentToken,
+    },
+  
+    '/submit-token': {
+      POST: (req, res) => {
+        validatePaymentToken(req, res, controller.submitPayment);
+      },
+    },
+
+    "/accept-decline-order/:restaurant_id/:order_id": {
+        PATCH: (req, res) => {
+            validatePostRequests(req, res, controller.acceptOrDeclineOrder);
+        } 
+    },
+
+    notFound: (_req, res) => {
+        response(res, { status: 404, data: "Requested URL not found" });
     }
 }
 module.exports = routes
