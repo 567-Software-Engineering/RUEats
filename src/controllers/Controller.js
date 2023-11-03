@@ -536,8 +536,7 @@ async postRestaurantReview(req, res) {
   async acceptOrDeclineOrder(req, res) {
     try {
       const { restaurant_id, order_id } = req.params;
-      const body = await getPostBodyAsync(req);
-      const { status } = body;
+      const { status } = req.body;
       const token = req.headers.authorization;
 
       jwt.verify(token, secretKey, async (err, decoded) => {

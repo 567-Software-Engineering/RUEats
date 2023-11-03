@@ -116,7 +116,9 @@ const routes = {
     },
 
     "/accept-decline-order/:restaurant_id/:order_id": {
-        PATCH: controller.acceptOrDeclineOrder
+        PATCH: (req, res) => {
+            validatePostRequests(req, res, controller.acceptOrDeclineOrder);
+        } 
     },
 
     notFound: (_req, res) => {
