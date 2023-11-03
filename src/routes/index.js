@@ -66,6 +66,9 @@ const routes = {
     "/get-notifications/:restaurant_id/notifications": {
       GET: controller.getRestaurantNotifications
     },
+    "/get-orders/:restaurant_id/": {
+        GET: controller.getRestaurantOrders
+      },
     "/set-location":{
       POST: (req, res) => {
         validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
