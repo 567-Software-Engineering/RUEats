@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stripe Payment API</title>
+  <script src="https://js.stripe.com/v3/"
+  crossorigin="anonymous"></script>
+</head>
+<body>
+  <form id="payment-form" , method="GET">
+    <div class="form-row" height="3000px">
+      <label for="card-element">Credit or debit card</label>
+      <div id="card-element">
+        <!-- A Stripe Element will be inserted here. -->
+      </div>
+      <div id="card-errors" role="alert" style="color: red;"></div>
+    </div>
+    <div id = "any_error"></div>
+    <button type="submit">Submit Payment</button>
+  </form>
+  <h1 id = "paymentStatus"></h1>
+
+  <script src="/payment-client-token">
+  </script>
+</body>
+</html>

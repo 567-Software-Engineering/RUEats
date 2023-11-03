@@ -115,6 +115,20 @@ const routes = {
         DELETE : controller.deleteMenuItem
     },
 
+    '/payment-form': {
+      GET: controller.servePaymentForm,
+    },
+  
+    '/payment-client-token': {
+      GET: controller.getClientPaymentToken,
+    },
+  
+    '/submit-token': {
+      POST: (req, res) => {
+        validatePaymentToken(req, res, controller.submitPayment);
+      },
+    },
+
     "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: (req, res) => {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);

@@ -3,3 +3,5 @@ node_modules/
 .env
 # Ignore package-lock.json
 package-lock.json
+# Ignore macOS files
+.DS_Store
