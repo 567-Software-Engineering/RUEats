@@ -71,8 +71,8 @@ const routes = {
     },
   
     "/get-notifications/:restaurant_id/notifications": {
-          GET : controller.getRestaurantNotifications
-      },
+      GET : controller.getRestaurantNotifications
+    },
     "/set-location":{
       POST: (req, res) => {
         validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
@@ -82,34 +82,48 @@ const routes = {
       POST: (req, res) => {
         validateDeliveryAssociate(req, res, controller.getClosestAssociate);
       },
-    },    "/order-history/:restaurantID/orders" : {
-        GET : controller.getOrdersForRestaurant
+    },    
+    
+    "/order-history/:restaurantID/orders" : {
+      GET : controller.getOrdersForRestaurant
     },
 
     "/respond-feedback/:restaurantID" : {
-        PUT : (req, res) => {
+      PUT : (req, res) => {
           validatePostRequests(req, res, controller.respondToFeedback);
         },
     },
 
-    "/add-menu/:restaurantID/menu": {
-        POST : (req, res) => {
+    "/add-menu/:restaurantID": {
+      POST : (req, res) => {
           validatePostRequests(req, res, controller.addMenuItem);
         },
     },
 
+    "/modify-menu/:restaurantID": {
+      PUT : (req, res) => {
+          validatePostRequests(req, res, controller.updateMenuItem);
+        }, 
+    },
+
+    "/delete-item/:restaurantID/:itemID": {
+      DELETE : controller.deleteMenuItem
+    },
+
+    "/update-item-availability/:restaurantID": {
+      PUT: (req, res) => {
+          validatePostRequests(req, res, controller.toggleItemAvailability);
+        },
+    },
+
     "/restaurants/:restaurantID/reviews" : {
-        POST : (req, res) => {
+      POST : (req, res) => {
           validatePostRequests(req, res, controller.postRestaurantReview);
         },
     },
 
     "/view-insights/:restaurantID/insights": {
         GET : controller.getRestaurantInsights
-    },
-
-    "/delete-item/:restaurantID/:itemID": {
-        DELETE : controller.deleteMenuItem
     },
 
     notFound : (_req, res) => {
