@@ -170,37 +170,37 @@ module.exports = class Controller {
       const address = requestData.address;
       const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.GOOGLE_API_KEY}`;
       const token = req.headers.authorization;
-      
+
       jwt.verify(token, secretKey, async (err, decoded) => {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
           https.get(geocodingEndpoint, (geocodingResponse) => {
             let geocodingData = '';
-    
+
             geocodingResponse.on('data', (chunk) => {
-                geocodingData += chunk;
+              geocodingData += chunk;
             });
-    
+
             geocodingResponse.on('end', () => {
-                try {
-                    const parsedData = JSON.parse(geocodingData);
-    
-                    if (parsedData.status === 'OK') {
-                        const data = parsedData.results[0].geometry.location;
-                        response(res, { data });
-                    } else {
-                      response(res, { status: 400, data: {error: "Geocoding failed"} });
-                    }
-                } catch (error) {
-                  response(res, { status: 400, data: error.message });
+              try {
+                const parsedData = JSON.parse(geocodingData);
+
+                if (parsedData.status === 'OK') {
+                  const data = parsedData.results[0].geometry.location;
+                  response(res, { data });
+                } else {
+                  response(res, { status: 400, data: { error: "Geocoding failed" } });
                 }
+              } catch (error) {
+                response(res, { status: 400, data: error.message });
+              }
             });
           }).on('error', (error) => {
             response(res, { status: 400, data: error.message });
           });
         }
-      });    
+      });
     } catch (error) {
       response(res, { status: 400, data: error.message });
     }
@@ -428,7 +428,26 @@ async postRestaurantReview(req, res) {
             }
         });
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+  async getActiveRestaurantOrders(req, res) {
+    try {
+      const { restaurant_id } = req.params;
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const orders = await dbRepo.getActiveOrdersByRestaurantID(restaurant_id);
+          const data = orders.length ? orders : `No orders found for RestaurantID: ${restaurant_id}`;
+          response(res, { data });
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
     }
   }
 
@@ -440,22 +459,22 @@ async postRestaurantReview(req, res) {
       const associate_id = requestData.associate_id;
 
       const token = req.headers.authorization;
-      
+
       jwt.verify(token, secretKey, async (err, decoded) => {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          await dbRepo.updateDeliveryAssociatesLocation(associate_id,latitude,longitude);
-          response(res, { status: 201, data: {message: "success"} });
+          await dbRepo.updateDeliveryAssociatesLocation(associate_id, latitude, longitude);
+          response(res, { status: 201, data: { message: "success" } });
         }
       });
-     
+
     } catch (error) {
       response(res, { status: 400, data: error.message });
     }
   }
 
-   
+
   async getClosestAssociate(req, res) {
     try {
       const token = req.headers.authorization;
@@ -464,45 +483,45 @@ async postRestaurantReview(req, res) {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-            const delivery_associates = await dbRepo.getFreeDeliveryAssociate();
-            let destinations = [];
-        
-            for (let index = 0; index < delivery_associates.length; index++) {
-              const row = delivery_associates[index];
-              const coordinateString = `${row.latitude},${row.longitude}`;
-              destinations.push(coordinateString);
-            }
-        
-            const { originLatitude, originLongitude } = req.body;
-            const origin = originLatitude + ',' + originLongitude;
-        
-            let closestDistance = Infinity;
-            let closestPoint = null;
-        
-            await Promise.all(
-              destinations.map(async (destination, index) => {
-                try {
-                  const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${process.env.GOOGLE_API_KEY}`);
-        
-                  if (response.data.status === 'OK') {
-                    const distance = response.data.rows[0].elements[0].distance.value;
-        
-                    if (distance < closestDistance) {
-                      closestDistance = distance;
-                      closestPoint = destinations[index];
-                    }
-                  } else {
-                    console.error('Google Maps API returned a non-OK status:', response.data.status);
+          const delivery_associates = await dbRepo.getFreeDeliveryAssociate();
+          let destinations = [];
+
+          for (let index = 0; index < delivery_associates.length; index++) {
+            const row = delivery_associates[index];
+            const coordinateString = `${row.latitude},${row.longitude}`;
+            destinations.push(coordinateString);
+          }
+
+          const { originLatitude, originLongitude } = req.body;
+          const origin = originLatitude + ',' + originLongitude;
+
+          let closestDistance = Infinity;
+          let closestPoint = null;
+
+          await Promise.all(
+            destinations.map(async (destination, index) => {
+              try {
+                const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${process.env.GOOGLE_API_KEY}`);
+
+                if (response.data.status === 'OK') {
+                  const distance = response.data.rows[0].elements[0].distance.value;
+
+                  if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestPoint = destinations[index];
                   }
-                } catch (error) {
-                  console.error('Error fetching data from the Google Maps API:', error);
+                } else {
+                  console.error('Google Maps API returned a non-OK status:', response.data.status);
                 }
-              })
-            );
-        
+              } catch (error) {
+                console.error('Error fetching data from the Google Maps API:', error);
+              }
+            })
+          );
+
           if (closestPoint) {
             const indexOfClosestPoint = destinations.indexOf(closestPoint);
-      
+
             if (indexOfClosestPoint !== -1) {
               const closestAssociate = delivery_associates[indexOfClosestPoint];
               response(res, { data: closestAssociate });
@@ -638,6 +657,50 @@ async postRestaurantReview(req, res) {
 
     } catch (error) {
       response(res, { status: 400, data: error.message });
+    }
+  }
+
+
+  async acceptOrDeclineOrder(req, res) {
+    try {
+      const { restaurant_id, order_id } = req.params;
+      const { status } = req.body;
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          // Check if the restaurant_id in the token matches the restaurant_id in the route params
+          if (decoded.restaurant_id !== parseInt(restaurant_id)) {
+            response(res, { status: 403, data: { message: 'Forbidden' } });
+            return;
+          }
+
+          const orders = await dbRepo.getOrdersByRestaurantID(restaurant_id);
+          const order = orders.find(o => o.order_id == order_id);
+
+          if (!order) {
+            response(res, { status: 404, data: {message: "Order not found for the given restaurant." }});
+            return;
+          }
+
+          if (![1, 2, 3].includes(status)) {
+            response(res, { status: 400, data: {message: "Invalid status value."} });
+            return;
+          }
+
+          const result = await dbRepo.updateOrderStatus(order_id, restaurant_id, status);
+          if (result.affectedRows > 0) {
+            const message = status === 1 ? "Order Accepted" : status === 2 ? "Order Rejected" : "Order Completed";
+            response(res, { status: 200, data: { status: String(status), message } });
+          } else {
+            response(res, { status: 400, data: {message:"Order not updated."} });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: error.message });
     }
   }
 };

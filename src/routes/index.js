@@ -4,7 +4,6 @@ const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
 const validatePostRequests = require('./../validations/validatePostRequests');
-const validatePaymentToken = require('./../validations/validatePaymentToken');
 
 const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
@@ -72,14 +71,16 @@ const routes = {
     },
   
     "/get-notifications/:restaurant_id/notifications": {
-          GET : controller.getRestaurantNotifications
+      GET: controller.getRestaurantNotifications
+    },
+    "/get-active-orders/:restaurant_id/orders": {
+        GET: controller.getActiveRestaurantOrders
       },
     "/set-location":{
       POST: (req, res) => {
         validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
       },
     },
-    
     "/findRider": {
       POST: (req, res) => {
         validateDeliveryAssociate(req, res, controller.getClosestAssociate);
@@ -128,8 +129,14 @@ const routes = {
       },
     },
 
-    notFound : (_req, res) => {
-        response(res, {status : 404, data : "Requested URL not found"});
+    "/accept-decline-order/:restaurant_id/:order_id": {
+        PATCH: (req, res) => {
+            validatePostRequests(req, res, controller.acceptOrDeclineOrder);
+        } 
+    },
+
+    notFound: (_req, res) => {
+        response(res, { status: 404, data: "Requested URL not found" });
     }
 }
 module.exports = routes
