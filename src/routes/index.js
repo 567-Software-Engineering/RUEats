@@ -1,6 +1,8 @@
 const response = require('./../utils/response');
 const controllerClass = require('./../controllers/Controller');
 const validateUserData = require('./../validations/validateUserData');
+const validateLocationData = require('./../validations/validateLocationData');
+
 const controller = new controllerClass();
 
 const routes = {
@@ -31,25 +33,39 @@ const routes = {
     },
     "/restaurants": {
         GET: controller.getAllRestaurants,
-    }, 
-    "/order-history/:restaurantID/orders" : {
-        GET: controller.getOrdersForRestaurant
+      },
+      
+    "/get-location":{
+      POST: (req, res) => {
+        validateLocationData(req, res, controller.getLatitudeLongitude);
+      },
     },
-    "/respond-feedback/:restaurantID" : {
-        POST : controller.respondToFeedback
+
+    "/delivery-associate/login":{
+      POST: (req, res) => {
+          validateUserData(req, res, controller.loginAssociate);
+        },
     },
-    "/add-menu/:restaurantID/menu" : {
-        POST : controller.addMenuItem
+    "/delivery-associate/register": {
+        POST: (req, res) => {
+          validateUserData(req, res, controller.createAssociate);
+        },
+      },
+      "/restaurants/login": {
+        POST: (req, res) => {
+            validateUserData(req, res, controller.loginRestaurant);
+        },
     },
-    "/restaurants/:restaurantID/reviews" : {
-        POST : controller.postRestaurantReview
+    "/restaurants/register": {
+        POST: (req, res) => {
+            validateUserData(req, res, controller.createRestaurant);
+        },
     },
-    "/view-insights/:restaurantID/insights": {
-        GET: controller.getRestaurantInsights
-    },
-    "/delete-item/:restaurantID/:itemID": {
-        DELETE: controller.deleteMenuItem
-    },
+  "/get-notifications/:restaurant_id/notifications": {
+    GET: controller.getRestaurantNotifications
+  },
+
+
     notFound : (_req, res) => {
         response(res, {status : 404, data : "Requested URL not found"});
     }

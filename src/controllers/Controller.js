@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const secretKey = "1234qwerasdfzxcv";
 const dbRepo = new RUEatsRepository();
 const saltRounds = 10;
+const https = require('https');
 
 module.exports = class Controller{
 
@@ -76,9 +77,6 @@ module.exports = class Controller{
         });
       }
     const result = bcrypt.compareSync(body.password, user.password);
-
-    console.log('isPasswordValid:', result);
-    console.log('Hashed password from the database:', user.password);
     
     if (result) {
         const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
@@ -105,6 +103,173 @@ module.exports = class Controller{
       response(res, { status: 400, data: error.message });
     }
   }
+
+  async createRestaurant(req, res) {
+    try {
+        let body = req.body;
+        const restaurants = await dbRepo.getAllRestaurants(); 
+
+        const foundRestaurant = restaurants.find((restaurant) => restaurant.name === body.name); 
+
+        if (foundRestaurant) {
+            return response(res, {
+                data: { message: `'${body.name}' already exists as a restaurant!` }, 
+                status: 409,
+            });
+        }
+        const salt = bcrypt.genSaltSync(saltRounds);
+        const hashVal = bcrypt.hashSync(body.password, salt);
+        body.password = hashVal;
+        await dbRepo.insertRestaurant(body); 
+        response(res, { status: 201, data: { message: "success" } });
+    } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+    }
+};
+
+async loginRestaurant(req, res) {
+    try {
+        const body = req.body;
+        const restaurants = await dbRepo.getAllRestaurants(); 
+
+        const restaurant = restaurants.find((restaurant) => restaurant.name === body.name || restaurant.email === body.email); 
+
+        if (!restaurant) {
+            return response(res, {
+                data: { message: 'Restaurant not found' }, 
+            });
+        }
+        const result = bcrypt.compareSync(body.password, restaurant.password); 
+
+        if (result) {
+            const token = jwt.sign({ name: restaurant.name, restaurant_id: restaurant.restaurant_id }, secretKey, { 
+                expiresIn: '1h',
+            });
+            response(res, { status: 200, data: { token } });
+        } else {
+            response(res, { status: 401, data: { message: 'Authentication failed' } });
+        }
+    } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+    }
+};
+
+
+  async getLatitudeLongitude(req, res) {
+    try {
+      const requestData = req.body;
+      const address = requestData.address;
+      const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.API_KEY}`;
+      https.get(geocodingEndpoint, (geocodingResponse) => {
+        let geocodingData = '';
+
+        geocodingResponse.on('data', (chunk) => {
+            geocodingData += chunk;
+        });
+
+        geocodingResponse.on('end', () => {
+            try {
+                const parsedData = JSON.parse(geocodingData);
+
+                if (parsedData.status === 'OK') {
+                    const data = parsedData.results[0].geometry.location;
+                    response(res, { data });
+                } else {
+                  response(res, { status: 400, data: {error: "Geocoding failed"} });
+                }
+            } catch (error) {
+              response(res, { status: 400, data: error.message });
+            }
+        });
+    }).on('error', (error) => {
+      response(res, { status: 400, data: error.message });
+    });    
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async getAssociates (req, res){
+    try {
+      const users = await dbRepo.getAllAssociates();
+  
+      response(res, { data: users });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  };
+
+  async createAssociate (req, res) {
+    try {
+      let body = req.body;
+      const associate = await dbRepo.getAllAssociates();
+  
+      const foundUser = associate.find((associate) => associate.name === body.name);
+  
+      if (foundUser) {
+        return response(res, {
+          data: { message: `'${body.name}' already exists!` },
+          status: 409,
+        });
+      }
+      const salt = bcrypt.genSaltSync(saltRounds);
+      const hashVal = bcrypt.hashSync(body.password, salt)
+      body.password = hashVal;
+      await dbRepo.insertAssociate(body);
+      response(res, { status: 201, data: {message: "success"} });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  };
+
+  async loginAssociate(req, res) {
+    try {
+      const body = req.body;
+      const users = await dbRepo.getAllAssociates();
+
+      const user = users.find((user) => user.name === body.name || user.email === body.email);
+
+      if (!user) {
+        return response(res, {
+          data: { message: 'Delivery Associate not found' },
+          status: 404,
+        });
+      }
+    const result = bcrypt.compareSync(body.password, user.password);
+    
+    if (result) {
+        const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
+          expiresIn: '1h',
+        });
+        response(res, { status: 200, data: { token } });
+      } else {
+        response(res, { status: 401, data: { message: 'Authentication failed' } });
+      }
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+  async getRestaurantNotifications(req, res) {
+    try {
+        const { restaurant_id } = req.params;
+        const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                const notifications = await dbRepo.getNotificationsByRestaurantID(restaurant_id);
+                const data = notifications.length ? notifications : `No notifications found for RestaurantID: ${restaurant_id}`;
+                response(res, { data });
+            }
+        });
+    } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+    }
+}
+
+
 
   async getOrdersForRestaurant(req, res) {
     try {

@@ -81,6 +81,98 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  insertRestaurant(newRestaurant) {
+    return new Promise((resolve, reject) => {
+        try {
+            const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+            const values = [
+                newRestaurant.name,
+                newRestaurant.email,
+                newRestaurant.phone_number,
+                newRestaurant.address,
+                newRestaurant.cuisine_type,
+                newRestaurant.rating || null, // Assuming it can be null
+                newRestaurant.operating_hours || null, // Assuming it can be null
+                newRestaurant.is_active || true, // Assuming default is active 
+                newRestaurant.password
+            ];
+
+            this.connection.query(query, values, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+
+
+  getAllAssociates() {
+    return new Promise((resolve, reject) => {
+      try {
+        // Select all users from the users table
+        const query = 'SELECT * FROM delivery_associates';
+        this.connection.query(query, (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  insertAssociate(newUser) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const values = [
+          newUser.name,
+          newUser.email,
+          newUser.home_address || null,
+          newUser.zip_code || null,
+          newUser.city || null,
+          newUser.state || null,
+          newUser.latitude || null,
+          newUser.longitude || null,
+          newUser.delivery_in_progress || 0, // Assuming it's a boolean or integer field
+          newUser.password,
+        ];
+  
+        this.connection.query(query, values, (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  getNotificationsByRestaurantID(restaurantID) {
+    return new Promise((resolve, reject) => {
+        this.connection.query('SELECT * FROM orders WHERE restaurant_id = ? AND status = 0', [restaurantID], function (error, results, fields) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+}
+
+
   getOrdersByRestaurantID(restaurantID) {
     return new Promise((resolve, reject) => {
         this.connection.query('SELECT * FROM orders WHERE restaurant_id = ?', [restaurantID], function (error, results, fields) {
