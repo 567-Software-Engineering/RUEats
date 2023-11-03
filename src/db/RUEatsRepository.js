@@ -267,6 +267,20 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  deactivateRestaurant(restaurantID) {
+    return new Promise((resolve, reject) => {
+        this.connection.query('UPDATE restaurants SET is_active = 0 WHERE restaurant_id = ?', [restaurantID], function (error, results) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+}
+
+
+
   getInsightsByRestaurantID(restaurantID) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -368,6 +382,41 @@ module.exports = class RUEatsRepository {
       );
     });
   }
+
+  updateRestaurantDetails(restaurantID, updatedDetails) {
+    return new Promise((resolve, reject) => {
+        // Check if there's anything to update
+        if (Object.keys(updatedDetails).length === 0) {
+            resolve(false);
+            return;
+        }
+
+        let queryString = 'UPDATE restaurants SET ';
+        const queryParams = [];
+        const updateFields = [];
+
+        // Build the dynamic query
+        for (const [key, value] of Object.entries(updatedDetails)) {
+            if (["name", "email", "phone_number", "address", "cuisine_type", "rating", "operating_hours", "is_active"].includes(key)) {
+                updateFields.push(`${key} = ?`);
+                queryParams.push(value);
+            }
+        }
+
+        queryString += updateFields.join(', ');
+        queryString += ' WHERE restaurant_id = ?';
+        queryParams.push(restaurantID);
+
+        this.connection.query(queryString, queryParams, function (error, results, fields) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results.affectedRows > 0);
+            }
+        });
+    });
+}
+
   getFreeDeliveryAssociate() {
     return new Promise((resolve, reject) => {
       this.connection.query(

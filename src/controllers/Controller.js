@@ -276,6 +276,11 @@ module.exports = class Controller {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
+
+          if (decoded.restaurant_id !== parseInt(restaurantID)) {
+            response(res, { status: 403, data: { message: 'Forbidden: Cannot view notifications for other restaurants.' } });
+            return;
+        }
           const notifications = await dbRepo.getNotificationsByRestaurantID(restaurant_id);
           const data = notifications.length ? notifications : `No notifications found for RestaurantID: ${restaurant_id}`;
           response(res, { data });
@@ -330,6 +335,62 @@ module.exports = class Controller {
         response(res, { status: 400, data: { message: error.message } });
     }
   }
+
+  async updateRestaurantDetails(req, res) {
+    try {
+        const { restaurantID } = req.params;
+        const token = req.headers.authorization;
+        const updatedDetails = req.body; 
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                
+                if (decoded.restaurant_id !== parseInt(restaurantID)) {
+                    return response(res, { status: 403, data: { message: 'Permission denied. You can only update your own restaurant details.' } });
+                }
+
+                const result = await dbRepo.updateRestaurantDetails(restaurantID, updatedDetails);
+
+                if (result) {
+                    response(res, { data: "Restaurant details updated successfully!" });
+                } else {
+                    throw new Error("Failed to update restaurant details.");
+                }
+            }
+        });
+    } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+
+  async deactivateRestaurant(req, res) {
+    try {
+        const { restaurantID } = req.params;
+        const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else if (decoded.restaurant_id !== parseInt(restaurantID)) {
+                response(res, { status: 403, data: { message: 'Forbidden: You do not have permission to deactivate this restaurant.' } });
+            } else {
+                const result = await dbRepo.deactivateRestaurant(restaurantID);
+                if (result.affectedRows > 0) {
+                    response(res, { data: "Restaurant deactivated successfully!" });
+                } else {
+                    throw new Error("Failed to deactivate the restaurant.");
+                }
+            }
+        });
+    } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+    }
+}
+
+
 
   async addMenuItem(req, res) {
     try {
