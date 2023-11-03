@@ -305,8 +305,7 @@ module.exports = class Controller {
   async respondToFeedback(req, res) {
     try {
         const { restaurantID } = req.params;
-        const body = await getPostBodyAsync(req);
-        const { reviewID, response: feedbackResponse } = body;
+        const { reviewID, response: feedbackResponse } = req.body;
         const token = req.headers.authorization;
 
         jwt.verify(token, secretKey, async (err, decoded) => {
@@ -330,7 +329,6 @@ module.exports = class Controller {
     try {
         const { restaurantID } = req.params;
         const token = req.headers.authorization;
-        const body = await getPostBodyAsync(req);
         jwt.verify(token, secretKey, async (err, decoded) => {
             if (err) {
                 response(res, { status: 401, data: { message: 'Unauthorized' } });
@@ -344,7 +342,7 @@ module.exports = class Controller {
                     category,
                     image_url,
                     is_featured
-                } = body;
+                } = req.body;
 
                 await dbRepo.addMenuItemToMenu({
                     restaurantID,
@@ -371,12 +369,11 @@ module.exports = class Controller {
     try {
         const { restaurantID } = req.params;
         const token = req.headers.authorization;
-        const body = await getPostBodyAsync(req);
         jwt.verify(token, secretKey, async (err, decoded) => {
             if (err) {
                 response(res, { status: 401, data: { message: 'Unauthorized' } });
             } else {
-                const { review_title, description, stars, media } = body;
+                const { review_title, description, stars, media } = req.body;
                 const author_id = decoded.user_id;
                 const reviewId = await dbRepo.addReview(review_title, description, stars, media, author_id, restaurantID);
                 if (reviewId) {

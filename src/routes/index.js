@@ -3,6 +3,7 @@ const controllerClass = require('./../controllers/Controller');
 const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
+const validatePostRequests = require('./../validations/validatePostRequests');
 
 const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
@@ -86,15 +87,21 @@ const routes = {
     },
 
     "/respond-feedback/:restaurantID" : {
-        PUT : controller.respondToFeedback
+        PUT : (req, res) => {
+          validatePostRequests(req, res, controller.respondToFeedback);
+        },
     },
 
     "/add-menu/:restaurantID/menu": {
-        POST : controller.addMenuItem
+        POST : (req, res) => {
+          validatePostRequests(req, res, controller.addMenuItem);
+        },
     },
 
     "/restaurants/:restaurantID/reviews" : {
-        POST : controller.postRestaurantReview
+        POST : (req, res) => {
+          validatePostRequests(req, res, controller.postRestaurantReview);
+        },
     },
 
     "/view-insights/:restaurantID/insights": {
