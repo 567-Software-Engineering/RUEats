@@ -76,7 +76,7 @@ const routes = {
         validateDeliveryAssociate(req, res, controller.getClosestAssociate);
       },
     },
-    "/accept-order/:restaurant_id/:order_id": {
+    "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: controller.acceptOrDeclineOrder
     },
 
