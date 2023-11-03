@@ -2,7 +2,9 @@ const response = require('./../utils/response');
 const controllerClass = require('./../controllers/Controller');
 const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
+const validateSetLocationData = require('./../validations/validateSetLocationData');
 
+const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
 
 const routes = {
@@ -66,12 +68,20 @@ const routes = {
           validateUserData(req, res, controller.createRestaurant);
       },
     },
-
+  
     "/get-notifications/:restaurant_id/notifications": {
-        GET : controller.getRestaurantNotifications
+          GET : controller.getRestaurantNotifications
+      },
+    "/set-location":{
+      POST: (req, res) => {
+        validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
+      },
     },
-
-    "/order-history/:restaurantID/orders" : {
+    "/findRider": {
+      POST: (req, res) => {
+        validateDeliveryAssociate(req, res, controller.getClosestAssociate);
+      },
+    },    "/order-history/:restaurantID/orders" : {
         GET : controller.getOrdersForRestaurant
     },
 

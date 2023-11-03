@@ -1,4 +1,6 @@
 const response = require('./../utils/response');
+const axios = require('axios');
+
 const getPostBodyAsync = require("./../utils/getPostBodyAsync");
 const RUEatsRepository = require('./../db/RUEatsRepository');
 const bcrypt = require('bcrypt');
@@ -160,31 +162,39 @@ module.exports = class Controller {
     try {
       const requestData = req.body;
       const address = requestData.address;
-      const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.API_KEY}`;
-      https.get(geocodingEndpoint, (geocodingResponse) => {
-        let geocodingData = '';
-
-        geocodingResponse.on('data', (chunk) => {
-          geocodingData += chunk;
-        });
-
-        geocodingResponse.on('end', () => {
-          try {
-            const parsedData = JSON.parse(geocodingData);
-
-            if (parsedData.status === 'OK') {
-              const data = parsedData.results[0].geometry.location;
-              response(res, { data });
-            } else {
-              response(res, { status: 400, data: { error: "Geocoding failed" } });
-            }
-          } catch (error) {
+      const geocodingEndpoint = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.GOOGLE_API_KEY}`;
+      const token = req.headers.authorization;
+      
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          https.get(geocodingEndpoint, (geocodingResponse) => {
+            let geocodingData = '';
+    
+            geocodingResponse.on('data', (chunk) => {
+                geocodingData += chunk;
+            });
+    
+            geocodingResponse.on('end', () => {
+                try {
+                    const parsedData = JSON.parse(geocodingData);
+    
+                    if (parsedData.status === 'OK') {
+                        const data = parsedData.results[0].geometry.location;
+                        response(res, { data });
+                    } else {
+                      response(res, { status: 400, data: {error: "Geocoding failed"} });
+                    }
+                } catch (error) {
+                  response(res, { status: 400, data: error.message });
+                }
+            });
+          }).on('error', (error) => {
             response(res, { status: 400, data: error.message });
-          }
-        });
-      }).on('error', (error) => {
-        response(res, { status: 400, data: error.message });
-      });
+          });
+        }
+      });    
     } catch (error) {
       response(res, { status: 400, data: error.message });
     }
@@ -414,5 +424,91 @@ module.exports = class Controller {
     }
   }
 
+  async setLocationDeliveryAssociates(req, res) {
+    try {
+      const requestData = req.body;
+      const latitude = requestData.latitude;
+      const longitude = requestData.longitude;
+      const associate_id = requestData.associate_id;
 
+      const token = req.headers.authorization;
+      
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          await dbRepo.updateDeliveryAssociatesLocation(associate_id,latitude,longitude);
+          response(res, { status: 201, data: {message: "success"} });
+        }
+      });
+     
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+   
+  async getClosestAssociate(req, res) {
+    try {
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+            const delivery_associates = await dbRepo.getFreeDeliveryAssociate();
+            let destinations = [];
+        
+            for (let index = 0; index < delivery_associates.length; index++) {
+              const row = delivery_associates[index];
+              const coordinateString = `${row.latitude},${row.longitude}`;
+              destinations.push(coordinateString);
+            }
+        
+            const { originLatitude, originLongitude } = req.body;
+            const origin = originLatitude + ',' + originLongitude;
+        
+            let closestDistance = Infinity;
+            let closestPoint = null;
+        
+            await Promise.all(
+              destinations.map(async (destination, index) => {
+                try {
+                  const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${process.env.GOOGLE_API_KEY}`);
+        
+                  if (response.data.status === 'OK') {
+                    const distance = response.data.rows[0].elements[0].distance.value;
+        
+                    if (distance < closestDistance) {
+                      closestDistance = distance;
+                      closestPoint = destinations[index];
+                    }
+                  } else {
+                    console.error('Google Maps API returned a non-OK status:', response.data.status);
+                  }
+                } catch (error) {
+                  console.error('Error fetching data from the Google Maps API:', error);
+                }
+              })
+            );
+        
+          if (closestPoint) {
+            const indexOfClosestPoint = destinations.indexOf(closestPoint);
+      
+            if (indexOfClosestPoint !== -1) {
+              const closestAssociate = delivery_associates[indexOfClosestPoint];
+              response(res, { data: closestAssociate });
+            } else {
+              response(res, { data: 'No associate found for the closest point' });
+            }
+          } else {
+            response(res, { data: 'No valid closest point found' });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+  
 };
