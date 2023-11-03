@@ -73,8 +73,8 @@ const routes = {
     "/get-notifications/:restaurant_id/notifications": {
       GET: controller.getRestaurantNotifications
     },
-    "/get-orders/:restaurant_id/": {
-        GET: controller.getRestaurantOrders
+    "/get-active-orders/:restaurant_id/orders": {
+        GET: controller.getActiveRestaurantOrders
       },
     "/set-location":{
       POST: (req, res) => {

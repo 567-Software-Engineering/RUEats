@@ -426,7 +426,7 @@ async postRestaurantReview(req, res) {
     }
   }
 
-  async getRestaurantOrders(req, res) {
+  async getActiveRestaurantOrders(req, res) {
     try {
       const { restaurant_id } = req.params;
       const token = req.headers.authorization;
@@ -435,8 +435,8 @@ async postRestaurantReview(req, res) {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          const notifications = await dbRepo.getOrdersByRestaurantID(restaurant_id);
-          const data = notifications.length ? notifications : `No orders found for RestaurantID: ${restaurant_id}`;
+          const orders = await dbRepo.getActiveOrdersByRestaurantID(restaurant_id);
+          const data = orders.length ? orders : `No orders found for RestaurantID: ${restaurant_id}`;
           response(res, { data });
         }
       });
@@ -553,12 +553,12 @@ async postRestaurantReview(req, res) {
           const order = orders.find(o => o.order_id == order_id);
 
           if (!order) {
-            response(res, { status: 404, data: "Order not found for the given restaurant." });
+            response(res, { status: 404, data: {message: "Order not found for the given restaurant." }});
             return;
           }
 
           if (![1, 2, 3].includes(status)) {
-            response(res, { status: 400, data: "Invalid status value." });
+            response(res, { status: 400, data: {message: "Invalid status value."} });
             return;
           }
 
@@ -567,7 +567,7 @@ async postRestaurantReview(req, res) {
             const message = status === 1 ? "Order Accepted" : status === 2 ? "Order Rejected" : "Order Completed";
             response(res, { status: 200, data: { status: String(status), message } });
           } else {
-            response(res, { status: 400, data: "Order not updated." });
+            response(res, { status: 400, data: {message:"Order not updated."} });
           }
         }
       });
