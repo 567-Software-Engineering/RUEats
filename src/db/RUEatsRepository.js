@@ -69,7 +69,8 @@ module.exports = class RUEatsRepository {
   getAllRestaurants() {
     return new Promise((resolve, reject) => {
       this.connection.query(
-        "SELECT * FROM menu",
+        "SELECT * FROM restaurants WHERE is_active = 1",
+        // "SELECT * FROM menu",
         function (error, results, fields) {
           if (error) {
             reject(error);
@@ -201,22 +202,19 @@ module.exports = class RUEatsRepository {
     });
   }
 
-  addMenuItem(restaurantID, itemName, description, price, spiceLevel, isAvailable, category, imageUrl, isFeatured) {
+  addMenuItemToMenu({ restaurantID, item_name, description, price, spice_level, is_available, category, image_url, is_featured }) {
     return new Promise((resolve, reject) => {
         const query = 'INSERT INTO menu (item_name, restaurant_id, description, price, spice_level, is_available, category, image_url, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        this.connection.query(
-            query,
-            [itemName, restaurantID, description, price, spiceLevel, isAvailable, category, imageUrl, isFeatured],
-            function (error, results, fields) {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(results.insertId);
-                }
+        this.connection.query(query, [item_name, restaurantID, description, price, spice_level, is_available, category, image_url, is_featured], function (error, results, fields) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
             }
-        );
+        });
     });
-  }
+}
+
 
   addReview(review_title, description, stars, media, author_id, restaurant_id) {
     return new Promise((resolve, reject) => {

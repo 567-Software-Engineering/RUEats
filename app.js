@@ -14,7 +14,7 @@ const server = http.createServer((req, res) => {
 
     let handler = routes[path] && routes[path][method];
 
-    if(!handler){
+    if (!handler) {
         const routeKeys = Object.keys(routes).filter((key) => key.includes(":"));
         const matchedKey = routeKeys.find((key) => {
             const regex = new RegExp(`^${key.replace(/:[^/]+/g, "([^/]+)")}$`);
@@ -40,35 +40,16 @@ const server = http.createServer((req, res) => {
         }
     }
 
-    if(!handler){
+    if (!handler) {
         handler = routes.notFound;
     }
 
     req.query = {};
-    for(const key in query){
+    for (const key in query) {
         req.query[key] = query[key];
     }
 
-    let body = [];
-    req.on('data', (chunk) => {
-        body.push(chunk);
-    }).on('end', () => {
-        body = Buffer.concat(body).toString();
-
-        if (body && req.headers['content-type'] === 'application/json') {
-            try {
-                req.body = JSON.parse(body);
-            } catch (err) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Invalid JSON format' }));
-                return;
-            }
-        } else {
-            req.body = {};
-        }
-
-        handler(req, res);
-    });
+    handler(req, res);
 });
 
 const serverInstance = server.listen(port, () => {
