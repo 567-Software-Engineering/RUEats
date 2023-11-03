@@ -1,5 +1,6 @@
 const response = require('./../utils/response');
 const axios = require('axios');
+
 const getPostBodyAsync = require("./../utils/getPostBodyAsync");
 const RUEatsRepository = require('./../db/RUEatsRepository');
 const bcrypt = require('bcrypt');
@@ -274,6 +275,152 @@ module.exports = class Controller {
           response(res, { data });
         }
       });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+
+
+  async getOrdersForRestaurant(req, res) {
+    try {
+        const { restaurantID } = req.params;
+        const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                const orders = await dbRepo.getOrdersByRestaurantID(restaurantID);
+                const data = orders.length ? orders : `No orders found for Restaurant ID: ${restaurantID}`;
+                response(res, { data });
+            }
+        });
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
+  }
+
+
+  async respondToFeedback(req, res) {
+    try {
+        const { restaurantID } = req.params;
+        const { reviewID, response: feedbackResponse } = req.body;
+        const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                const result = await dbRepo.respondToReview(reviewID, restaurantID, feedbackResponse);
+                if (result) {
+                    response(res, { data: "Response added successfully!" });
+                } else {
+                    throw new Error("Failed to add response.");
+                }
+            }
+        });
+    } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+  async addMenuItem(req, res) {
+    try {
+        const { restaurantID } = req.params;
+        const token = req.headers.authorization;
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                const {
+                    item_name,
+                    description,
+                    price,
+                    spice_level,
+                    is_available,
+                    category,
+                    image_url,
+                    is_featured
+                } = req.body;
+
+                await dbRepo.addMenuItemToMenu({
+                    restaurantID,
+                    item_name,
+                    description,
+                    price,
+                    spice_level,
+                    is_available,
+                    category,
+                    image_url,
+                    is_featured
+                });
+
+                response(res, { data: { message: 'Menu item added successfully.' } });
+            }
+        });
+    } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+    }
+}
+
+
+async postRestaurantReview(req, res) {
+  try {
+      const { restaurantID } = req.params;
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+          if (err) {
+              response(res, { status: 401, data: { message: 'Unauthorized' } });
+          } else {
+              const author_id = decoded.user_id;
+              const hasOrdered = await dbRepo.hasUserOrderedFromRestaurant(author_id, restaurantID);
+              if (!hasOrdered) {
+                  response(res, { status: 403, data: { message: 'You have not ordered from this restaurant!' } });
+                  return;
+              }
+              const { review_title, description, stars, media } = req.body;
+              const reviewId = await dbRepo.addReview(review_title, description, stars, media, author_id, restaurantID);
+              if (reviewId) {
+                  response(res, { data: "Review added successfully!", reviewId });
+              } else {
+                  throw new Error("Failed to add review.");
+              }
+          }
+      });
+    } catch (error) {
+        response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+
+  async getRestaurantInsights(req, res) {
+    try {
+      const { restaurantID } = req.params;
+      const insights = await dbRepo.getInsightsByRestaurantID(restaurantID);
+      response(res, { data: insights });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async deleteMenuItem(req, res) {
+    try {
+        const { restaurantID, itemID } = req.params;
+        const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                const result = await dbRepo.deleteMenuItem(restaurantID, itemID);
+                if (result.affectedRows > 0) {
+                    response(res, { data: "Menu item deleted successfully!" });
+                } else {
+                    throw new Error("Menu item not found or failed to delete.");
+                }
+            }
+        });
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
     }
