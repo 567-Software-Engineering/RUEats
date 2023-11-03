@@ -1,5 +1,3 @@
-// change as Required... following code is just for starters
-
 const http = require('http');
 const url = require('url');
 require('dotenv').config();
@@ -9,7 +7,6 @@ const routes = require('./src/routes');
 const port = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-
     const parsedUrl = url.parse(req.url, true);
     const query = parsedUrl.query;
     const path = parsedUrl.pathname;
@@ -17,7 +14,7 @@ const server = http.createServer((req, res) => {
 
     let handler = routes[path] && routes[path][method];
 
-    if(!handler){
+    if (!handler) {
         const routeKeys = Object.keys(routes).filter((key) => key.includes(":"));
         const matchedKey = routeKeys.find((key) => {
             const regex = new RegExp(`^${key.replace(/:[^/]+/g, "([^/]+)")}$`);
@@ -43,16 +40,16 @@ const server = http.createServer((req, res) => {
         }
     }
 
-    if(!handler){
+    if (!handler) {
         handler = routes.notFound;
     }
 
     req.query = {};
-    for(const key in query){
+    for (const key in query) {
         req.query[key] = query[key];
     }
 
-    handler(req,res);
+    handler(req, res);
 });
 
 const serverInstance = server.listen(port, () => {
