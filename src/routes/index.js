@@ -71,19 +71,65 @@ const routes = {
     },
   
     "/get-notifications/:restaurant_id/notifications": {
-          GET : controller.getRestaurantNotifications
+      GET: controller.getRestaurantNotifications
+    },
+
+    "/get-active-orders/:restaurant_id/orders": {
+        GET: controller.getActiveRestaurantOrders
       },
+
     "/set-location":{
       POST: (req, res) => {
         validateSetLocationData(req, res, controller.setLocationDeliveryAssociates);
       },
     },
+    
     "/findRider": {
       POST: (req, res) => {
         validateDeliveryAssociate(req, res, controller.getClosestAssociate);
       },
-    },    "/order-history/:restaurantID/orders" : {
-        GET : controller.getOrdersForRestaurant
+    },     
+    
+    "/order-history/:restaurantID/orders" : {
+      GET : controller.getOrdersForRestaurant
+    },
+
+    "/respond-feedback/:restaurantID" : {
+      PUT : (req, res) => {
+          validatePostRequests(req, res, controller.respondToFeedback);
+        },
+    },
+
+    "/add-menu/:restaurantID": {
+      POST : (req, res) => {
+          validatePostRequests(req, res, controller.addMenuItem);
+        },
+    },
+
+    "/modify-menu/:restaurantID": {
+      PUT : (req, res) => {
+          validatePostRequests(req, res, controller.updateMenuItem);
+        }, 
+    },
+
+    "/delete-item/:restaurantID/:itemID": {
+      DELETE : controller.deleteMenuItem
+    },
+
+    "/update-item-availability/:restaurantID": {
+      PUT: (req, res) => {
+          validatePostRequests(req, res, controller.toggleItemAvailability);
+        },
+    },
+
+    "/restaurants/:restaurantID/reviews" : {
+      POST : (req, res) => {
+          validatePostRequests(req, res, controller.postRestaurantReview);
+        },
+    },
+
+    "/view-insights/:restaurantID/insights": {
+        GET : controller.getRestaurantInsights
     },
 
     "/respond-feedback/:restaurantID" : {
@@ -112,8 +158,39 @@ const routes = {
         DELETE : controller.deleteMenuItem
     },
 
-    notFound : (_req, res) => {
-        response(res, {status : 404, data : "Requested URL not found"});
+    "/deactivate-restaurant/:restaurantID": {
+      PATCH : controller.deactivateRestaurant
+    },
+
+    "/update-restaurant/:restaurantID" : {
+      PUT : (req, res) => {
+          validatePostRequests(req, res, controller.updateRestaurantDetails);
+      },
+  },
+
+    '/payment-form': {
+      GET: controller.servePaymentForm,
+    },
+  
+    '/payment-client-token': {
+      GET: controller.getClientPaymentToken,
+    },
+  
+    '/submit-token': {
+      POST: (req, res) => {
+        validatePaymentToken(req, res, controller.submitPayment);
+      },
+    },
+
+    "/accept-decline-order/:restaurant_id/:order_id": {
+        PATCH: (req, res) => {
+            validatePostRequests(req, res, controller.acceptOrDeclineOrder);
+        } 
+    },
+
+    notFound: (_req, res) => {
+        response(res, { status: 404, data: "Requested URL not found" });
+
     }
 }
 module.exports = routes
