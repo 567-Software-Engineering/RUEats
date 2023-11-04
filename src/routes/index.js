@@ -25,13 +25,13 @@ const routes = {
       },
     },
 
-    // "/users/:id": {
-    //   GET: controller.getUserById,
-    //   DELETE: controller.deleteUserById,
-    //   PUT: (req, res) => {
-    //     validateUserData(req, res, userController.updateUser);
-    //   },
-    // },
+    "/users/:user_id": {
+      GET: controller.getUserById,
+      DELETE: controller.deleteUserById,
+      PUT: (req, res) => {
+        validateUserData(req, res, controller.updateUserProfile);
+      },
+    },
 
     "/users/:userID/orders/:orderID" :{
       GET : controller.getUserOrder
@@ -186,6 +186,13 @@ const routes = {
         PATCH: (req, res) => {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);
         } 
+    },
+    "/delivery-associate/:associate_id": {
+      GET: controller.getAssociateById,
+      DELETE: controller.deleteAssociateById,
+      PUT: (req, res) => {
+        validateUserData(req, res, controller.updateDeliveryAssociateProfile);
+      },
     },
 
     notFound: (_req, res) => {
