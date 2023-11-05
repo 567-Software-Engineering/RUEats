@@ -824,4 +824,194 @@ async updateMenuItem(req, res) {
       response(res, { status: 500, data: error.message });
     }
   }
+
+  async getUserById(req, res) {
+    try {
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const {user_id} = req.params;
+          // console.log(user_id)
+          const user = await dbRepo.getUserByIdDB(user_id);
+  
+          if (user) {
+            response(res, { data: user });
+          } else {
+            response(res, { status: 404, data: { message: "User not found" } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+  }
+
+  async deleteUserById(req, res) {
+    try {
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const {user_id} = req.params;
+          const user = await dbRepo.deleteUserById(user_id);
+  
+          if (user) {
+            response(res, { data: user });
+          } else {
+            response(res, { status: 404, data: { message: "User not found" } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+  }
+
+  async updateUserProfile(req, res) {
+    try {
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: "Unauthorized" } });
+        } else {
+          const { user_id } = req.params;
+          const { name, password, home_address, zip_code, city, state } = req.body;
+  
+          // Check if the email field is provided in the request
+  
+          const updatedProfile = {
+            name,
+            home_address,
+            zip_code,
+            city,
+            state,
+          };
+  
+          // Hash the password using bcrypt
+          if (password) {
+            const saltRounds = 10; // You can adjust this according to your needs
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+            updatedProfile.password = hashedPassword;
+          }
+  
+          const updated = await dbRepo.updateUserProfileInDB(user_id, updatedProfile);
+  
+          if (updated) {
+            response(res, { data: { message: "User profile updated successfully" } });
+          } else {
+            response(res, { status: 400, data: { message: "No valid updates provided" } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+  }
+  
+
+  async getAssociateById(req, res) {
+    try {
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const {associate_id} = req.params;
+          const user = await dbRepo.getAssocaiteByIdDB(associate_id);
+  
+          if (user) {
+            response(res, { data: user });
+          } else {
+            response(res, { status: 404, data: { message: "User not found" } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+  }
+  
+  async deleteAssociateById(req, res) {
+    try {
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const {associate_id} = req.params;
+          // console.log(associate_id)
+          const user = await dbRepo.deleteAssociateByIdDB(associate_id);
+  
+          if (user) {
+            response(res, { data: user });
+          } else {
+            response(res, { status: 404, data: { message: "User not found" } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+  }
+
+  async updateDeliveryAssociateProfile(req, res) {
+    try {
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: "Unauthorized" } });
+        } else {
+          const { associate_id } = req.params;
+          const {
+            name,
+            home_address,
+            zip_code,
+            city,
+            state,
+            latitude,
+            longitude,
+            delivery_in_progress,
+            password,
+          } = req.body;
+  
+          // Check if the email field is provided in the request
+  
+          const updatedProfile = {
+            name,
+            home_address,
+            zip_code,
+            city,
+            state,
+            latitude,
+            longitude,
+            delivery_in_progress,
+          };
+  
+          // Hash the password using bcrypt
+          if (password) {
+            const saltRounds = 10; // You can adjust this according to your needs
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+            updatedProfile.password = hashedPassword;
+          }
+  
+          const updated = await dbRepo.updateAssociateProfileInDB(associate_id, updatedProfile);
+  
+          if (updated) {
+            response(res, { data: { message: "Associate profile updated successfully" } });
+          } else {
+            response(res, { status: 400, data: { message: "No valid updates provided" } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+  }
+  
+  
+  
+
 };
