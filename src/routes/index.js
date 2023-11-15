@@ -4,6 +4,7 @@ const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
 const validatePostRequests = require('./../validations/validatePostRequests');
+const validateGetTimeEstimate = require('./../validations/validateGetTimeEstimate')
 
 const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
@@ -192,6 +193,18 @@ const routes = {
       DELETE: controller.deleteAssociateById,
       PUT: (req, res) => {
         validateUserData(req, res, controller.updateDeliveryAssociateProfile);
+      },
+    },
+
+    "/get-time-estimate":{
+      POST: (req, res) => {
+        validateGetTimeEstimate(req, res, controller.getTimeEstimate);
+      },
+    },
+
+    "/get-route":{
+      POST: (req, res) => {
+        validateGetTimeEstimate(req, res, controller.getRoute);
       },
     },
 
