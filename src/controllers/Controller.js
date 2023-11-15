@@ -280,7 +280,7 @@ module.exports = class Controller {
           if (decoded.restaurant_id !== parseInt(restaurantID)) {
             response(res, { status: 403, data: { message: 'Forbidden: Cannot view notifications for other restaurants.' } });
             return;
-        }
+          }
           const notifications = await dbRepo.getNotificationsByRestaurantID(restaurant_id);
           const data = notifications.length ? notifications : `No notifications found for RestaurantID: ${restaurant_id}`;
           response(res, { data });
@@ -289,123 +289,123 @@ module.exports = class Controller {
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
     }
-    }
+  }
 
 
 
   async getOrdersForRestaurant(req, res) {
     try {
-        const { restaurantID } = req.params;
-        const token = req.headers.authorization;
+      const { restaurantID } = req.params;
+      const token = req.headers.authorization;
 
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
-            } else {
-                const orders = await dbRepo.getOrdersByRestaurantID(restaurantID);
-                const data = orders.length ? orders : `No orders found for Restaurant ID: ${restaurantID}`;
-                response(res, { data });
-            }
-        });
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const orders = await dbRepo.getOrdersByRestaurantID(restaurantID);
+          const data = orders.length ? orders : `No orders found for Restaurant ID: ${restaurantID}`;
+          response(res, { data });
+        }
+      });
     } catch (error) {
-        response(res, { status: 400, data: error.message });
+      response(res, { status: 400, data: error.message });
     }
   }
 
 
   async respondToFeedback(req, res) {
     try {
-        const { restaurantID } = req.params;
-        const { reviewID, response: feedbackResponse } = req.body;
-        const token = req.headers.authorization;
+      const { restaurantID } = req.params;
+      const { reviewID, response: feedbackResponse } = req.body;
+      const token = req.headers.authorization;
 
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
-            } else {
-                const result = await dbRepo.respondToReview(reviewID, restaurantID, feedbackResponse);
-                if (result) {
-                    response(res, { data: "Response added successfully!" });
-                } else {
-                    throw new Error("Failed to add response.");
-                }
-            }
-        });
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const result = await dbRepo.respondToReview(reviewID, restaurantID, feedbackResponse);
+          if (result) {
+            response(res, { data: "Response added successfully!" });
+          } else {
+            throw new Error("Failed to add response.");
+          }
+        }
+      });
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
     }
   }
 
   async addMenuItem(req, res) {
     try {
-        const { restaurantID } = req.params;
-        const token = req.headers.authorization;
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
-            } else {
-              if (decoded.restaurant_id === parseInt(restaurantID)) {
-                const {
-                    item_name,
-                    description,
-                    price,
-                    spice_level,
-                    is_available,
-                    category,
-                    image_url,
-                    is_featured
-                } = req.body;
-
-                await dbRepo.addMenuItemToMenu({
-                    restaurantID,
-                    item_name,
-                    description,
-                    price,
-                    spice_level,
-                    is_available,
-                    category,
-                    image_url,
-                    is_featured
-                });
-
-                response(res, { data: { message: 'Menu item added successfully.' } });
-            }
-            else {
-              response(res, { status: 403, data: { message: 'Forbidden' } });
-            }
-          } 
-        });
-    } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
-    }
-}
-
-
-async postRestaurantReview(req, res) {
-  try {
       const { restaurantID } = req.params;
       const token = req.headers.authorization;
       jwt.verify(token, secretKey, async (err, decoded) => {
-          if (err) {
-              response(res, { status: 401, data: { message: 'Unauthorized' } });
-          } else {
-              const author_id = decoded.user_id;
-              const hasOrdered = await dbRepo.hasUserOrderedFromRestaurant(author_id, restaurantID);
-              if (!hasOrdered) {
-                  response(res, { status: 403, data: { message: 'You have not ordered from this restaurant!' } });
-                  return;
-              }
-              const { review_title, description, stars, media } = req.body;
-              const reviewId = await dbRepo.addReview(review_title, description, stars, media, author_id, restaurantID);
-              if (reviewId) {
-                  response(res, { data: "Review added successfully!", reviewId });
-              } else {
-                  throw new Error("Failed to add review.");
-              }
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          if (decoded.restaurant_id === parseInt(restaurantID)) {
+            const {
+              item_name,
+              description,
+              price,
+              spice_level,
+              is_available,
+              category,
+              image_url,
+              is_featured
+            } = req.body;
+
+            await dbRepo.addMenuItemToMenu({
+              restaurantID,
+              item_name,
+              description,
+              price,
+              spice_level,
+              is_available,
+              category,
+              image_url,
+              is_featured
+            });
+
+            response(res, { data: { message: 'Menu item added successfully.' } });
           }
+          else {
+            response(res, { status: 403, data: { message: 'Forbidden' } });
+          }
+        }
       });
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+
+  async postRestaurantReview(req, res) {
+    try {
+      const { restaurantID } = req.params;
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const author_id = decoded.user_id;
+          const hasOrdered = await dbRepo.hasUserOrderedFromRestaurant(author_id, restaurantID);
+          if (!hasOrdered) {
+            response(res, { status: 403, data: { message: 'You have not ordered from this restaurant!' } });
+            return;
+          }
+          const { review_title, description, stars, media } = req.body;
+          const reviewId = await dbRepo.addReview(review_title, description, stars, media, author_id, restaurantID);
+          if (reviewId) {
+            response(res, { data: "Review added successfully!", reviewId });
+          } else {
+            throw new Error("Failed to add review.");
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
     }
   }
 
@@ -422,51 +422,51 @@ async postRestaurantReview(req, res) {
 
   async deleteMenuItem(req, res) {
     try {
-        const { restaurantID, itemID } = req.params;
-        const token = req.headers.authorization;
+      const { restaurantID, itemID } = req.params;
+      const token = req.headers.authorization;
 
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          if (decoded.restaurant_id === parseInt(restaurantID)) {
+            const result = await dbRepo.deleteMenuItem(restaurantID, itemID);
+            if (result.affectedRows > 0) {
+              response(res, { data: "Menu item deleted successfully!" });
             } else {
-              if (decoded.restaurant_id === parseInt(restaurantID)) {
-                const result = await dbRepo.deleteMenuItem(restaurantID, itemID);
-                if (result.affectedRows > 0) {
-                    response(res, { data: "Menu item deleted successfully!" });
-                } else {
-                    throw new Error("Menu item not found or failed to delete.");
-                }
-              } else {
-                response(res, { status: 403, data: { message: 'Forbidden' } });
-              }
+              throw new Error("Menu item not found or failed to delete.");
             }
-        });
+          } else {
+            response(res, { status: 403, data: { message: 'Forbidden' } });
+          }
+        }
+      });
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
     }
   }
 
-async updateMenuItem(req, res) {
-  try {
+  async updateMenuItem(req, res) {
+    try {
       const { restaurantID } = req.params;
       const itemData = req.body;
       const token = req.headers.authorization;
 
       jwt.verify(token, secretKey, async (err, decoded) => {
-          if (err) {
-              response(res, { status: 401, data: { message: 'Unauthorized' } });
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          if (decoded.restaurant_id === parseInt(restaurantID)) {
+            const result = await dbRepo.updateMenuItem(restaurantID, itemData);
+            if (result) {
+              response(res, { data: "Menu item updated successfully!" });
+            } else {
+              throw new Error("Failed to update menu item.");
+            }
           } else {
-              if (decoded.restaurant_id === parseInt(restaurantID)) {
-                  const result = await dbRepo.updateMenuItem(restaurantID, itemData);
-                  if (result) {
-                      response(res, { data: "Menu item updated successfully!" });
-                  } else {
-                      throw new Error("Failed to update menu item.");
-                  }
-              } else {
-                  response(res, { status: 403, data: { message: 'Forbidden' } });
-              }
+            response(res, { status: 403, data: { message: 'Forbidden' } });
           }
+        }
       });
     } catch (error) {
       response(res, { status: 400, data: error.message });
@@ -475,83 +475,83 @@ async updateMenuItem(req, res) {
 
   async toggleItemAvailability(req, res) {
     try {
-        const { restaurantID } = req.params;
-        const { itemID, isAvailable } = req.body;
-        const token = req.headers.authorization;
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
+      const { restaurantID } = req.params;
+      const { itemID, isAvailable } = req.body;
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          if (decoded.restaurant_id === parseInt(restaurantID)) {
+            const result = await dbRepo.toggleItemAvailability(restaurantID, itemID, isAvailable);
+            if (result) {
+              response(res, { data: "Item availability updated successfully!" });
             } else {
-                if (decoded.restaurant_id === parseInt(restaurantID)) {
-                    const result = await dbRepo.toggleItemAvailability(restaurantID, itemID, isAvailable);
-                    if (result) {
-                        response(res, { data: "Item availability updated successfully!" });
-                    } else {
-                        throw new Error("Failed to update item availability.");
-                    }
-                } else {
-                    response(res, { status: 403, data: { message: 'Forbidden' } });
-                }
+              throw new Error("Failed to update item availability.");
             }
-        });
-      } catch (error) {
-          response(res, { status: 400, data: error.message });
-      }
+          } else {
+            response(res, { status: 403, data: { message: 'Forbidden' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
   }
 
   async updateRestaurantDetails(req, res) {
     try {
-        const { restaurantID } = req.params;
-        const token = req.headers.authorization;
-        const updatedDetails = req.body; 
+      const { restaurantID } = req.params;
+      const token = req.headers.authorization;
+      const updatedDetails = req.body;
 
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
-            } else {
-                
-                if (decoded.restaurant_id !== parseInt(restaurantID)) {
-                    return response(res, { status: 403, data: { message: 'Permission denied. You can only update your own restaurant details.' } });
-                }
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
 
-                const result = await dbRepo.updateRestaurantDetails(restaurantID, updatedDetails);
+          if (decoded.restaurant_id !== parseInt(restaurantID)) {
+            return response(res, { status: 403, data: { message: 'Permission denied. You can only update your own restaurant details.' } });
+          }
 
-                if (result) {
-                    response(res, { data: "Restaurant details updated successfully!" });
-                } else {
-                    throw new Error("Failed to update restaurant details.");
-                }
-            }
-        });
+          const result = await dbRepo.updateRestaurantDetails(restaurantID, updatedDetails);
+
+          if (result) {
+            response(res, { data: "Restaurant details updated successfully!" });
+          } else {
+            throw new Error("Failed to update restaurant details.");
+          }
+        }
+      });
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
     }
   }
 
 
   async deactivateRestaurant(req, res) {
     try {
-        const { restaurantID } = req.params;
-        const token = req.headers.authorization;
+      const { restaurantID } = req.params;
+      const token = req.headers.authorization;
 
-        jwt.verify(token, secretKey, async (err, decoded) => {
-            if (err) {
-                response(res, { status: 401, data: { message: 'Unauthorized' } });
-            } else if (decoded.restaurant_id !== parseInt(restaurantID)) {
-                response(res, { status: 403, data: { message: 'Forbidden: You do not have permission to deactivate this restaurant.' } });
-            } else {
-                const result = await dbRepo.deactivateRestaurant(restaurantID);
-                if (result.affectedRows > 0) {
-                    response(res, { data: "Restaurant deactivated successfully!" });
-                } else {
-                    throw new Error("Failed to deactivate the restaurant.");
-                }
-            }
-        });
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else if (decoded.restaurant_id !== parseInt(restaurantID)) {
+          response(res, { status: 403, data: { message: 'Forbidden: You do not have permission to deactivate this restaurant.' } });
+        } else {
+          const result = await dbRepo.deactivateRestaurant(restaurantID);
+          if (result.affectedRows > 0) {
+            response(res, { data: "Restaurant deactivated successfully!" });
+          } else {
+            throw new Error("Failed to deactivate the restaurant.");
+          }
+        }
+      });
     } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
+      response(res, { status: 400, data: { message: error.message } });
     }
-}
+  }
 
   async getActiveRestaurantOrders(req, res) {
     try {
@@ -659,7 +659,7 @@ async updateMenuItem(req, res) {
     }
   }
 
-          
+
 
   async servePaymentForm(req, res) {
     try {
@@ -694,29 +694,29 @@ async updateMenuItem(req, res) {
   }
 
   async submitPayment(req, res) {
-      try {
+    try {
 
-        const requestBody = req.body;
-        
-        await stripe.charges
-          .create({
-            amount: 10000, // Amount in cents
-            currency: 'usd',
-            description: 'Example Charge',
-            source: requestBody.token,
-          })
-          .then((charge) => {
-            response(res, { status: 200, data: { message: 'Payment successful' } });
-          })
-          .catch((error) => {
-            response(res, { status: 400, data: { message: error.message } });
-          });
-      } catch (error) {
-        response(res, { status: 400, data: { message: error.message } });
-      }
+      const requestBody = req.body;
+
+      await stripe.charges
+        .create({
+          amount: 10000, // Amount in cents
+          currency: 'usd',
+          description: 'Example Charge',
+          source: requestBody.token,
+        })
+        .then((charge) => {
+          response(res, { status: 200, data: { message: 'Payment successful' } });
+        })
+        .catch((error) => {
+          response(res, { status: 400, data: { message: error.message } });
+        });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
   }
 
-   
+
   async getClosestAssociate(req, res) {
     try {
       const token = req.headers.authorization;
@@ -725,45 +725,45 @@ async updateMenuItem(req, res) {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-            const delivery_associates = await dbRepo.getFreeDeliveryAssociate();
-            let destinations = [];
-        
-            for (let index = 0; index < delivery_associates.length; index++) {
-              const row = delivery_associates[index];
-              const coordinateString = `${row.latitude},${row.longitude}`;
-              destinations.push(coordinateString);
-            }
-        
-            const { originLatitude, originLongitude } = req.body;
-            const origin = originLatitude + ',' + originLongitude;
-        
-            let closestDistance = Infinity;
-            let closestPoint = null;
-        
-            await Promise.all(
-              destinations.map(async (destination, index) => {
-                try {
-                  const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${process.env.GOOGLE_API_KEY}`);
-        
-                  if (response.data.status === 'OK') {
-                    const distance = response.data.rows[0].elements[0].distance.value;
-        
-                    if (distance < closestDistance) {
-                      closestDistance = distance;
-                      closestPoint = destinations[index];
-                    }
-                  } else {
-                    console.error('Google Maps API returned a non-OK status:', response.data.status);
+          const delivery_associates = await dbRepo.getFreeDeliveryAssociate();
+          let destinations = [];
+
+          for (let index = 0; index < delivery_associates.length; index++) {
+            const row = delivery_associates[index];
+            const coordinateString = `${row.latitude},${row.longitude}`;
+            destinations.push(coordinateString);
+          }
+
+          const { originLatitude, originLongitude } = req.body;
+          const origin = originLatitude + ',' + originLongitude;
+
+          let closestDistance = Infinity;
+          let closestPoint = null;
+
+          await Promise.all(
+            destinations.map(async (destination, index) => {
+              try {
+                const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${process.env.GOOGLE_API_KEY}`);
+
+                if (response.data.status === 'OK') {
+                  const distance = response.data.rows[0].elements[0].distance.value;
+
+                  if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestPoint = destinations[index];
                   }
-                } catch (error) {
-                  console.error('Error fetching data from the Google Maps API:', error);
+                } else {
+                  console.error('Google Maps API returned a non-OK status:', response.data.status);
                 }
-              })
-            );
-        
+              } catch (error) {
+                console.error('Error fetching data from the Google Maps API:', error);
+              }
+            })
+          );
+
           if (closestPoint) {
             const indexOfClosestPoint = destinations.indexOf(closestPoint);
-      
+
             if (indexOfClosestPoint !== -1) {
               const closestAssociate = delivery_associates[indexOfClosestPoint];
               response(res, { data: closestAssociate });
@@ -802,12 +802,12 @@ async updateMenuItem(req, res) {
           const order = orders.find(o => o.order_id == order_id);
 
           if (!order) {
-            response(res, { status: 404, data: {message: "Order not found for the given restaurant." }});
+            response(res, { status: 404, data: { message: "Order not found for the given restaurant." } });
             return;
           }
 
           if (![1, 2, 3].includes(status)) {
-            response(res, { status: 400, data: {message: "Invalid status value."} });
+            response(res, { status: 400, data: { message: "Invalid status value." } });
             return;
           }
 
@@ -816,7 +816,7 @@ async updateMenuItem(req, res) {
             const message = status === 1 ? "Order Accepted" : status === 2 ? "Order Rejected" : "Order Completed";
             response(res, { status: 200, data: { status: String(status), message } });
           } else {
-            response(res, { status: 400, data: {message:"Order not updated."} });
+            response(res, { status: 400, data: { message: "Order not updated." } });
           }
         }
       });
@@ -825,17 +825,121 @@ async updateMenuItem(req, res) {
     }
   }
 
-  async getUserById(req, res) {
+  async getTimeEstimate(req, res) {
     try {
+      const requestData = req.body;
+      const sourceLat = requestData.source_latitude;
+      const sourceLng = requestData.source_longitude;
+      const destinationLat = requestData.destination_latitude;
+      const destinationLng = requestData.destination_longitude;
+
+      const source = `${sourceLat},${sourceLng}`;
+      const destination = `${destinationLat},${destinationLng}`;
+
+
+      const directionsEndpoint = `https://maps.googleapis.com/maps/api/directions/json?origin=${source}&destination=${destination}&mode=driving&departure_time=now&traffic_model=best_guess&key=${process.env.GOOGLE_API_KEY}`;
       const token = req.headers.authorization;
+
       jwt.verify(token, secretKey, async (err, decoded) => {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          const {user_id} = req.params;
+
+
+          https.get(directionsEndpoint, (directionsResponse) => {
+            let directionsData = '';
+
+            directionsResponse.on('data', (chunk) => {
+              directionsData += chunk;
+            });
+
+            directionsResponse.on('end', () => {
+              try {
+                const parsedData = JSON.parse(directionsData);
+
+                if (parsedData.status === 'OK') {
+                  const route = parsedData.routes[0];
+                  const totalDurationInSeconds = route.legs[0].duration_in_traffic.value;
+                  const totalDurationInMinutes = Math.round(totalDurationInSeconds / 60);
+                  response(res, { data: { estimatedTime: totalDurationInMinutes } });
+                } else {
+                  response(res, { status: 400, data: { error: "Failed to obtain traffic details and ETA" } });
+                }
+              } catch (error) {
+                response(res, { status: 400, data: error.message });
+              }
+            });
+          }).on('error', (error) => {
+            response(res, { status: 400, data: error.message });
+          });
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async getRoute(req, res) {
+    try {
+      const requestData = req.body;
+      const sourceLat = requestData.source_latitude;
+      const sourceLng = requestData.source_longitude;
+      const destinationLat = requestData.destination_latitude;
+      const destinationLng = requestData.destination_longitude;
+
+      const source = `${sourceLat},${sourceLng}`;
+      const destination = `${destinationLat},${destinationLng}`;
+
+
+      const directionsEndpoint = `https://maps.googleapis.com/maps/api/directions/json?origin=${source}&destination=${destination}&mode=driving&departure_time=now&traffic_model=best_guess&key=${process.env.GOOGLE_API_KEY}`;
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          https.get(directionsEndpoint, (directionsResponse) => {
+            let directionsData = '';
+
+            directionsResponse.on('data', (chunk) => {
+              directionsData += chunk;
+            });
+
+            directionsResponse.on('end', () => {
+              try {
+                const parsedData = JSON.parse(directionsData);
+
+                if (parsedData.status === 'OK') {
+                  const data = parsedData.routes[0];
+                  response(res, { data });
+                } else {
+                  response(res, { status: 400, data: { error: "Failed to obtain traffic details and ETA" } });
+                }
+              } catch (error) {
+                response(res, { status: 400, data: error.message });
+              }
+            });
+          }).on('error', (error) => {
+            response(res, { status: 400, data: error.message });
+          });
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+  async getUserById(req, res) {
+    try {
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const { user_id } = req.params;
           // console.log(user_id)
           const user = await dbRepo.getUserByIdDB(user_id);
-  
+
           if (user) {
             response(res, { data: user });
           } else {
@@ -855,9 +959,10 @@ async updateMenuItem(req, res) {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          const {user_id} = req.params;
+
+          const { user_id } = req.params;
           const user = await dbRepo.deleteUserById(user_id);
-  
+
           if (user) {
             response(res, { data: user });
           } else {
@@ -879,9 +984,9 @@ async updateMenuItem(req, res) {
         } else {
           const { user_id } = req.params;
           const { name, password, home_address, zip_code, city, state } = req.body;
-  
+
           // Check if the email field is provided in the request
-  
+
           const updatedProfile = {
             name,
             home_address,
@@ -889,16 +994,16 @@ async updateMenuItem(req, res) {
             city,
             state,
           };
-  
+
           // Hash the password using bcrypt
           if (password) {
             const saltRounds = 10; // You can adjust this according to your needs
             const hashedPassword = await bcrypt.hash(password, saltRounds);
             updatedProfile.password = hashedPassword;
           }
-  
+
           const updated = await dbRepo.updateUserProfileInDB(user_id, updatedProfile);
-  
+
           if (updated) {
             response(res, { data: { message: "User profile updated successfully" } });
           } else {
@@ -910,7 +1015,7 @@ async updateMenuItem(req, res) {
       response(res, { status: 500, data: { message: "Internal Server Error" } });
     }
   }
-  
+
 
   async getAssociateById(req, res) {
     try {
@@ -919,9 +1024,9 @@ async updateMenuItem(req, res) {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          const {associate_id} = req.params;
+          const { associate_id } = req.params;
           const user = await dbRepo.getAssocaiteByIdDB(associate_id);
-  
+
           if (user) {
             response(res, { data: user });
           } else {
@@ -933,7 +1038,7 @@ async updateMenuItem(req, res) {
       response(res, { status: 500, data: { message: "Internal Server Error" } });
     }
   }
-  
+
   async deleteAssociateById(req, res) {
     try {
       const token = req.headers.authorization;
@@ -941,10 +1046,10 @@ async updateMenuItem(req, res) {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          const {associate_id} = req.params;
+          const { associate_id } = req.params;
           // console.log(associate_id)
           const user = await dbRepo.deleteAssociateByIdDB(associate_id);
-  
+
           if (user) {
             response(res, { data: user });
           } else {
@@ -976,9 +1081,9 @@ async updateMenuItem(req, res) {
             delivery_in_progress,
             password,
           } = req.body;
-  
+
           // Check if the email field is provided in the request
-  
+
           const updatedProfile = {
             name,
             home_address,
@@ -989,16 +1094,16 @@ async updateMenuItem(req, res) {
             longitude,
             delivery_in_progress,
           };
-  
+
           // Hash the password using bcrypt
           if (password) {
             const saltRounds = 10; // You can adjust this according to your needs
             const hashedPassword = await bcrypt.hash(password, saltRounds);
             updatedProfile.password = hashedPassword;
           }
-  
+
           const updated = await dbRepo.updateAssociateProfileInDB(associate_id, updatedProfile);
-  
+
           if (updated) {
             response(res, { data: { message: "Associate profile updated successfully" } });
           } else {
@@ -1010,8 +1115,5 @@ async updateMenuItem(req, res) {
       response(res, { status: 500, data: { message: "Internal Server Error" } });
     }
   }
-  
-  
-  
 
 };
