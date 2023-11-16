@@ -1,3 +1,5 @@
+const nodemailer = require('nodemailer');
+
 const response = require('./../utils/response');
 const axios = require('axios');
 
@@ -18,6 +20,11 @@ const stripe = require('stripe')(
 
 module.exports = class Controller {
 
+  constructor() {
+    this.createUser = this.createUser.bind(this);
+  }
+
+
   async getUserOrder(req, res) {
     try {
       const { orderID, userID } = req.params;
@@ -35,7 +42,7 @@ module.exports = class Controller {
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
     }
-  }
+  };
 
 
   async getUsers(req, res) {
@@ -64,8 +71,18 @@ module.exports = class Controller {
       const salt = bcrypt.genSaltSync(saltRounds);
       const hashVal = bcrypt.hashSync(body.password, salt)
       body.password = hashVal;
+
       await dbRepo.insertUser(body);
-      response(res, { status: 201, data: { message: "success" } });
+
+      const updatedUsers = await dbRepo.getAllUsers();
+      const newFoundUser = updatedUsers.find((user) => user.email === body.email);
+      const userIDNew = newFoundUser.user_id
+
+
+      this.sendEmail(body.email, userIDNew);
+  
+     response(res, { status: 201, data: { message: "success" } });
+
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
     }
@@ -85,6 +102,15 @@ module.exports = class Controller {
           status: 404,
         });
       }
+
+      if (user.verified === 'false') {
+        return response(res, {
+          data: { message: 'Email not verified. Please check your email for a verification link.' },
+          status: 401,
+        });
+      }
+
+
       const result = bcrypt.compareSync(body.password, user.password);
 
       if (result) {
@@ -928,6 +954,8 @@ module.exports = class Controller {
       response(res, { status: 400, data: error.message });
     }
   }
+
+
   async getUserById(req, res) {
     try {
       const token = req.headers.authorization;
@@ -1116,4 +1144,67 @@ module.exports = class Controller {
     }
   }
 
-};
+
+  
+
+  async sendEmail(email, userId) {
+    
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+  
+    const mailOptions = {
+      from: 'rueats@yahoo.com',
+      to: email,
+      subject: 'Email Verification for RUEats',
+      html: `<p>Click the following link to verify your email:</p>
+             <a href="http://localhost:3000/verify/${userId}">Verify Email</a>`,
+    };
+  
+    return transporter.sendMail(mailOptions);
+  }
+  
+
+  async updateUserVerification(req, res) {
+    try {
+      const { user_id } = req.params;
+  
+      const user = await dbRepo.getUserByIdDB(user_id);
+  
+      if (!user) {
+        return response(res, { status: 401, data: { message: 'Unauthorized' } });
+      }
+  
+      await dbRepo.updateUserVerifiedStatus(user_id);
+  
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Email Verification Success</title>
+      </head>
+      <body>
+        <h1>Email Verification Successful</h1>
+        <p>Your email has been successfully verified for RUEats.</p>
+        <p>You can now return to the RUEats application.</p>
+      </body>
+      </html>
+    `;
+
+    res.setHeader('Content-Type', 'text/html');
+    
+    res.write(htmlContent);
+    res.end();
+    } catch (error) {
+      return response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+ 
+  
+
+}

@@ -20,6 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.6.2",
+    "nodemailer": "^6.9.7",
     "stripe": "^14.2.0"
   },
   "devDependencies": {
