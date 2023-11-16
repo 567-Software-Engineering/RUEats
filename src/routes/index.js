@@ -207,6 +207,9 @@ const routes = {
         validateGetTimeEstimate(req, res, controller.getRoute);
       },
     },
+    "/verify/:user_id": {
+      GET: controller.updateUserVerification,
+      },
 
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });

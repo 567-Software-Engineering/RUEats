@@ -7,7 +7,7 @@ module.exports = class RUEatsRepository {
   insertUser(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO users (name, email, password, home_address, zip_code, city, state) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO users (name, email, password, home_address, zip_code, city, state, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newUser.name,
           newUser.email,
@@ -16,8 +16,9 @@ module.exports = class RUEatsRepository {
           newUser.zip_code || null,
           newUser.city || null,
           newUser.state || null,
+          'false'
         ];
-
+  
         this.connection.query(query, values, (error, results) => {
           if (error) {
             reject(error);
@@ -30,6 +31,7 @@ module.exports = class RUEatsRepository {
       }
     });
   }
+  
 
   // Function to retrieve all users from the users database
   getAllUsers() {
@@ -809,6 +811,19 @@ module.exports = class RUEatsRepository {
     });
   }
   
+  
+  async updateUserVerifiedStatus(user_id) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE users SET verified = ? WHERE user_id = ?`;
+      this.connection.query(query, [true, user_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
   
   
 
