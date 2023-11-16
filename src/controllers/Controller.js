@@ -72,15 +72,7 @@ module.exports = class Controller {
       const hashVal = bcrypt.hashSync(body.password, salt)
       body.password = hashVal;
 
-      // await sendVerificationEmail(body.email, user);
-  
-      // // Save the verification code and status in the user's record
-      // await dbRepo.insertUser({ ...body, verified: false });
-
       await dbRepo.insertUser(body);
-
-      // await dbRepo.insertUser({ ...body, verified: false });
-      
 
       const updatedUsers = await dbRepo.getAllUsers();
       const newFoundUser = updatedUsers.find((user) => user.email === body.email);
@@ -89,8 +81,7 @@ module.exports = class Controller {
 
       this.sendEmail(body.email, userIDNew);
   
-      // // Save the verification code and status in the user's record
-      response(res, { status: 201, data: { message: "success" } });
+     response(res, { status: 201, data: { message: "success" } });
 
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
@@ -1188,8 +1179,6 @@ module.exports = class Controller {
         return response(res, { status: 401, data: { message: 'Unauthorized' } });
       }
   
-      // Assuming you have a field for verification status in your user model
-      // Update verification status to mark the email as verified
       await dbRepo.updateUserVerifiedStatus(user_id);
   
       const htmlContent = `
@@ -1206,10 +1195,8 @@ module.exports = class Controller {
       </html>
     `;
 
-    // Set the Content-Type header to specify HTML content
     res.setHeader('Content-Type', 'text/html');
     
-    // Send the HTML content as the response
     res.write(htmlContent);
     res.end();
     } catch (error) {
