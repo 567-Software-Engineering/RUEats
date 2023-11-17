@@ -3,11 +3,12 @@ module.exports = class RUEatsRepository {
   constructor() {
     this.connection = new DatabaseConfig().connection;
   }
-    // Function to insert a new user into the users database
-    insertUser(newUser) {
+  // Function to insert a new user into the users database
+  insertUser(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO users (name, email, password, home_address, zip_code, city, state) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const query =
+          "INSERT INTO users (name, email, password, home_address, zip_code, city, state) VALUES (?, ?, ?, ?, ?, ?, ?)";
         const values = [
           newUser.name,
           newUser.email,
@@ -17,7 +18,7 @@ module.exports = class RUEatsRepository {
           newUser.city || null,
           newUser.state || null,
         ];
-  
+
         this.connection.query(query, values, (error, results) => {
           if (error) {
             reject(error);
@@ -30,13 +31,13 @@ module.exports = class RUEatsRepository {
       }
     });
   }
-  
+
   // Function to retrieve all users from the users database
-    getAllUsers() {
+  getAllUsers() {
     return new Promise((resolve, reject) => {
       try {
         // Select all users from the users table
-        const query = 'SELECT * FROM users';
+        const query = "SELECT * FROM users";
         this.connection.query(query, (error, results) => {
           if (error) {
             reject(error);
@@ -49,7 +50,7 @@ module.exports = class RUEatsRepository {
       }
     });
   }
- 
+
   getOrderByOrderIDUserID(orderID, userID) {
     return new Promise((resolve, reject) => {
       this.connection.query(
@@ -83,40 +84,39 @@ module.exports = class RUEatsRepository {
 
   insertRestaurant(newRestaurant) {
     return new Promise((resolve, reject) => {
-        try {
-            const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-            const values = [
-                newRestaurant.name,
-                newRestaurant.email,
-                newRestaurant.phone_number,
-                newRestaurant.address,
-                newRestaurant.cuisine_type,
-                newRestaurant.rating || null, // Assuming it can be null
-                newRestaurant.operating_hours || null, // Assuming it can be null
-                newRestaurant.is_active || true, // Assuming default is active 
-                newRestaurant.password
-            ];
+      try {
+        const query =
+          "INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const values = [
+          newRestaurant.name,
+          newRestaurant.email,
+          newRestaurant.phone_number,
+          newRestaurant.address,
+          newRestaurant.cuisine_type,
+          newRestaurant.rating || null, // Assuming it can be null
+          newRestaurant.operating_hours || null, // Assuming it can be null
+          newRestaurant.is_active || true, // Assuming default is active
+          newRestaurant.password,
+        ];
 
-            this.connection.query(query, values, (error, results) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(results);
-                }
-            });
-        } catch (error) {
+        this.connection.query(query, values, (error, results) => {
+          if (error) {
             reject(error);
-        }
+          } else {
+            resolve(results);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
     });
-}
-
-
+  }
 
   getAllAssociates() {
     return new Promise((resolve, reject) => {
       try {
         // Select all users from the users table
-        const query = 'SELECT * FROM delivery_associates';
+        const query = "SELECT * FROM delivery_associates";
         this.connection.query(query, (error, results) => {
           if (error) {
             reject(error);
@@ -133,7 +133,8 @@ module.exports = class RUEatsRepository {
   insertAssociate(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const query =
+          "INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         const values = [
           newUser.name,
           newUser.email,
@@ -146,7 +147,7 @@ module.exports = class RUEatsRepository {
           newUser.delivery_in_progress || 0, // Assuming it's a boolean or integer field
           newUser.password,
         ];
-  
+
         this.connection.query(query, values, (error, results) => {
           if (error) {
             reject(error);
@@ -162,21 +163,9 @@ module.exports = class RUEatsRepository {
 
   getNotificationsByRestaurantID(restaurantID) {
     return new Promise((resolve, reject) => {
-        this.connection.query('SELECT * FROM orders WHERE restaurant_id = ? AND status = 0', [restaurantID], function (error, results, fields) {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results);
-            }
-        });
-    });
-}
-
-  updateDeliveryAssociatesLocation(associate_id,latitude,longitude) {
-    return new Promise((resolve, reject) => {
       this.connection.query(
-        "UPDATE delivery_associates SET latitude = ? , longitude = ? WHERE associate_id = ?",
-        [latitude, longitude,associate_id],
+        "SELECT * FROM orders WHERE restaurant_id = ? AND status = 0",
+        [restaurantID],
         function (error, results, fields) {
           if (error) {
             reject(error);
@@ -187,4 +176,52 @@ module.exports = class RUEatsRepository {
       );
     });
   }
-}
+
+  updateDeliveryAssociatesLocation(associate_id, latitude, longitude) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(
+        "UPDATE delivery_associates SET latitude = ? , longitude = ? WHERE associate_id = ?",
+        [latitude, longitude, associate_id],
+        function (error, results, fields) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        }
+      );
+    });
+  }
+
+  searchRestaurants(name, cuisine, location) {
+    return new Promise((resolve, reject) => {
+      try {
+        let query = "SELECT * FROM restaurant WHERE 1=1";
+        let values = [];
+
+        if (name) {
+          query += " AND name LIKE ?";
+          values.push("%" + name + "%");
+        }
+        if (cuisine) {
+          query += " AND cuisine_type LIKE ?";
+          values.push("%" + cuisine + "%");
+        }
+        if (location) {
+          query += " AND address LIKE ?";
+          values.push("%" + location + "%");
+        }
+
+        this.connection.query(query, values, (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+};
