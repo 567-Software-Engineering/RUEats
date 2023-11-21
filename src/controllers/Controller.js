@@ -689,19 +689,41 @@ module.exports = class Controller {
 
   async servePaymentForm(req, res) {
     try {
-      const filePath = './public/payment-form.html';
-      fs.readFile(filePath, (err, data) => {
-        if (err) {
-          response(res, { status: 400, data: error.message });
-        } else {
-          res.writeHead(200, { 'Content-Type': 'text/html' });
-          res.end(data);
-        }
-      });
+        const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+
+            if (err) {
+                response(res, {
+                    status: 401,
+                    data: {
+                        message: 'Unauthorized'
+                    }
+                });
+            } else {
+                const filePath = './public/payment-form.html';
+                fs.readFile(filePath, (err, data) => {
+                    if (err) {
+                        response(res, {
+                            status: 400,
+                            data: error.message
+                        });
+                    } else {
+                        res.writeHead(200, {
+                            'Content-Type': 'text/html'
+                        });
+                        res.end(data);
+                    }
+                });
+            }
+        });
     } catch (error) {
-      response(res, { status: 400, data: error.message });
+        response(res, {
+            status: 400,
+            data: error.message
+        });
     }
-  }
+}
 
   async getClientPaymentToken(req, res) {
     try {
@@ -741,6 +763,30 @@ module.exports = class Controller {
       response(res, { status: 400, data: { message: error.message } });
     }
   }
+
+  async getDeliveryAssignment(req, res) {
+    try {
+      const { user_id } = req.params;
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const orders = await dbRepo.getDeliveryAssociateOrder(user_id);
+          if (orders) {
+          const data = orders.length ? orders : `No orders found for UserID: ${user_id}`;
+          response(res, { data });
+          } else {
+            response(res, { data: 'No orders found for the given user' });
+          }
+        }
+      });
+
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }    
 
 
   async getClosestAssociate(req, res) {
@@ -1208,6 +1254,5 @@ module.exports = class Controller {
   }
 
  
-  
 
 }

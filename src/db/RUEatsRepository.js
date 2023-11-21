@@ -825,7 +825,29 @@ module.exports = class RUEatsRepository {
     });
   }
   
-  
+  async getDeliveryAssociateOrder(associate_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'SELECT * FROM orders WHERE associate_id = ?';
+        this.connection.query(query, [associate_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results[0]);
+            } else {
+              resolve(null);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getDeliveryAssociateOrder:', error);
+        reject(error);
+      }
+    });
+  }
+
 
 
 

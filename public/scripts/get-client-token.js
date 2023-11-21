@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const form = document.getElementById('payment-form');
   const errorElement = document.getElementById('card-errors');
+  // wip - add delays here
   form.addEventListener('submit', async function(event) {
     event.preventDefault();
     const {

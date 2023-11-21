@@ -182,6 +182,14 @@ const routes = {
         validatePaymentToken(req, res, controller.submitPayment);
       },
     },
+    
+    '/get-delivery-assignment/:user_id': {
+      GET: controller.getDeliveryAssignment,
+    },
+
+    '/get-delivery-assignment/:user_id': {
+      GET: controller.getDeliveryAssignment,
+    },
 
     "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: (req, res) => {
