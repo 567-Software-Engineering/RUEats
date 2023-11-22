@@ -766,16 +766,18 @@ module.exports = class Controller {
 
   async getDeliveryAssignment(req, res) {
     try {
-      const { user_id } = req.params;
+      console.log(req.params);
+      const { associateID } = req.params;
+      console.log(`associateID: ${associateID}`);
       const token = req.headers.authorization;
 
       jwt.verify(token, secretKey, async (err, decoded) => {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          const orders = await dbRepo.getDeliveryAssociateOrder(user_id);
-          if (orders) {
-          const data = orders.length ? orders : `No orders found for UserID: ${user_id}`;
+          const orders = await dbRepo.getDeliveryAssociateOrder(associateID);
+          if (orders != null) {
+          const data = orders;
           response(res, { data });
           } else {
             response(res, { data: 'No orders found for the given user' });
@@ -787,6 +789,60 @@ module.exports = class Controller {
       response(res, { status: 400, data: error.message });
     }
   }    
+
+  async updateDeliveryStatus(req, res) {
+    try {
+      const { associateID } = req.params;
+      const { status } = req.body;
+      // console.log(`status: ${status}`);
+
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) { 
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          if (![1, 2, 3].includes(status)) {
+            response(res, { status: 400, data: { message: "Invalid status value." } });
+            return;
+          }
+      const update = await dbRepo.updateDeliveryStatus(associateID, status);
+      if (update != null) {
+        response(res, { data: {message: "Order Delivered!"} });
+      } else {
+        response(res, { data: {message: 'No orders found for the given user' } });
+      }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async updateLocation(req, res) {
+    try {
+      const { associateID } = req.params;
+      const { latitude, longitude } = req.body;
+
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const update = await dbRepo.updateLocation(associateID, latitude, longitude);
+          if (update != null) {
+            response(res, { data: {message: "Location updated!"} });
+          } else {
+            response(res, { data: {message: 'Error updating location' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
 
 
   async getClosestAssociate(req, res) {
