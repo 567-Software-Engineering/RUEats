@@ -828,7 +828,7 @@ module.exports = class RUEatsRepository {
   async getDeliveryAssociateOrder(associateID) {
     return new Promise((resolve, reject) => {
       try {
-        console.log("associateID", associateID);
+        // console.log("associateID", associateID);
         const query = 'SELECT * FROM orders WHERE associate_id = ?';
         this.connection.query(query, [associateID], (error, results) => {
           if (error) {
@@ -876,5 +876,17 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  async imageURLtoDB(orderID, imageURL) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE orders SET image_src = ? WHERE order_id = ?`;
+      this.connection.query(query, [orderID, imageURL], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
 
 }

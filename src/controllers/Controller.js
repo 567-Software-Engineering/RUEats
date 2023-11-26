@@ -766,9 +766,9 @@ module.exports = class Controller {
 
   async getDeliveryAssignment(req, res) {
     try {
-      console.log(req.params);
+      // console.log(req.params);
       const { associateID } = req.params;
-      console.log(`associateID: ${associateID}`);
+      // console.log(`associateID: ${associateID}`);
       const token = req.headers.authorization;
 
       jwt.verify(token, secretKey, async (err, decoded) => {
@@ -835,6 +835,30 @@ module.exports = class Controller {
             response(res, { data: {message: "Location updated!"} });
           } else {
             response(res, { data: {message: 'Error updating location' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async validateDelivery(req, res) {
+    try {
+      
+      const token = req.headers.authorization;
+      
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: {message: 'Unauthorized'} });
+        } else {
+          const { orderID } = req.params;
+          const { imageURL } = req.body;
+          const inserted = await dbRepo.imageURLtoDB(orderID, imageURL);
+          if (inserted != null) {
+            response(res, { data: {message: "Image URL updated!"} });
+          } else {
+            response(res, { data: {message: 'Error updating image URL' } });
           }
         }
       });

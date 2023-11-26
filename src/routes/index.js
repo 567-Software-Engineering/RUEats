@@ -199,6 +199,12 @@ const routes = {
       },
     },
 
+    "/validate-delivery/:orderID": {
+      PATCH: (req, res) => {
+        validatePostRequests(req, res, controller.validateDelivery);
+      },
+    },
+
     "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: (req, res) => {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);
