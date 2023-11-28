@@ -13,6 +13,20 @@ const validateSetLocationData = async (req, res, next) => {
       });
     }
 
+    if (
+      !isFinite(body.originLatitude) ||
+      !isFinite(body.originLongitude) ||
+      Math.abs(body.originLatitude) > 90 ||
+      Math.abs(body.originLongitude) > 180 ||
+      isNaN(body.associate_id) || 
+      !Number.isInteger(body.associate_id)
+    ) {
+      return response(res, {
+        status: 400,
+        data: { message: "Invalid latitude, longitude, or associate_id values" },
+      });
+    }
+    
     req.body = body;
 
     next(req, res);
