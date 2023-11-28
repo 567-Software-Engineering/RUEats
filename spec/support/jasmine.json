@@ -9,5 +9,6 @@
   "env": {
     "stopSpecOnExpectationFailure": false,
     "random": true
-  }
+  },
+  "scripts": {"test": "jasmine"}
 }
