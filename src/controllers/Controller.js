@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const response = require('./../utils/response');
 const axios = require('axios');
 
-const getPostBodyAsync = require("./../utils/getPostBodyAsync");
+
 const RUEatsRepository = require('./../db/RUEatsRepository');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -28,6 +28,10 @@ module.exports = class Controller {
   async getUserOrder(req, res) {
     try {
       const { orderID, userID } = req.params;
+
+      if( isNaN(Number(orderID)) || isNaN(Number(userID)) ) {
+        response(res, {status: 400, data: {message: 'OrderID and UserID should be numerical'}});
+      }
       const token = req.headers.authorization;
 
       jwt.verify(token, secretKey, async (err, decoded) => {
