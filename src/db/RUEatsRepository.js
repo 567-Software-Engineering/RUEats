@@ -701,6 +701,29 @@ module.exports = class RUEatsRepository {
       }
     });
   }
+
+    async deleteUserByEmail(email) {
+        return new Promise((resolve, reject) => {
+            try {
+                const query = 'DELETE FROM users WHERE email = ?';
+                this.connection.query(query, [email], (error, results) => {
+                    if (error) {
+                        console.error('Database error:', error);
+                        reject(error);
+                    } else {
+                        if (results.affectedRows > 0) {
+                            resolve({ message: 'User deleted successfully', status: 200 });
+                        } else {
+                            resolve({ message: 'User not found', status: 404 });
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error in deleteUserByEmail:', error);
+                reject(error);
+            }
+        });
+    }
   
   async updateUserProfileInDB(user_id, updates) {
     return new Promise((resolve, reject) => {
