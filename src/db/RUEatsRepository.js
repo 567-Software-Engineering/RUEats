@@ -7,7 +7,7 @@ module.exports = class RUEatsRepository {
   insertUser(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO users (name, email, password, home_address, zip_code, city, state) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO users (name, email, password, home_address, zip_code, city, state, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newUser.name,
           newUser.email,
@@ -16,8 +16,9 @@ module.exports = class RUEatsRepository {
           newUser.zip_code || null,
           newUser.city || null,
           newUser.state || null,
+          'false'
         ];
-
+  
         this.connection.query(query, values, (error, results) => {
           if (error) {
             reject(error);
@@ -30,6 +31,7 @@ module.exports = class RUEatsRepository {
       }
     });
   }
+  
 
   // Function to retrieve all users from the users database
   getAllUsers() {
@@ -642,5 +644,201 @@ module.exports = class RUEatsRepository {
       );
     });
   }
+
+  getUserByIdDB(user_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'SELECT * FROM users WHERE user_id = ?';
+        this.connection.query(query, [user_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results[0]);
+            } else {
+              resolve(null);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getUserByIdDB:', error);
+        reject(error);
+      }
+    });
+  }
+
+  async deleteUserById(user_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'DELETE FROM users WHERE user_id = ?';
+        this.connection.query(query, [user_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.affectedRows > 0) {
+              resolve({ message: 'User deleted successfully', status: 200 });
+            } else {
+              resolve({ message: 'User not found', status: 404 });
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in deleteUserById:', error);
+        reject(error);
+      }
+    });
+  }
+
+    async deleteUserByEmail(email) {
+        return new Promise((resolve, reject) => {
+            try {
+                const query = 'DELETE FROM users WHERE email = ?';
+                this.connection.query(query, [email], (error, results) => {
+                    if (error) {
+                        console.error('Database error:', error);
+                        reject(error);
+                    } else {
+                        if (results.affectedRows > 0) {
+                            resolve({ message: 'User deleted successfully', status: 200 });
+                        } else {
+                            resolve({ message: 'User not found', status: 404 });
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error in deleteUserByEmail:', error);
+                reject(error);
+            }
+        });
+    }
+  
+  async updateUserProfileInDB(user_id, updates) {
+    return new Promise((resolve, reject) => {
+      const updateFields = [];
+      const updateValues = [];
+  
+      // Create a dynamic SQL query with placeholders for updates
+      const placeholders = [];
+      for (const field in updates) {
+        if (field !== 'email' && updates[field] !== undefined) {
+          updateFields.push(`${field} = ?`);
+          updateValues.push(updates[field]);
+          placeholders.push('?');
+        }
+      }
+  
+      if (updateFields.length === 0) {
+        resolve(false); // No valid updates provided
+        return;
+      }
+  
+      const query = `UPDATE users SET ${updateFields.join(', ')} WHERE user_id = ?`;
+      this.connection.query(query, [...updateValues, user_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+  
+
+  async getAssocaiteByIdDB(associate_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'SELECT * FROM delivery_associates WHERE associate_id = ?';
+        this.connection.query(query, [associate_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results[0]);
+            } else {
+              resolve(null);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getAssociateByIdDB:', error);
+        reject(error);
+      }
+    });
+  }
+
+  async deleteAssociateByIdDB(associate_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'DELETE FROM delivery_associates WHERE associate_id = ?';
+        this.connection.query(query, [associate_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.affectedRows > 0) {
+              resolve({ message: 'Associate deleted successfully', status: 200 });
+            } else {
+              resolve({ message: 'Associate not found', status: 404 });
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in deleteAssociateByIdDB:', error);
+        reject(error);
+      }
+    });
+  }
+
+  async updateAssociateProfileInDB(associate_id, updates) {
+    return new Promise((resolve, reject) => {
+      const updateFields = [];
+      const updateValues = [];
+  
+      // Create a dynamic SQL query with placeholders for updates
+      const placeholders = [];
+      for (const field in updates) {
+        if (field !== 'email' || updates[field] !== null) {
+          updateFields.push(`${field} = ?`);
+          updateValues.push(updates[field]);
+          placeholders.push('?');
+        }
+      }
+  
+      if (updateFields.length === 0) {
+        resolve(false); // No valid updates provided
+        return;
+      }
+  
+      const query = `UPDATE delivery_associates SET ${updateFields.join(', ')} WHERE associate_id = ?`;
+      this.connection.query(query, [...updateValues, associate_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+  
+  
+  async updateUserVerifiedStatus(user_id) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE users SET verified = ? WHERE user_id = ?`;
+      this.connection.query(query, [true, user_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+  
+  
+
+
 
 }

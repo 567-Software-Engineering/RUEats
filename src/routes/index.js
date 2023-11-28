@@ -4,6 +4,7 @@ const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
 const validatePostRequests = require('./../validations/validatePostRequests');
+const validateGetTimeEstimate = require('./../validations/validateGetTimeEstimate')
 
 const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
@@ -25,13 +26,13 @@ const routes = {
       },
     },
 
-    // "/users/:id": {
-    //   GET: controller.getUserById,
-    //   DELETE: controller.deleteUserById,
-    //   PUT: (req, res) => {
-    //     validateUserData(req, res, userController.updateUser);
-    //   },
-    // },
+    "/users/:user_id": {
+      GET: controller.getUserById,
+      DELETE: controller.deleteUserById,
+      PUT: (req, res) => {
+        validateUserData(req, res, controller.updateUserProfile);
+      },
+    },
 
     "/users/:userID/orders/:orderID" :{
       GET : controller.getUserOrder
@@ -187,6 +188,28 @@ const routes = {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);
         } 
     },
+    "/delivery-associate/:associate_id": {
+      GET: controller.getAssociateById,
+      DELETE: controller.deleteAssociateById,
+      PUT: (req, res) => {
+        validateUserData(req, res, controller.updateDeliveryAssociateProfile);
+      },
+    },
+
+    "/get-time-estimate":{
+      POST: (req, res) => {
+        validateGetTimeEstimate(req, res, controller.getTimeEstimate);
+      },
+    },
+
+    "/get-route":{
+      POST: (req, res) => {
+        validateGetTimeEstimate(req, res, controller.getRoute);
+      },
+    },
+    "/verify/:user_id": {
+      GET: controller.updateUserVerification,
+      },
 
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });
