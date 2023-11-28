@@ -325,6 +325,312 @@ describe('Controller Tests', function () {
         });
     });
 
+    describe('Valid POST /delivery_associates/register', function () {
+        it('responds with 200 and user is successfully registered',  function () {
+
+            const user = JSON.stringify({
+                "name": "Saurabh K",
+                "email": "sk@gmail.com",
+                "home_address": "Street",
+                "zip_code": "12345",
+                "city": "NB",
+                "state": "NJ",
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "delivery_in_progress": false,
+                "password": "securePassword123"
+            });
+
+
+            const options = {
+                hostname: 'localhost',
+                port: 3000,
+                path: '/users/register',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': user.length
+                }
+            };
+
+            const req = http.request(options, function (res) {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', async () => {
+                    expect(res.statusCode).toEqual(200);
+                    expect(responseData).toEqual("{\"message\":\"success\"}");
+                    await dbRepo.deleteAssociateByEmail("sk@gmail.com")
+                });
+            });
+
+            req.write(user);
+            req.end();
+
+        });
+    });
+
+    describe('Invalid POST /delivery_associates/register missing data', function () {
+        it('Missing Name responds with 400',  function () {
+
+            const user = JSON.stringify({
+                "email": "sk@gmail.com",
+                "home_address": "Street",
+                "zip_code": "12345",
+                "city": "NB",
+                "state": "NJ",
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "delivery_in_progress": false,
+                "password": "securePassword123"
+            });
+
+
+            const options = {
+                hostname: 'localhost',
+                port: 3000,
+                path: '/users/register',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': user.length
+                }
+            };
+
+            const req = http.request(options, function (res) {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', async () => {
+                    expect(res.statusCode).toEqual(400);
+                    expect(responseData).toEqual("{\"message\":\"Name, email and password are required\"}");
+                });
+            });
+
+            req.write(user);
+            req.end();
+
+        });
+
+        it('Missing Email responds with 400',  function () {
+
+            const user = JSON.stringify({
+                "name": "Saurab K",
+                "home_address": "Street",
+                "zip_code": "12345",
+                "city": "NB",
+                "state": "NJ",
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "delivery_in_progress": false,
+                "password": "securePassword123"
+            });
+
+
+            const options = {
+                hostname: 'localhost',
+                port: 3000,
+                path: '/users/register',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': user.length
+                }
+            };
+
+            const req = http.request(options, function (res) {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', async () => {
+                    expect(res.statusCode).toEqual(400);
+                    expect(responseData).toEqual("{\"message\":\"success\"}");
+                    await dbRepo.deleteAssociateByEmail("sk@gmail.com")
+                });
+            });
+
+            req.write(user);
+            req.end();
+
+        });
+
+        it('Missing Password responds with 400',  function () {
+
+            const user = JSON.stringify({
+                "name": "Saurabh K",
+                "email": "sk@gmail.com",
+                "home_address": "Street",
+                "zip_code": "12345",
+                "city": "NB",
+                "state": "NJ",
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "delivery_in_progress": false,
+            });
+
+
+            const options = {
+                hostname: 'localhost',
+                port: 3000,
+                path: '/users/register',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': user.length
+                }
+            };
+
+            const req = http.request(options, function (res) {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', async () => {
+                    expect(res.statusCode).toEqual(400);
+                    expect(responseData).toEqual("{\"message\":\"Name, email and password are required\"}");
+                });
+            });
+
+            req.write(user);
+            req.end();
+
+        });
+
+        it('Invalid Name with Non Alphabetic characters responds with 400',  function () {
+
+            const user = JSON.stringify({
+                "name": "Saurabh K123",
+                "email": "sk@gmail.com",
+                "home_address": "Street",
+                "zip_code": "12345",
+                "city": "NB",
+                "state": "NJ",
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "delivery_in_progress": false,
+                "password": "securePassword123"
+            });
+
+
+            const options = {
+                hostname: 'localhost',
+                port: 3000,
+                path: '/users/register',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': user.length
+                }
+            };
+
+            const req = http.request(options, function (res) {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', async () => {
+                    expect(res.statusCode).toEqual(400);
+                    expect(responseData).toEqual("{\"message\":\"Name should contain only alphabetical characters\"}");
+                });
+            });
+
+            req.write(user);
+            req.end();
+
+        });
+
+        it('Invalid Email ID responds with 400',  function () {
+
+            const user = JSON.stringify({
+                "name": "Saurabh K",
+                "email": "sk123gmail.com",
+                "home_address": "Street",
+                "zip_code": "12345",
+                "city": "NB",
+                "state": "NJ",
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "delivery_in_progress": false,
+                "password": "securePassword123"
+            });
+
+
+            const options = {
+                hostname: 'localhost',
+                port: 3000,
+                path: '/users/register',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': user.length
+                }
+            };
+
+            const req = http.request(options, function (res) {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', async () => {
+                    expect(res.statusCode).toEqual(400);
+                    expect(responseData).toEqual("{\"message\":\"Please enter a valid email ID\"}");
+                });
+            });
+
+            req.write(user);
+            req.end();
+
+        });
+
+        it('Invalid Password responds with 400',  function () {
+
+            const user = JSON.stringify({
+                "name": "Saurabh K",
+                "email": "sk@gmail.com",
+                "home_address": "Street",
+                "zip_code": "12345",
+                "city": "NB",
+                "state": "NJ",
+                "latitude": 37.7749,
+                "longitude": -122.4194,
+                "delivery_in_progress": false,
+                "password": "sec"
+            });
+
+
+            const options = {
+                hostname: 'localhost',
+                port: 3000,
+                path: '/users/register',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': user.length
+                }
+            };
+
+            const req = http.request(options, function (res) {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+                res.on('end', async () => {
+                    expect(res.statusCode).toEqual(400);
+                    expect(responseData).toEqual("{\"message\":\"Password should have minimum six characters, at least one letter and one number\"}");
+                });
+            });
+
+            req.write(user);
+            req.end();
+
+        });
+    });
+
+    
+
 
 
 });
