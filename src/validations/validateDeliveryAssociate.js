@@ -11,6 +11,19 @@ const validateDeliveryAssociate = async (req, res, next) => {
         });
       }
 
+      if (
+        !isFinite(body.originLatitude) ||
+        !isFinite(body.originLongitude) ||
+        Math.abs(body.originLatitude) > 90 ||
+        Math.abs(body.originLongitude) > 180
+      ) {
+        return response(res, {
+          status: 400,
+          data: { message: "Invalid latitude or longitude values" },
+        });
+      }
+      
+
       req.body = body;
 
       next(req, res);

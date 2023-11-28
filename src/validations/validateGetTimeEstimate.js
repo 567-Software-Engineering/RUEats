@@ -13,6 +13,22 @@ const validateGetTimeEstimate = async (req, res, next) => {
       });
     }
 
+    if (
+      !isFinite(body.source_latitude) ||
+      !isFinite(body.source_longitude) ||
+      Math.abs(body.source_latitude) > 90 ||
+      Math.abs(body.source_longitude) > 180 ||
+      !isFinite(body.destination_latitude) ||
+      !isFinite(body.destination_longitude) ||
+      Math.abs(body.destination_latitude) > 90 ||
+      Math.abs(body.destination_longitude) > 180
+    ) {
+      return response(res, {
+        status: 400,
+        data: { message: "Invalid latitude or longitude values" },
+      });
+    }
+
     req.body = body;
 
     next(req, res);
