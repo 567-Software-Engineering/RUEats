@@ -4,7 +4,7 @@
   "description": "RUEats software engineering project",
   "main": "index.js",
   "scripts": {
-    "test": "npm test",
+    "test": "jasmine",
     "devStart": "nodemon app.js"
   },
   "author": "",
