@@ -20,7 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.6.2",
-    "stripe": "^14.2.0"
+    "stripe": "^14.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
