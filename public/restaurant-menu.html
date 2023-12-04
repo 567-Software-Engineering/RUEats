@@ -20,8 +20,8 @@
             </a>
         </nav>
 
-        <script>
 
+        <script>
 
 
             async function getData(serverURL, body) {
@@ -43,24 +43,24 @@
 
 
             (async () => {
-                let result = await getData('http://localhost:3000/restaurants', {});
-                let restaurants = JSON.parse(result.response);
+                let result = await getData('http://localhost:3000/get-menu/{{restaurantID}}', {});
+                let menuItems = JSON.parse(result.response);
                 let container = document.getElementById('restaurant-container');
 
 
                 let row = document.createElement('div');
                 row.className = 'row row-cols-1 row-cols-md-3 g-4';
 
-                restaurants.forEach(restaurant => {
+                menuItems.forEach(menuItem => {
                     let card = document.createElement('div');
                     card.className = 'col-md-4 mb-4';
                     card.innerHTML = `
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title">${restaurant.name}</h5>
-                            <p class="card-text">${restaurant.cuisine_type}</p>
-                            <p class="card-text">Rating : ${restaurant.rating}/5</p>
-                            <a href="/app/restaurant-menu/${restaurant.restaurant_id}" class="btn btn-primary">Go to restaurant</a>
+                            <h5 class="card-title">${menuItem.item_name}</h5>
+                            <img src=${menuItem.image_url} width="100px" height="100px">
+                            <p class="card-text">${menuItem.description}</p>
+                            <p class="card-text">$${menuItem.price}</p>
                         </div>
                     </div>
                 `;

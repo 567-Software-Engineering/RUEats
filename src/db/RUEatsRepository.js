@@ -702,6 +702,30 @@ module.exports = class RUEatsRepository {
     });
   }
 
+
+    async getRestaurantMenu(restaurant_id) {
+        return new Promise((resolve, reject) => {
+            try {
+                const query = 'SELECT * FROM menu m WHERE restaurant_id = ?';
+                this.connection.query(query, [restaurant_id], (error, results) => {
+                    if (error) {
+                        console.error('Database error:', error);
+                        reject(error);
+                    } else {
+                        if (results.length > 0) {
+                            resolve(results);
+                        } else {
+                            resolve(null);
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error in deleteUserById:', error);
+                reject(error);
+            }
+        });
+    }
+
     async deleteUserByEmail(email) {
         return new Promise((resolve, reject) => {
             try {

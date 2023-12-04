@@ -117,6 +117,10 @@ const routes = {
       DELETE : controller.deleteMenuItem
     },
 
+    "/get-menu/:restaurantID": {
+        GET : controller.getRestaurantMenu
+    },
+
     "/update-item-availability/:restaurantID": {
       PUT: (req, res) => {
           validatePostRequests(req, res, controller.toggleItemAvailability);
