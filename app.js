@@ -16,16 +16,23 @@ const server = http.createServer((req, res) => {
     let handler = (routes[path] && routes[path][method]) || uiRoutes[path] && uiRoutes[path][method];
 
     if (!handler) {
-        const routeKeys = Object.keys(routes).filter((key) => key.includes(":"));
+        let routeKeys = Object.keys(routes).filter((key) => key.includes(":"));
+
+        const uiRouteKeys = Object.keys(uiRoutes).filter((key) => key.includes(":"));
+
+        routeKeys = routeKeys.concat(uiRouteKeys);
+
+        const allRoutes = Object.assign({}, routes, uiRoutes);
+
         const matchedKey = routeKeys.find((key) => {
             const regex = new RegExp(`^${key.replace(/:[^/]+/g, "([^/]+)")}$`);
             return regex.test(path);
-        });
+        }) ;
 
         if (matchedKey) {
             const regex = new RegExp(`^${matchedKey.replace(/:[^/]+/g, "([^/]+)")}$`);
             const dynamicParams = regex.exec(path).slice(1);
-            const dynamicHandler = routes[matchedKey][method];
+            const dynamicHandler = allRoutes[matchedKey][method] ;
 
             const paramKeys = matchedKey
                 .match(/:[^/]+/g)

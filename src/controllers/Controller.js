@@ -143,6 +143,23 @@ module.exports = class Controller {
     }
   }
 
+  async getRestaurantMenu(req, res) {
+    try {
+      const { restaurantID } = req.params;
+
+      const menu = await dbRepo.getRestaurantMenu(restaurantID)
+      const data =
+          menu && menu.length > 0
+              ? menu
+              : "Restaurant currently isn't serving anything!";
+      response(res, { data });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+
+
   async createRestaurant(req, res) {
     try {
       let body = req.body;
