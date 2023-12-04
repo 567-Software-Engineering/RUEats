@@ -2,7 +2,8 @@ const http = require('http');
 const url = require('url');
 require('dotenv').config();
 
-const routes = require('./src/routes');
+const routes = require('./src/routes/index');
+const uiRoutes = require('./src/routes/uiRoutes')
 
 const port = process.env.PORT || 3000;
 
@@ -12,7 +13,7 @@ const server = http.createServer((req, res) => {
     const path = parsedUrl.pathname;
     const method = req.method.toUpperCase();
 
-    let handler = routes[path] && routes[path][method];
+    let handler = (routes[path] && routes[path][method]) || uiRoutes[path] && uiRoutes[path][method];
 
     if (!handler) {
         const routeKeys = Object.keys(routes).filter((key) => key.includes(":"));
