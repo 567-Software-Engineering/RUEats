@@ -807,7 +807,9 @@ module.exports = class Controller {
             return;
           }
       const update = await dbRepo.updateDeliveryStatus(associateID, status);
-      if (update != null) {
+      console.log('update');
+      console.log(update);
+      if (update === true) {
         response(res, { data: {message: "Order Delivered!"} });
       } else {
         response(res, { data: {message: 'No orders found for the given user' } });
@@ -831,7 +833,7 @@ module.exports = class Controller {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
           const update = await dbRepo.updateLocation(associateID, latitude, longitude);
-          if (update != null) {
+          if (update === true) {
             response(res, { data: {message: "Location updated!"} });
           } else {
             response(res, { data: {message: 'Error updating location' } });
@@ -855,7 +857,7 @@ module.exports = class Controller {
           const { orderID } = req.params;
           const { imageURL } = req.body;
           const inserted = await dbRepo.imageURLtoDB(orderID, imageURL);
-          if (inserted != null) {
+          if (inserted === true) {
             response(res, { data: {message: "Image URL updated!"} });
           } else {
             response(res, { data: {message: 'Error updating image URL' } });
