@@ -40,6 +40,10 @@ const routes = {
     "/restaurants": {
       GET: controller.getAllRestaurants,
     },
+
+    "/restaurants/:restaurant_id": {
+      GET: controller.getRestaurant,
+    },
       
     "/get-location":{
       POST: (req, res) => {
@@ -235,7 +239,11 @@ const routes = {
     },
     "/verify/:user_id": {
       GET: controller.updateUserVerification,
-      },
+    },
+    
+    "/verifyAssociate/:associate_id": {
+      GET: controller.updateDeliveryAssociateVerification,
+    },
 
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });
