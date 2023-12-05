@@ -173,17 +173,39 @@ const routes = {
       },
   },
 
-    '/payment-form': {
+    "/payment-form": {
       GET: controller.servePaymentForm,
     },
   
-    '/payment-client-token': {
+    "/payment-client-token": {
       GET: controller.getClientPaymentToken,
     },
   
-    '/submit-token': {
+    "/submit-token": {
       POST: (req, res) => {
         validatePaymentToken(req, res, controller.submitPayment);
+      },
+    },
+
+    "/get-delivery-assignment/:associateID": {
+      GET: controller.getDeliveryAssignment,
+    },
+    
+    "/update-delivery-status/:associateID": {
+      PATCH : (req, res) => {
+        validatePostRequests(req, res, controller.updateDeliveryStatus);
+      },
+    },
+
+    "/update-location/:associateID": {
+      PATCH : (req, res) => {
+        validatePostRequests(req, res, controller.updateLocation);
+      },
+    },
+
+    "/validate-delivery/:orderID": {
+      PATCH: (req, res) => {
+        validatePostRequests(req, res, controller.validateDelivery);
       },
     },
 

@@ -872,7 +872,69 @@ module.exports = class RUEatsRepository {
     });
   }
   
+
+  async getDeliveryAssociateOrder(associateID) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'SELECT * FROM orders WHERE associate_id = ?';
+        this.connection.query(query, [associateID], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results[0]);
+            } else {
+              resolve(null);
+              // console.log("No orders found");
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getDeliveryAssociateOrder:', error);
+        reject(error);
+      }
+    });
+  }
+
+  async updateDeliveryStatus(associate_id, status) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE orders SET status = ? WHERE associate_id = ?`;
+      this.connection.query(query, [status, associate_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+
+  async updateLocation(associate_id, latitude, longitude) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE delivery_associates SET latitude = ?, longitude = ? WHERE associate_id = ?`;
+      this.connection.query(query, [latitude, longitude, associate_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
   
+  async imageURLtoDB(orderID, imageURL) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE orders SET img_src = ? WHERE order_id = ?`;
+      this.connection.query(query, [imageURL, orderID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
 
 
 

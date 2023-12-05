@@ -710,19 +710,41 @@ module.exports = class Controller {
 
   async servePaymentForm(req, res) {
     try {
-      const filePath = './public/payment-form.html';
-      fs.readFile(filePath, (err, data) => {
-        if (err) {
-          response(res, { status: 400, data: error.message });
-        } else {
-          res.writeHead(200, { 'Content-Type': 'text/html' });
-          res.end(data);
-        }
-      });
+      const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+
+            if (err) {
+                response(res, {
+                    status: 401,
+                    data: {
+                        message: 'Unauthorized'
+                    }
+                });
+            } else {
+                const filePath = './public/payment-form.html';
+                fs.readFile(filePath, (err, data) => {
+                    if (err) {
+                        response(res, {
+                            status: 400,
+                            data: error.message
+                        });
+                    } else {
+                        res.writeHead(200, {
+                            'Content-Type': 'text/html'
+                        });
+                        res.end(data);
+                    }
+                });
+            }
+        });
     } catch (error) {
-      response(res, { status: 400, data: error.message });
-    }
+      response(res, {
+        status: 400,
+        data: error.message
+    });
   }
+}
 
   async getClientPaymentToken(req, res) {
     try {
@@ -763,6 +785,108 @@ module.exports = class Controller {
     }
   }
 
+  async getDeliveryAssignment(req, res) {
+    try {
+      // console.log(req.params);
+      const { associateID } = req.params;
+      // console.log(`associateID: ${associateID}`);
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const orders = await dbRepo.getDeliveryAssociateOrder(associateID);
+          if (orders != null) {
+          const data = orders;
+          response(res, { data });
+          } else {
+            response(res, { data: 'No orders found for the given user' });
+          }
+        }
+      });
+
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }   
+
+  async updateDeliveryStatus(req, res) {
+    try {
+      const { associateID } = req.params;
+      const { status } = req.body;
+      // console.log(`status: ${status}`);
+
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) { 
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          if (![1, 2, 3].includes(status)) {
+            response(res, { status: 400, data: { message: "Invalid status value." } });
+            return;
+          }
+      const update = await dbRepo.updateDeliveryStatus(associateID, status);
+      if (update === true) {
+        response(res, { data: {message: "Order Delivered!"} });
+      } else {
+        response(res, { data: {message: 'No orders found for the given user' } });
+      }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async updateLocation(req, res) {
+    try {
+      const { associateID } = req.params;
+      const { latitude, longitude } = req.body;
+
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const update = await dbRepo.updateLocation(associateID, latitude, longitude);
+          if (update === true) {
+            response(res, { data: {message: "Location updated!"} });
+          } else {
+            response(res, { data: {message: 'Error updating location' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async validateDelivery(req, res) {
+    try {
+
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: {message: 'Unauthorized'} });
+        } else {
+          const { orderID } = req.params;
+          const { imageURL } = req.body;
+          const inserted = await dbRepo.imageURLtoDB(orderID, imageURL);
+          if (inserted === true) {
+            response(res, { data: {message: "Image URL updated!"} });
+          } else {
+            response(res, { data: {message: 'Error updating image URL' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
 
   async getClosestAssociate(req, res) {
     try {
