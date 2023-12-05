@@ -15,6 +15,21 @@ const uiRoutes = {
         }
     },
 
+    "/app/restaurants/:restaurant_id" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/restaurant-profile.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { restaurant_id } = _req.params;
+                    data = data.replace(/{{restaurant_id}}/g, restaurant_id);
+                    console.log(restaurant_id);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
     "/app/restaurant-menu/:restaurantID" : {
         GET:(_req, res) =>{
             fs.readFile('./public/restaurant-menu.html', 'utf8', function (error, data) {

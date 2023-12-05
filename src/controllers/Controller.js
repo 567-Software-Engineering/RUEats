@@ -144,6 +144,29 @@ module.exports = class Controller {
     }
   }
 
+  async getRestaurant(req, res) {
+    try {
+      const { restaurant_id} = req.params;
+
+      if(isNaN(Number(restaurant_id)) ) {
+        response(res, {status: 400, data: {message: 'RestaurantID should be numerical'}});
+      }
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const order = await dbRepo.getRestaurantById(restaurant_id);
+          const data = order ? order : `Restaurant not found for RestaurantID: ${restaurant_id}`;
+          response(res, { data });
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
   async getRestaurantMenu(req, res) {
     try {
       const { restaurantID } = req.params;

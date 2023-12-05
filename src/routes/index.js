@@ -40,6 +40,10 @@ const routes = {
     "/restaurants": {
       GET: controller.getAllRestaurants,
     },
+
+    "/restaurants/:restaurant_id": {
+      GET: controller.getRestaurant,
+    },
       
     "/get-location":{
       POST: (req, res) => {
