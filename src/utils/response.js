@@ -3,7 +3,13 @@ const response = (
   { data = {}, status = 200, contentType = "application/json" }
 ) => {
   res.writeHead(status, { "Content-Type": contentType });
-  res.write(JSON.stringify(data));
+
+  if(contentType === 'text/html'){
+    res.write(data);
+  }
+  else {
+    res.write(JSON.stringify(data));
+  }
   res.end();
 };
 
