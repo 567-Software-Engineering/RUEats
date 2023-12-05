@@ -213,6 +213,16 @@ const routes = {
       },
     },
 
+    "/update-cart": {
+      PATCH: (req, res) => {
+        validatePostRequests(req, res, controller.updateCart);
+      },
+    },
+
+    "/clear-cart/:userID": {
+      DELETE: controller.clearCart,
+    },
+
     "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: (req, res) => {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);
