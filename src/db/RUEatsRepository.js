@@ -989,6 +989,32 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  async updateCart(userID, itemID, quantity) {
+    return new Promise((resolve, reject) => {
+      const query = `INSERT INTO cart (user_id, item_id, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = ?`;
+      this.connection.query(query, [userID, itemID, quantity, quantity], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+
+  async clearCart(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `DELETE FROM cart WHERE user_id = ?`;
+      this.connection.query(query, [userID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+
 
 
 }

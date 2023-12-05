@@ -995,6 +995,52 @@ module.exports = class Controller {
     }
   }
 
+  async updateCart(req, res) {
+    try {
+      const token = req.headers.authorization;
+      
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: {message: 'Unauthorized'} });
+        } else {
+          const { userID, itemID, quantity } = req.body;
+          
+          const updated = await dbRepo.updateCart(userID, itemID, quantity);
+          if (updated === true) {
+            response(res, { data: {message: "Cart updated!"} });
+          } else {
+            response(res, { data: {message: 'Error updating cart' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async clearCart(req, res) {
+    try {
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, {status: 401, data: {message: 'Unauthorized'} });
+        } else {
+          const { userID } = req.params;
+          const cleared = await dbRepo.clearCart(userID);
+          if (cleared === true) {
+            response(res, { data: {message: "Cart cleared!"} });
+          }
+          else {
+            response(res, { data: {message: 'Error clearing cart' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
   async getClosestAssociate(req, res) {
     try {
       const token = req.headers.authorization;
