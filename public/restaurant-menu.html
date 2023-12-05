@@ -1,82 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+<head>
 
-        <meta charset="UTF-8">
-        <title>RUEats</title>
+    <meta charset="UTF-8">
+    <title>RUEats</title>
 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    </head>
-    <body>
+</head>
+<body>
 
-        <nav class="navbar navbar-light bg-light">
-            <a class="navbar-brand" href="#">
-                RUEats
-            </a>
-        </nav>
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+        RUEats
+    </a>
+</nav>
 
+<div class="container">
+    <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+</div>
 
-        <script>
+<script>
+    async function getData(serverURL, body) {
+        return new Promise((resolve, reject) => {
+            const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
 
+            if (!urlFormat.test(serverURL))
+                reject(`Invalid URL: ${serverURL}`);
 
-            async function getData(serverURL, body) {
-                return new Promise((resolve, reject) => {
-                    const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
+            fetch(serverURL, {
+                method: 'GET',
+            })
+                .then(response => response.text())
+                .then(data => resolve({ response: data }))
+                .catch(error => resolve({ response: error }));
+        });
+    }
 
-                    if (!urlFormat.test(serverURL))
-                        reject(`Invalid URL: ${serverURL}`);
+    (async () => {
+        let result = await getData('http://localhost:3000/get-menu/{{restaurantID}}', {});
+        let menuItems = JSON.parse(result.response);
+        let container = document.getElementById('restaurant-container');
 
-                    fetch(serverURL, {
-                        method: 'GET',
-                    })
-                        .then(response => response.text())
-                        .then(data => resolve({ response: data}))
-                        .catch(error => resolve({response: error}));
-                });
-            }
+        let row = document.createElement('div');
+        row.className = 'row row-cols-1 row-cols-md-3 g-4';
 
+        menuItems.forEach(menuItem => {
+            let card = document.createElement('div');
+            card.className = 'col-md-4 mb-4';
+            card.innerHTML = `
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">${menuItem.item_name}</h5>
+                                <img src=${menuItem.image_url} width="100px" height="100px">
+                                <p class="card-text">${menuItem.description}</p>
+                                <p class="card-text">$${menuItem.price}</p>
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="decrementQuantity(this, '${menuItem.price}')">-</button>
+                                    </span>
+                                    <input type="text" class="form-control" value="1" readonly>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="incrementQuantity(this, '${menuItem.price}')">+</button>
+                                    </span>
+                                </div>
 
-
-            (async () => {
-                let result = await getData('http://localhost:3000/get-menu/{{restaurantID}}', {});
-                let menuItems = JSON.parse(result.response);
-                let container = document.getElementById('restaurant-container');
-
-
-                let row = document.createElement('div');
-                row.className = 'row row-cols-1 row-cols-md-3 g-4';
-
-                menuItems.forEach(menuItem => {
-                    let card = document.createElement('div');
-                    card.className = 'col-md-4 mb-4';
-                    card.innerHTML = `
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">${menuItem.item_name}</h5>
-                            <img src=${menuItem.image_url} width="100px" height="100px">
-                            <p class="card-text">${menuItem.description}</p>
-                            <p class="card-text">$${menuItem.price}</p>
+                                <button class="btn btn-primary" onclick="addToCart(this , '${menuItem.item_id}', '${menuItem.item_name}', ${menuItem.price})">Add to Cart</button>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+
+            row.appendChild(card);
+        });
+
+        container.appendChild(row);
+    })();
+
+    function incrementQuantity(button, price) {
+        let input = button.parentElement.parentElement.querySelector('input');
+        let quantity = parseInt(input.value);
+        input.value = quantity + 1;
+        updateButton(button,price);
+    }
+
+    function decrementQuantity(button, price) {
+        let input = button.parentElement.parentElement.querySelector('input');
+        let quantity = parseInt(input.value);
+        if (quantity > 1) {
+            input.value = quantity - 1;
+            updateButton(button,price);
+        }
+    }
+
+    function updateButton(button,price) {
+        let card = button.closest('.card-body');
+
+        let quantity = parseInt(card.querySelector('input').value);
+
+        if (!isNaN(price) && !isNaN(quantity)) {
+            let totalPrice = price * quantity;
+            let addToCartButton = card.querySelector('.btn-primary');
+            addToCartButton.textContent = `Add to Cart $${totalPrice.toFixed(2)}`;
+        }
+    }
 
 
-                    row.appendChild(card);
-                });
 
-                container.appendChild(row);
-            })();
 
-        </script>
+    function addToCart(button, itemId, itemName, price) {
+        let card = button.closest('.card-body');
+        let quantity = parseInt(card.querySelector('input').value);
 
-        <div class="container">
-            <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
-        </div>
+        if (!isNaN(price) && !isNaN(quantity)) {
+            let totalPrice = price * quantity;
 
-    </body>
+            // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
+            alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
+
+        }
+    }
+
+
+
+</script>
+
+</body>
 </html>
