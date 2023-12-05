@@ -871,6 +871,29 @@ module.exports = class RUEatsRepository {
       });
     });
   }
+
+  async deleteAssociateByEmail(email) {
+    return new Promise((resolve, reject) => {
+        try {
+            const query = 'DELETE FROM delivery_associates WHERE email = ?';
+            this.connection.query(query, [email], (error, results) => {
+                if (error) {
+                    console.error('Database error:', error);
+                    reject(error);
+                } else {
+                    if (results.affectedRows > 0) {
+                        resolve({ message: 'Delivery Associate deleted successfully', status: 200 });
+                    } else {
+                        resolve({ message: 'User not found', status: 404 });
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error in deleteAssociateByEmail:', error);
+            reject(error);
+        }
+    });
+}
   
 
   async getDeliveryAssociateOrder(associateID) {
