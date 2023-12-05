@@ -22,6 +22,7 @@ module.exports = class Controller {
 
   constructor() {
     this.createUser = this.createUser.bind(this);
+    this.createAssociate = this.createAssociate.bind(this);
   }
 
 
@@ -280,11 +281,24 @@ module.exports = class Controller {
       const hashVal = bcrypt.hashSync(body.password, salt)
       body.password = hashVal;
       await dbRepo.insertAssociate(body);
-      response(res, { status: 201, data: { message: "success" } });
+
+      const updatedAssociates = await dbRepo.getAllAssociates();
+      const newFoundAssociate = updatedAssociates.find(
+        (assoc) => assoc.email === body.email
+      );
+      const associateIDNew = newFoundAssociate.associate_id;
+
+      await this.sendDeliveryAssociateEmail(body.email, associateIDNew);
+
+      response(res, {
+        status: 201,
+        data: { message: "Associate created successfully" },
+      });
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
     }
-  };
+  }
+
 
   async loginAssociate(req, res) {
     try {
@@ -299,6 +313,17 @@ module.exports = class Controller {
           status: 404,
         });
       }
+
+      if (user.verified === "false") {
+        return response(res, {
+          data: {
+            message:
+              "Email not verified. Please check your email for a verification link.",
+          },
+          status: 401,
+        });
+      }
+
       const result = bcrypt.compareSync(body.password, user.password);
 
       if (result) {
@@ -313,6 +338,65 @@ module.exports = class Controller {
       response(res, { status: 400, data: { message: error.message } });
     }
   }
+
+  async sendDeliveryAssociateEmail(email, associateId) {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: "rueatsapp@gmail.com",
+      to: email,
+      subject: "Email Verification for RUEats Delivery Associate",
+      html: `<p>Click the following link to verify your email:</p>
+             <a href="http://localhost:3000/verifyAssociate/${associateId}">Verify Email</a>`,
+    };
+
+    return transporter.sendMail(mailOptions);
+  }
+
+  async updateDeliveryAssociateVerification(req, res) {
+    try {
+      const { associate_id } = req.params;
+
+      const associate = await dbRepo.getAssocaiteByIdDB(associate_id);
+
+      if (!associate) {
+        return response(res, {
+          status: 401,
+          data: { message: "Unauthorized" },
+        });
+      }
+
+      await dbRepo.updateAssociateVerifiedStatus(associate_id);
+
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Email Verification Success</title>
+      </head>
+      <body>
+        <h1>Email Verification Successful</h1>
+        <p>Your email has been successfully verified for RUEats Delivery Associate.</p>
+        <p>You can now log in to the RUEats application.</p>
+      </body>
+      </html>
+    `;
+
+      res.setHeader("Content-Type", "text/html");
+      res.write(htmlContent);
+      res.end();
+    } catch (error) {
+      return response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+
 
   async getRestaurantNotifications(req, res) {
     try {
