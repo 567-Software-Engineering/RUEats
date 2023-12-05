@@ -878,8 +878,8 @@ module.exports = class RUEatsRepository {
 
   async imageURLtoDB(orderID, imageURL) {
     return new Promise((resolve, reject) => {
-      const query = `UPDATE orders SET image_src = ? WHERE order_id = ?`;
-      this.connection.query(query, [orderID, imageURL], (error, results) => {
+      const query = `UPDATE orders SET img_src = ? WHERE order_id = ?`;
+      this.connection.query(query, [imageURL, orderID], (error, results) => {
         if (error) {
           reject(error);
         } else {
