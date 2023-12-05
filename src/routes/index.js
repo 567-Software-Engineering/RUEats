@@ -235,7 +235,11 @@ const routes = {
     },
     "/verify/:user_id": {
       GET: controller.updateUserVerification,
-      },
+    },
+    
+    "/verifyAssociate/:associate_id": {
+      GET: controller.updateDeliveryAssociateVerification,
+    },
 
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });

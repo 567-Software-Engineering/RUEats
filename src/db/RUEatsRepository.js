@@ -136,7 +136,7 @@ module.exports = class RUEatsRepository {
   insertAssociate(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newUser.name,
           newUser.email,
@@ -148,6 +148,7 @@ module.exports = class RUEatsRepository {
           newUser.longitude || null,
           newUser.delivery_in_progress || 0, // Assuming it's a boolean or integer field
           newUser.password,
+          "false",
         ];
 
         this.connection.query(query, values, (error, results) => {
@@ -160,6 +161,19 @@ module.exports = class RUEatsRepository {
       } catch (error) {
         reject(error);
       }
+    });
+  }
+
+  updateAssociateVerifiedStatus(associate_id) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE delivery_associates SET verified = 'true' WHERE associate_id = ?`;
+      this.connection.query(query, [associate_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
     });
   }
 
