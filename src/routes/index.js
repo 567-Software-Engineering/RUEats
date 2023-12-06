@@ -40,6 +40,10 @@ const routes = {
     "/restaurants": {
       GET: controller.getAllRestaurants,
     },
+
+    "/restaurants/:restaurant_id": {
+      GET: controller.getRestaurant,
+    },
       
     "/get-location":{
       POST: (req, res) => {
@@ -117,6 +121,10 @@ const routes = {
       DELETE : controller.deleteMenuItem
     },
 
+    "/get-menu/:restaurantID": {
+        GET : controller.getRestaurantMenu
+    },
+
     "/update-item-availability/:restaurantID": {
       PUT: (req, res) => {
           validatePostRequests(req, res, controller.toggleItemAvailability);
@@ -169,18 +177,50 @@ const routes = {
       },
   },
 
-    '/payment-form': {
+    "/payment-form": {
       GET: controller.servePaymentForm,
     },
   
-    '/payment-client-token': {
+    "/payment-client-token": {
       GET: controller.getClientPaymentToken,
     },
   
-    '/submit-token': {
+    "/submit-token": {
       POST: (req, res) => {
         validatePaymentToken(req, res, controller.submitPayment);
       },
+    },
+
+    "/get-delivery-assignment/:associateID": {
+      GET: controller.getDeliveryAssignment,
+    },
+    
+    "/update-delivery-status/:associateID": {
+      PATCH : (req, res) => {
+        validatePostRequests(req, res, controller.updateDeliveryStatus);
+      },
+    },
+
+    "/update-location/:associateID": {
+      PATCH : (req, res) => {
+        validatePostRequests(req, res, controller.updateLocation);
+      },
+    },
+
+    "/validate-delivery/:orderID": {
+      PATCH: (req, res) => {
+        validatePostRequests(req, res, controller.validateDelivery);
+      },
+    },
+
+    "/update-cart": {
+      PATCH: (req, res) => {
+        validatePostRequests(req, res, controller.updateCart);
+      },
+    },
+
+    "/clear-cart/:userID": {
+      DELETE: controller.clearCart,
     },
 
     "/accept-decline-order/:restaurant_id/:order_id": {
@@ -209,7 +249,11 @@ const routes = {
     },
     "/verify/:user_id": {
       GET: controller.updateUserVerification,
-      },
+    },
+    
+    "/verifyAssociate/:associate_id": {
+      GET: controller.updateDeliveryAssociateVerification,
+    },
 
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });

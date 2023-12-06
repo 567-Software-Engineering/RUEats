@@ -68,7 +68,23 @@ module.exports = class RUEatsRepository {
     });
   }
 
-  getAllRestaurants() {
+  getRestaurantById(restaurant_id) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(
+        "SELECT * FROM restaurants WHERE restaurant_id = ?",
+        [restaurant_id], 
+        function (error, results, fields) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        }
+      );
+    });
+  }
+
+  getAllRestaurants(){
     return new Promise((resolve, reject) => {
       this.connection.query(
         "SELECT * FROM restaurants WHERE is_active = 1",
@@ -138,7 +154,7 @@ module.exports = class RUEatsRepository {
   insertAssociate(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newUser.name,
           newUser.email,
@@ -150,6 +166,7 @@ module.exports = class RUEatsRepository {
           newUser.longitude || null,
           newUser.delivery_in_progress || 0, // Assuming it's a boolean or integer field
           newUser.password,
+          "false",
         ];
 
         this.connection.query(query, values, (error, results) => {
@@ -162,6 +179,19 @@ module.exports = class RUEatsRepository {
       } catch (error) {
         reject(error);
       }
+    });
+  }
+
+  updateAssociateVerifiedStatus(associate_id) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE delivery_associates SET verified = 'true' WHERE associate_id = ?`;
+      this.connection.query(query, [associate_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
     });
   }
 
@@ -691,6 +721,30 @@ module.exports = class RUEatsRepository {
     });
   }
 
+
+    async getRestaurantMenu(restaurant_id) {
+        return new Promise((resolve, reject) => {
+            try {
+                const query = 'SELECT * FROM menu m WHERE restaurant_id = ?';
+                this.connection.query(query, [restaurant_id], (error, results) => {
+                    if (error) {
+                        console.error('Database error:', error);
+                        reject(error);
+                    } else {
+                        if (results.length > 0) {
+                            resolve(results);
+                        } else {
+                            resolve(null);
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error in deleteUserById:', error);
+                reject(error);
+            }
+        });
+    }
+
     async deleteUserByEmail(email) {
         return new Promise((resolve, reject) => {
             try {
@@ -836,8 +890,119 @@ module.exports = class RUEatsRepository {
       });
     });
   }
+
+  async deleteAssociateByEmail(email) {
+    return new Promise((resolve, reject) => {
+        try {
+            const query = 'DELETE FROM delivery_associates WHERE email = ?';
+            this.connection.query(query, [email], (error, results) => {
+                if (error) {
+                    console.error('Database error:', error);
+                    reject(error);
+                } else {
+                    if (results.affectedRows > 0) {
+                        resolve({ message: 'Delivery Associate deleted successfully', status: 200 });
+                    } else {
+                        resolve({ message: 'User not found', status: 404 });
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error in deleteAssociateByEmail:', error);
+            reject(error);
+        }
+    });
+}
   
+
+  async getDeliveryAssociateOrder(associateID) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'SELECT * FROM orders WHERE associate_id = ?';
+        this.connection.query(query, [associateID], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results[0]);
+            } else {
+              resolve(null);
+              // console.log("No orders found");
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getDeliveryAssociateOrder:', error);
+        reject(error);
+      }
+    });
+  }
+
+  async updateDeliveryStatus(associate_id, status) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE orders SET status = ? WHERE associate_id = ?`;
+      this.connection.query(query, [status, associate_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+
+  async updateLocation(associate_id, latitude, longitude) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE delivery_associates SET latitude = ?, longitude = ? WHERE associate_id = ?`;
+      this.connection.query(query, [latitude, longitude, associate_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
   
+  async imageURLtoDB(orderID, imageURL) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE orders SET img_src = ? WHERE order_id = ?`;
+      this.connection.query(query, [imageURL, orderID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+
+  async updateCart(userID, itemID, quantity) {
+    return new Promise((resolve, reject) => {
+      const query = `INSERT INTO cart (user_id, item_id, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = ?`;
+      this.connection.query(query, [userID, itemID, quantity, quantity], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+
+  async clearCart(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `DELETE FROM cart WHERE user_id = ?`;
+      this.connection.query(query, [userID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
 
 
 
