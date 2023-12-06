@@ -1028,6 +1028,19 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  async getCart(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT item_id, quantity FROM cart WHERE user_id = ?`;
+      this.connection.query(query, [userID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+  }
+
 
 
 }

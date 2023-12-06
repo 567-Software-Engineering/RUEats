@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <title>Cart</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            RUEats
+        </a>
+    </nav>
+    
+    <div class="container">
+        <div id="cart-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+    </div>
+    
+
+<script>
+
+async function getData(serverURL, token) {
+        try {
+            const response = await fetch(serverURL, {
+                headers: {
+                    'Authorization': `${token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return { error: error.message };
+        }
+    }
+
+    async function loadCart() {
+        event.preventDefault();
+        // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTgyNDcwMiwiZXhwIjoxNzAxODI4MzAyfQ.f18FylgE-SoBxOAeC_F9a6R6zEEqLzpykk2fgjXQaVE"
+        if (!token) {
+            // No token found, show access denied message
+            // document.getElementById('access-denied').style.display = 'block';
+            alert("No token found");
+            return;
+        }
+
+        // Get cart
+        const getCartURL = `http://localhost:3000/get-cart/{{userID}}`;
+        console.log(getCartURL);
+
+        const result = await getData(getCartURL, token);
+        console.log(result);
+
+        if (result.error) {
+            // Handle error fetching cart or invalid token
+            console.error('Error fetching cart:', cart.error);
+            // document.getElementById('access-denied').style.display = 'block';
+            alert("Error fetching cart");
+            return;
+        }
+
+        // let cart = JSON.parse(result.response);
+        let cart = result;
+        let container = document.getElementById('cart-container');
+
+        let cartItemDiv = document.createElement('div');
+        cartItemDiv.className = 'col-md-4 mb-4';
+
+        cart.forEach(cartItem => {
+            let card = document.createElement('div');
+            card.className = 'col-md-4 mb-4';
+            card.innerHTML = `
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <p class="card-text">${cartItem.item_id}</p>
+                    <p class="card-text">${cartItem.quantity}</p>
+                </div>
+            </div>
+            `
+
+
+
+            // card.innerHTML = `
+            //             <div class="card h-100 shadow-sm">
+            //                 <div class="card-body">
+            //                     <h5 class="card-title">${menuItem.item_name}</h5>
+            //                     <!--<img src=${menuItem.image_url} width="100px" height="100px">-->
+            //                     <p class="card-text">${menuItem.description}</p>
+            //                     <p class="card-text">$${menuItem.price}</p>
+            //                     <div class="input-group">
+            //                         <span class="input-group-btn">
+            //                             <button type="button" class="btn btn-outline-secondary" onclick="decrementQuantity(this, '${menuItem.price}')">-</button>
+            //                         </span>
+            //                         <input type="text" class="form-control" value="1" readonly>
+            //                         <span class="input-group-btn">
+            //                             <button type="button" class="btn btn-outline-secondary" onclick="incrementQuantity(this, '${menuItem.price}')">+</button>
+            //                         </span>
+            //                     </div>
+
+            //                     <button class="btn btn-primary" onclick="addToCart(this , '${menuItem.item_id}', '${menuItem.item_name}', ${menuItem.price})">Add to Cart</button>
+            //                 </div>
+            //             </div>
+            //         `;
+
+            cartItemDiv.appendChild(card);
+        })
+
+        container.appendChild(cartItemDiv);
+        
+        
+        
+        
+        
+        
+        // Display cart
+        // for (let i = 0; i < cart.length; i++) {
+        //     const item = cart[i];
+        //     const cartBaseDiv = document.getElementById('cart-base');
+        //     cartBaseDiv.style.display = 'block';
+        //     cartBaseDiv.innerHTML = `
+        //         <p><strong>Item:</strong> ${item.item_id}</p>
+        //         <p><strong>Quantity:</strong> ${item.quantity}</p>
+        //         <p><strong>Price:</strong> ${item.price}</p>
+        //     `;
+        // }
+
+
+        
+        // const userProfileDiv = document.getElementById('cart-base');
+        // userProfileDiv.style.display = 'block';
+        // userProfileDiv.innerHTML = `
+        //     <h3>User Profile</h3>
+        //     <p><strong>Name:</strong> ${userProfile.name}</p>
+        //     <p><strong>Email:</strong> ${userProfile.email}</p>
+        //     <p><strong>Address:</strong> ${userProfile.home_address}</p>
+        //     <p><strong>City:</strong> ${userProfile.city}</p>
+        //     <p><strong>State:</strong> ${userProfile.state}</p>
+        //     <p><strong>Zip Code:</strong> ${userProfile.zip_code}</p>
+        // `;
+
+
+        //  const privacyPolicy = document.getElementById('privacy-policy');
+        //  privacyPolicy.style.display = 'block';
+        //  privacyPolicy.innerHTML = `
+        //         <h3>Privacy</h3>
+        //         <p>RUEats protects your privacy and personal information. You can choose to share your information with businesses so they can send you promotions and emails.</p>
+        // `;
+    }
+
+    function getTokenFromLocalStorage() {
+        // Implement logic to get the token from local storage or cookies
+        // For example:
+        // return localStorage.getItem('token');
+        // or retrieve token from cookies
+    }
+
+    window.onload = loadCart;
+
+</script>
+
+</body>
+</html>

@@ -1118,6 +1118,30 @@ module.exports = class Controller {
     }
   }
 
+  async getCart(req, res) {
+    try {
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, {status: 401, data: {message: 'Unauthorized'} });
+        } else {
+          const { userID } = req.params;
+          const cart = await dbRepo.getCart(userID);
+          if (cart != null) {
+            response(res, { data: cart });
+          }
+          else {
+            response(res, { data: {message: 'Error getting cart' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+            
+
   async getClosestAssociate(req, res) {
     try {
       const token = req.headers.authorization;
