@@ -165,6 +165,9 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
+                <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Order History</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadUserProfile()">Account</a>
             </li>
         </ul>
@@ -348,6 +351,11 @@
         // For example:
         // return localStorage.getItem('token');
         // or retrieve token from cookies
+    }
+
+    function viewOrderHistory() {
+        const userID = '{{userID}}'; // Replace with actual userID or retrieve from a secure source
+        window.location.href = `/app/users/${userID}/orders`; // Redirect to the order history page
     }
 
     window.onload = loadUserProfile;

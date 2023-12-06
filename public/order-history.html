@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order History</title>
+    <!-- Include necessary CSS and JavaScript libraries -->
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Bootstrap JavaScript dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        .navbar {
+            background-color: #dc3545;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff;
+        }
+
+        .nav-link {
+            color: #fff;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        #user-profile {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #privacy-policy {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #access-denied {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        strong {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="#">
+        RUEats
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Order History</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadUserProfile()">Account</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h3>Order History for <span id="user-name">User</span></h3>
+            <div id="order-history" style="display: none;">
+                <!-- Order history content will be displayed here -->
+            </div>
+            <div id="no-orders" style="display: none;">
+                <p>No orders found.</p>
+            </div>
+            <div id="access-denied" style="display: none;">
+                <h3>Access Denied</h3>
+                <p>Please log in to view order history.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadOrderHistory() {
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMTg4MjU5NCwiZXhwIjoxNzAxODg2MTk0fQ.HImWO3I4sreDybWn2ld5S35YXfLBVeY1oEOdmvHB8Sg"; // Ideally, this should come from a secure source like localStorage
+        const userID = '{{userID}}'; // Replace with actual userID or retrieve from a secure source
+        const orderHistoryURL = `http://localhost:3000/users/{{userID}}/orders`;
+        const userDetailsURL = `http://localhost:3000/users/${userID}`;
+
+        async function getData(serverURL, token) {
+            try {
+                const response = await fetch(serverURL, {
+                    headers: {
+                        'Authorization': `${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                return { error: error.message };
+            }
+        }   
+
+        try {
+            const userDetails = await getData(userDetailsURL, token);
+            if (userDetails && userDetails.name) {
+                document.getElementById('user-name').innerText = userDetails.name;
+            }
+            const orderHistory = await getData(orderHistoryURL, token);
+            if (orderHistory.length) {
+                displayOrderHistory(orderHistory);
+            } else {
+                document.getElementById('no-orders').style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('access-denied').style.display = 'block';
+        }
+    }
+
+    function displayOrderHistory(orders) {
+        const orderHistoryDiv = document.getElementById('order-history');
+        orderHistoryDiv.style.display = 'block';
+        orderHistoryDiv.innerHTML = '<h4>Your Orders</h4>';
+
+        orders.forEach(order => {
+            orderHistoryDiv.innerHTML += `
+                <div class="order">
+                    <p>Order ID: ${order.order_id}</p>
+                    <p>Order Date: ${order.order_date}</p>
+                    <p>Total Amount: ${order.total_amount}</p>
+                    <button onclick="addReview(${order.order_id})">Add Review</button>
+                    &nbsp;
+                    <button onclick="orderDetails(${order.order_id})">View Details</button>
+                </div>
+                <hr>`;
+        });
+    }
+
+    function addReview(orderID) {
+        // Logic to handle review addition
+        // This might involve redirecting to another page or opening a modal form
+    }
+
+    function viewDetails(orderID) {
+        // Logic to handle review addition
+        // This might involve redirecting to another page or opening a modal form
+    }
+
+    window.onload = loadOrderHistory;
+</script>
+
+</body>
+</html>

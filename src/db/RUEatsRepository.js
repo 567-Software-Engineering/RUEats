@@ -68,6 +68,18 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  getOrderHistoryByUserID(userID) {
+    return new Promise((resolve, reject) => {
+        this.connection.query('SELECT * FROM orders WHERE user_id = ?', [userID], function (error, results) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+  }
+
   getRestaurantById(restaurant_id) {
     return new Promise((resolve, reject) => {
       this.connection.query(
