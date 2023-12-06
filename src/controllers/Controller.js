@@ -132,12 +132,12 @@ module.exports = class Controller {
         });
       }
 
-      // if (user.verified === 'false') {
-      //   return response(res, {
-      //     data: { message: 'Email not verified. Please check your email for a verification link.' },
-      //     status: 401,
-      //   });
-      // }
+      if (user.verified === 'false') {
+        return response(res, {
+          data: { message: 'Email not verified. Please check your email for a verification link.' },
+          status: 401,
+        });
+      }
 
 
       const result = bcrypt.compareSync(body.password, user.password);
