@@ -58,6 +58,17 @@ const uiRoutes = {
         }
     },
 
+    "/home" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/home.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
     "/app/cart/:userID" : {
         GET:(_req, res) =>{
             fs.readFile('./public/cart.html', 'utf8', function (error, data) {
