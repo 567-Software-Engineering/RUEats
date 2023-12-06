@@ -716,6 +716,11 @@ module.exports = class Controller {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
+
+          if (decoded.restaurant_id !== parseInt(restaurant_id)) {
+            response(res, { status: 403, data: { message: 'Forbidden: Cannot view notifications for other restaurants.' } });
+            return;
+          }
           const orders = await dbRepo.getActiveOrdersByRestaurantID(restaurant_id);
           const data = orders.length ? orders : `No orders found for RestaurantID: ${restaurant_id}`;
           response(res, { data });

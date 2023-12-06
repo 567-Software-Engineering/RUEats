@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Profile</title>
+    <!-- Include necessary CSS and JavaScript libraries -->
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Bootstrap JavaScript dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        .navbar {
+            background-color: #dc3545;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff;
+        }
+
+        .nav-link {
+            color: #fff;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        #restaurant-profile {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #access-denied {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        strong {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="#">
+        RUEats
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadRestaurantOrders()">Restaurant</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4" style="display: none;"></div>
+    <div id="access-denied" style="display: none;">
+        <h3>Access Denied</h3>
+        <p>Please log in to view the restaurant profile.</p>
+    </div>
+</div>
+
+
+<script>
+    async function getRestaurantOrders(serverURL, token, restaurantId) {
+        try {
+            const response = await fetch(`${serverURL}/${restaurantId}/orders`, {
+                headers: {
+                    'Authorization': `${token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return { error: error.message };
+        }
+    }
+
+    async function loadRestaurantOrders() {
+        event.preventDefault();
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdHdhIiwicmVzdGF1cmFudF9pZCI6ODQsImlhdCI6MTcwMTg4NzQ1NiwiZXhwIjoxNzAxODkxMDU2fQ.yj5EhAYFzA-AcSDCGxlPsarMbOo1GSZE1rqszM4LRdc"; // Replace with the actual token
+        if (!token) {
+            // No token found, show access denied message
+            document.getElementById('access-denied').style.display = 'block';
+            return;
+        }
+
+        // Extract restaurant ID from the URL
+        const restaurantId = window.location.pathname.split('/').pop();
+
+        const restaurantOrdersURL = 'http://localhost:3000/get-active-orders'; // Modify this URL as needed
+
+        const restaurantOrders = await getRestaurantOrders(restaurantOrdersURL, token, restaurantId);
+        if (restaurantOrders.error) {
+            // Handle error fetching restaurant profile or invalid token
+            console.error('Error fetching restaurant profile:', restaurantOrders.error);
+            document.getElementById('access-denied').style.display = 'block';
+            return;
+        }
+
+        // Display restaurant profile data
+        const restaurantProfileDiv = document.getElementById('restaurant-container');
+        restaurantProfileDiv.style.display = 'block';
+
+        if (typeof restaurantOrders == 'string'){
+            console.log('hihihih', restaurantOrders);
+            let container = document.getElementById('restaurant-container');
+            let row = document.createElement('div');
+            row.className = 'row row-cols-1 row-cols-md-3 g-4 text-center justify-content-center';
+            let card = document.createElement('div');
+            card.className = 'col-md-4 mb-4';
+
+            card.innerHTML = restaurantOrders;
+            row.appendChild(card);
+            container.appendChild(row);
+            return
+        }
+        let orderItems = JSON.parse(restaurantOrders.response);
+        let container = document.getElementById('restaurant-container');
+
+        let row = document.createElement('div');
+        row.className = 'row row-cols-1 row-cols-md-3 g-4';
+
+        orderItems.forEach(orderItem => {
+            let card = document.createElement('div');
+            card.className = 'col-md-4 mb-4';
+            card.innerHTML = `
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">${orderItem.order_id}</h5>
+                                <p class="card-text">${orderItem.order_date}</p>
+                                <p class="card-text">$${orderItem.total_amount}</p>
+                                <p class="card-text">$${orderItem.user_id}</p>
+                                <a href="/app/restaurant-orders/order/${orderItem.order_id}" class="btn btn-primary">See order</a>
+                                </div>
+                        </div>
+                    `;
+
+            row.appendChild(card);
+        });
+
+        container.appendChild(row);
+    }
+
+    function getTokenFromLocalStorage() {
+        // Implement logic to get the token from local storage or cookies
+        // For example:
+        // return localStorage.getItem('token');
+        // or retrieve token from cookies
+    }
+    
+    window.onload = loadRestaurantOrders;
+</script>
+
+
+</body>
+</html>
