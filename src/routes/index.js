@@ -223,6 +223,10 @@ const routes = {
       DELETE: controller.clearCart,
     },
 
+    "/get-cart/:userID": {
+      GET: controller.getCart,
+    },
+
     "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: (req, res) => {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);
