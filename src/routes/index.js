@@ -228,6 +228,10 @@ const routes = {
       DELETE: controller.clearCart,
     },
 
+    "/get-cart/:userID": {
+      GET: controller.getCart,
+    },
+
     "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: (req, res) => {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);
@@ -258,6 +262,10 @@ const routes = {
     
     "/verifyAssociate/:associate_id": {
       GET: controller.updateDeliveryAssociateVerification,
+    },
+
+    "/verifyRestaurant/:restaurant_id": {
+      GET: controller.updateRestaurantVerification,
     },
 
     notFound: (_req, res) => {
