@@ -37,6 +37,11 @@ const routes = {
     "/users/:userID/orders/:orderID" :{
       GET : controller.getUserOrder
     },
+
+    "/users/:userID/orders": {
+      GET: controller.getUserOrderHistory
+    },
+
     "/restaurants": {
       GET: controller.getAllRestaurants,
     },

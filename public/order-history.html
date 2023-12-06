@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Profile</title>
+    <title>Order History</title>
     <!-- Include necessary CSS and JavaScript libraries -->
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -91,96 +91,93 @@
 
 <div class="container mt-4">
     <div class="row">
-        <div class="col-md-6 mx-auto">
-            <div id="user-profile" style="display: none;">
-                <!-- User Profile content will be displayed here -->
+        <div class="col-md-8 mx-auto">
+            <h3>Order History for <span id="user-name">User</span></h3>
+            <div id="order-history" style="display: none;">
+                <!-- Order history content will be displayed here -->
             </div>
-            <br>
-            <div id="privacy-policy" style="display: none;">
-                <!-- User Profile content will be displayed here -->
+            <div id="no-orders" style="display: none;">
+                <p>No orders found.</p>
             </div>
             <div id="access-denied" style="display: none;">
                 <h3>Access Denied</h3>
-                <p>Please log in to view your profile.</p>
+                <p>Please log in to view order history.</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    async function getData(serverURL, token) {
-        try {
-            const response = await fetch(serverURL, {
-                headers: {
-                    'Authorization': `${token}`
+    async function loadOrderHistory() {
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMTg4MjU5NCwiZXhwIjoxNzAxODg2MTk0fQ.HImWO3I4sreDybWn2ld5S35YXfLBVeY1oEOdmvHB8Sg"; // Ideally, this should come from a secure source like localStorage
+        const userID = '{{userID}}'; // Replace with actual userID or retrieve from a secure source
+        const orderHistoryURL = `http://localhost:3000/users/{{userID}}/orders`;
+        const userDetailsURL = `http://localhost:3000/users/${userID}`;
+
+        async function getData(serverURL, token) {
+            try {
+                const response = await fetch(serverURL, {
+                    headers: {
+                        'Authorization': `${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
                 }
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok.');
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                return { error: error.message };
             }
-            return await response.json();
+        }   
+
+        try {
+            const userDetails = await getData(userDetailsURL, token);
+            if (userDetails && userDetails.name) {
+                document.getElementById('user-name').innerText = userDetails.name;
+            }
+            const orderHistory = await getData(orderHistoryURL, token);
+            if (orderHistory.length) {
+                displayOrderHistory(orderHistory);
+            } else {
+                document.getElementById('no-orders').style.display = 'block';
+            }
         } catch (error) {
             console.error('Error:', error);
-            return { error: error.message };
-        }
-    }
-
-    async function loadUserProfile() {
-        event.preventDefault();
-        // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMTg4MjU5NCwiZXhwIjoxNzAxODg2MTk0fQ.HImWO3I4sreDybWn2ld5S35YXfLBVeY1oEOdmvHB8Sg"
-        if (!token) {
-            // No token found, show access denied message
             document.getElementById('access-denied').style.display = 'block';
-            return;
         }
-
-        // const userID = '11'; // Replace '123' with the actual user ID
-        const userProfileURL = `http://localhost:3000/users/{{userID}}`;
-
-        const userProfile = await getData(userProfileURL, token);
-        if (userProfile.error) {
-            // Handle error fetching user profile or invalid token
-            console.error('Error fetching user profile:', userProfile.error);
-            document.getElementById('access-denied').style.display = 'block';
-            return;
-        }
-
-        // Display user profile data
-        const userProfileDiv = document.getElementById('user-profile');
-        userProfileDiv.style.display = 'block';
-        userProfileDiv.innerHTML = `
-            <h3>User Profile</h3>
-            <p><strong>Name:</strong> ${userProfile.name}</p>
-            <p><strong>Email:</strong> ${userProfile.email}</p>
-            <p><strong>Address:</strong> ${userProfile.home_address}</p>
-            <p><strong>City:</strong> ${userProfile.city}</p>
-            <p><strong>State:</strong> ${userProfile.state}</p>
-            <p><strong>Zip Code:</strong> ${userProfile.zip_code}</p>
-        `;
-
-
-         const privacyPolicy = document.getElementById('privacy-policy');
-         privacyPolicy.style.display = 'block';
-         privacyPolicy.innerHTML = `
-                <h3>Privacy</h3>
-                <p>RUEats protects your privacy and personal information. You can choose to share your information with businesses so they can send you promotions and emails.</p>
-        `;
     }
 
-    function getTokenFromLocalStorage() {
-        // Implement logic to get the token from local storage or cookies
-        // For example:
-        // return localStorage.getItem('token');
-        // or retrieve token from cookies
+    function displayOrderHistory(orders) {
+        const orderHistoryDiv = document.getElementById('order-history');
+        orderHistoryDiv.style.display = 'block';
+        orderHistoryDiv.innerHTML = '<h4>Your Orders</h4>';
+
+        orders.forEach(order => {
+            orderHistoryDiv.innerHTML += `
+                <div class="order">
+                    <p>Order ID: ${order.order_id}</p>
+                    <p>Order Date: ${order.order_date}</p>
+                    <p>Total Amount: ${order.total_amount}</p>
+                    <button onclick="addReview(${order.order_id})">Add Review</button>
+                    &nbsp;
+                    <button onclick="orderDetails(${order.order_id})">View Details</button>
+                </div>
+                <hr>`;
+        });
     }
 
-    function viewOrderHistory() {
-        const userID = '{{userID}}'; // Replace with actual userID or retrieve from a secure source
-        window.location.href = `/app/users/${userID}/orders`; // Redirect to the order history page
+    function addReview(orderID) {
+        // Logic to handle review addition
+        // This might involve redirecting to another page or opening a modal form
     }
 
-    window.onload = loadUserProfile;
+    function viewDetails(orderID) {
+        // Logic to handle review addition
+        // This might involve redirecting to another page or opening a modal form
+    }
+
+    window.onload = loadOrderHistory;
 </script>
 
 </body>

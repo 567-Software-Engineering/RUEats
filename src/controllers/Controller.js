@@ -49,6 +49,29 @@ module.exports = class Controller {
     }
   };
 
+  async getUserOrderHistory(req, res) {
+    try {
+        const { userID } = req.params;
+        const token = req.headers.authorization;
+    
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                if (decoded.user_id != userID) {
+                    response(res, { status: 403, data: { message: 'Forbidden' } });
+                    return;
+                }
+
+                const orders = await dbRepo.getOrderHistoryByUserID(userID);
+                const data = orders.length ? orders : `No orders found for UserID: ${userID}`;
+                response(res, {data});
+            }
+        });
+    } catch(error) {
+        response(res, {status: 400, data: error.message});
+    }
+  };
 
   async getUsers(req, res) {
     try {
@@ -108,12 +131,12 @@ module.exports = class Controller {
         });
       }
 
-      if (user.verified === 'false') {
-        return response(res, {
-          data: { message: 'Email not verified. Please check your email for a verification link.' },
-          status: 401,
-        });
-      }
+      // if (user.verified === 'false') {
+      //   return response(res, {
+      //     data: { message: 'Email not verified. Please check your email for a verification link.' },
+      //     status: 401,
+      //   });
+      // }
 
 
       const result = bcrypt.compareSync(body.password, user.password);
