@@ -102,7 +102,7 @@ module.exports = class RUEatsRepository {
   insertRestaurant(newRestaurant) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newRestaurant.name,
           newRestaurant.email,
@@ -112,7 +112,8 @@ module.exports = class RUEatsRepository {
           newRestaurant.rating || null, // Assuming it can be null
           newRestaurant.operating_hours || null, // Assuming it can be null
           newRestaurant.is_active || true, // Assuming default is active 
-          newRestaurant.password
+          newRestaurant.password,
+          0,
         ];
 
         this.connection.query(query, values, (error, results) => {
@@ -128,6 +129,18 @@ module.exports = class RUEatsRepository {
     });
   }
   
+  updateRestaurantVerifiedStatus(restaurantId) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE restaurants SET verified = '1' WHERE restaurant_id = ?`;
+      this.connection.query(query, [restaurantId], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
 
 
 

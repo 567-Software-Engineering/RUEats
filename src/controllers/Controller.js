@@ -23,6 +23,7 @@ module.exports = class Controller {
   constructor() {
     this.createUser = this.createUser.bind(this);
     this.createAssociate = this.createAssociate.bind(this);
+    this.createRestaurant = this.createRestaurant.bind(this);
   }
 
 
@@ -201,6 +202,15 @@ module.exports = class Controller {
       const hashVal = bcrypt.hashSync(body.password, salt);
       body.password = hashVal;
       await dbRepo.insertRestaurant(body);
+
+      const updatedRestaurants = await dbRepo.getAllRestaurants();
+      const newFoundRestaurant = updatedRestaurants.find(
+        (restaurant) => restaurant.email === body.email
+      );
+      const restaurantIDNew = newFoundRestaurant.restaurant_id;
+
+      await this.sendRestaurantEmail(body.email, restaurantIDNew);
+
       response(res, { status: 201, data: { message: "success" } });
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
@@ -219,6 +229,17 @@ module.exports = class Controller {
           data: { message: 'Restaurant not found' },
         });
       }
+
+      if (!restaurant.verified) {
+        return response(res, {
+          data: {
+            message:
+              "Email not verified. Please check your email for a verification link.",
+          },
+          status: 401,
+        });
+      }
+
       const result = bcrypt.compareSync(body.password, restaurant.password);
 
       if (result) {
@@ -233,6 +254,62 @@ module.exports = class Controller {
       response(res, { status: 400, data: { message: error.message } });
     }
   };
+
+
+  async sendRestaurantEmail(email, restaurantId) {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: "rueatsapp@gmail.com",
+      to: email,
+      subject: "Email Verification for RUEats Restaurant",
+      html: `<p>Click the following link to verify your email:</p>
+            <a href="http://localhost:3000/verifyRestaurant/${restaurantId}">Verify Email</a>`,
+    };
+
+    return transporter.sendMail(mailOptions);
+  }
+
+  async updateRestaurantVerification(req, res) {
+    try {
+      const { restaurant_id } = req.params;
+      const result = await dbRepo.updateRestaurantVerifiedStatus(restaurant_id);
+
+      if (!result) {
+        return response(res, {
+          status: 401,
+          data: { message: "Unauthorized" },
+        });
+      }
+
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Email Verification Success</title>
+      </head>
+      <body>
+        <h1>Email Verification Successful</h1>
+        <p>Your email has been successfully verified for RUEats Restaurant.</p>
+        <p>You can now log in to the RUEats application.</p>
+      </body>
+      </html>
+      `;
+
+      res.setHeader("Content-Type", "text/html");
+      res.write(htmlContent);
+      res.end();
+    } catch (error) {
+      return response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
 
 
   async getLatitudeLongitude(req, res) {
