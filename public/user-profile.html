@@ -228,7 +228,7 @@
     async function loadUserProfile() {
         event.preventDefault();
         // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg3NTMyNywiZXhwIjoxNzAxODc4OTI3fQ.GRcvcrdeDIuiMdU6btPQHTLX-xJIc3ojSuU5XuYYF38"
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg5MjczMywiZXhwIjoxNzAxODk2MzMzfQ.sLq32YTH-tF-a6g2LOif7ooucHK8s6yoKRKT3AARx38"
         if (!token) {
             // No token found, show access denied message
             document.getElementById('access-denied').style.display = 'block';
@@ -290,7 +290,7 @@
 
     async function updateUserProfile(userData) {
     const apiUrl = `http://localhost:3000/users/{{userID}}`;
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg3NTMyNywiZXhwIjoxNzAxODc4OTI3fQ.GRcvcrdeDIuiMdU6btPQHTLX-xJIc3ojSuU5XuYYF38"
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg5MjczMywiZXhwIjoxNzAxODk2MzMzfQ.sLq32YTH-tF-a6g2LOif7ooucHK8s6yoKRKT3AARx38"
         
     try {
         const response = await fetch(apiUrl, {
