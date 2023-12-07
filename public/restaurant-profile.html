@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Profile</title>
+    <!-- Include necessary CSS and JavaScript libraries -->
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Bootstrap JavaScript dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        .navbar {
+            background-color: #dc3545;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff;
+        }
+
+        .nav-link {
+            color: #fff;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        #restaurant-profile {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #access-denied {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        strong {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="#">
+        RUEats
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="loadRestaurantProfile()">Restaurant</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div id="restaurant-profile" style="display: none;">
+                <!-- Restaurant Profile content will be displayed here -->
+                <div id="restaurant-profile-content"></div>
+                <button class="btn btn-primary" onclick="openEditDialog()">Edit</button>
+            </div>
+            <div id="access-denied" style="display: none;">
+                <h3>Access Denied</h3>
+                <p>Please log in to view the restaurant profile.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Restaurant Modal -->
+<div class="modal" id="editRestaurantModal">
+    <!-- ... (your existing modal content) ... -->
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div id="restaurant-profile" style="display: none;">
+                <!-- Restaurant Profile content will be displayed here -->
+                <div id="restaurant-profile-content"></div>
+                <button class="btn btn-primary" onclick="openEditDialog()">Edit</button>
+            </div>
+            <div id="access-denied" style="display: none;">
+                <h3>Access Denied</h3>
+                <p>Please log in to view the restaurant profile.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Restaurant Modal -->
+<div class="modal" id="editRestaurantModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Restaurant</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Add form fields for editing restaurant data -->
+                <!-- Example: -->
+                <div class="form-group">
+                    <label for="editRestaurantName">Name:</label>
+                    <input type="text" class="form-control" id="editRestaurantName" value="">
+                </div>
+                <!-- Add other form fields as needed -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveEditedData()">Save Changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    async function getRestaurantData(serverURL, token, restaurantId) {
+        try {
+            const response = await fetch(`${serverURL}/${restaurantId}`, {
+                headers: {
+                    'Authorization': `${token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return { error: error.message };
+        }
+    }
+
+    async function loadRestaurantProfile() {
+        event.preventDefault();
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTgxMDg3OCwiZXhwIjoxNzAxODE0NDc4fQ.TTqHKVARqvxyuFDtl6JWAVE5NiqL_IyCl7yjh8Iu8uo"; // Replace with the actual token
+        if (!token) {
+            // No token found, show access denied message
+            document.getElementById('access-denied').style.display = 'block';
+            return;
+        }
+
+        // Extract restaurant ID from the URL
+        const restaurantId = window.location.pathname.split('/').pop();
+
+        const restaurantProfileURL = 'http://localhost:3000/restaurants'; // Modify this URL as needed
+
+        const restaurantProfile = await getRestaurantData(restaurantProfileURL, token, restaurantId);
+        if (restaurantProfile.error) {
+            // Handle error fetching restaurant profile or invalid token
+            console.error('Error fetching restaurant profile:', restaurantProfile.error);
+            document.getElementById('access-denied').style.display = 'block';
+            return;
+        }
+
+        // Display restaurant profile data
+        const restaurantProfileDiv = document.getElementById('restaurant-profile');
+        restaurantProfileDiv.style.display = 'block';
+
+        // Display restaurant profile content inside the 'restaurant-profile-content' div
+        const restaurantProfileContentDiv = document.getElementById('restaurant-profile-content');
+        restaurantProfileContentDiv.innerHTML = `
+            <h3>${restaurantProfile[0].name}</h3>
+            <p><strong>Email:</strong> ${restaurantProfile[0].email}</p>
+            <p><strong>Phone Number:</strong> ${restaurantProfile[0].phone_number}</p>
+            <p><strong>Address:</strong> ${restaurantProfile[0].address}</p>
+            <p><strong>Cuisine Type:</strong> ${restaurantProfile[0].cuisine_type}</p>
+            <p><strong>Rating:</strong> ${restaurantProfile[0].rating}</p>
+            <p><strong>Operating Hours:</strong> ${restaurantProfile[0].operating_hours}</p>
+            <p><strong>Status:</strong> ${restaurantProfile[0].is_active ? 'Active' : 'Inactive'}</p>
+        `;
+    }
+
+
+    function openEditDialog() {
+        // You can customize this function to load existing data into the modal fields if needed
+        $('#editRestaurantModal').modal('show');
+    }
+
+    // Function to save edited data (you can implement this as needed)
+    function saveEditedData() {
+        // You can implement logic here to send the edited data to the server
+        // and update the restaurant profile on the page
+        // After saving, you may want to close the modal
+        $('#editRestaurantModal').modal('hide');
+    }
+
+    function getTokenFromLocalStorage() {
+        // Implement logic to get the token from local storage or cookies
+        // For example:
+        // return localStorage.getItem('token');
+        // or retrieve token from cookies
+    }
+    
+    window.onload = loadRestaurantProfile;
+</script>
+
+
+</body>
+</html>

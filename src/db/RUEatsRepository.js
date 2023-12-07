@@ -68,7 +68,35 @@ module.exports = class RUEatsRepository {
     });
   }
 
-  getAllRestaurants() {
+  getOrderHistoryByUserID(userID) {
+    return new Promise((resolve, reject) => {
+        this.connection.query('SELECT * FROM orders WHERE user_id = ?', [userID], function (error, results) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+  }
+
+  getRestaurantById(restaurant_id) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(
+        "SELECT * FROM restaurants WHERE restaurant_id = ?",
+        [restaurant_id], 
+        function (error, results, fields) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        }
+      );
+    });
+  }
+
+  getAllRestaurants(){
     return new Promise((resolve, reject) => {
       this.connection.query(
         "SELECT * FROM restaurants WHERE is_active = 1",
@@ -86,7 +114,7 @@ module.exports = class RUEatsRepository {
   insertRestaurant(newRestaurant) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newRestaurant.name,
           newRestaurant.email,
@@ -96,7 +124,8 @@ module.exports = class RUEatsRepository {
           newRestaurant.rating || null, // Assuming it can be null
           newRestaurant.operating_hours || null, // Assuming it can be null
           newRestaurant.is_active || true, // Assuming default is active 
-          newRestaurant.password
+          newRestaurant.password,
+          0,
         ];
 
         this.connection.query(query, values, (error, results) => {
@@ -112,6 +141,18 @@ module.exports = class RUEatsRepository {
     });
   }
   
+  updateRestaurantVerifiedStatus(restaurantId) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE restaurants SET verified = '1' WHERE restaurant_id = ?`;
+      this.connection.query(query, [restaurantId], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
 
 
 
@@ -136,7 +177,7 @@ module.exports = class RUEatsRepository {
   insertAssociate(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newUser.name,
           newUser.email,
@@ -148,6 +189,7 @@ module.exports = class RUEatsRepository {
           newUser.longitude || null,
           newUser.delivery_in_progress || 0, // Assuming it's a boolean or integer field
           newUser.password,
+          "false",
         ];
 
         this.connection.query(query, values, (error, results) => {
@@ -160,6 +202,19 @@ module.exports = class RUEatsRepository {
       } catch (error) {
         reject(error);
       }
+    });
+  }
+
+  updateAssociateVerifiedStatus(associate_id) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE delivery_associates SET verified = 'true' WHERE associate_id = ?`;
+      this.connection.query(query, [associate_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
     });
   }
 
@@ -959,6 +1014,44 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  async updateCart(userID, itemID, quantity) {
+    return new Promise((resolve, reject) => {
+      const query = `INSERT INTO cart (user_id, item_id, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = ?`;
+      this.connection.query(query, [userID, itemID, quantity, quantity], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+
+  async clearCart(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `DELETE FROM cart WHERE user_id = ?`;
+      this.connection.query(query, [userID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+
+  async getCart(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT item_id, quantity FROM cart WHERE user_id = ?`;
+      this.connection.query(query, [userID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+  }
 
   async getOrderItemsNamesPriceFromOrder(orderID) {
     return new Promise((resolve, reject) => {
@@ -983,6 +1076,7 @@ module.exports = class RUEatsRepository {
       }
     });
   }
+
 
 
 }

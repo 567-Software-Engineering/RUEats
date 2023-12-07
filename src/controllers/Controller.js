@@ -22,6 +22,8 @@ module.exports = class Controller {
 
   constructor() {
     this.createUser = this.createUser.bind(this);
+    this.createAssociate = this.createAssociate.bind(this);
+    this.createRestaurant = this.createRestaurant.bind(this);
   }
 
 
@@ -48,6 +50,29 @@ module.exports = class Controller {
     }
   };
 
+  async getUserOrderHistory(req, res) {
+    try {
+        const { userID } = req.params;
+        const token = req.headers.authorization;
+    
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                if (decoded.user_id != userID) {
+                    response(res, { status: 403, data: { message: 'Forbidden' } });
+                    return;
+                }
+
+                const orders = await dbRepo.getOrderHistoryByUserID(userID);
+                const data = orders.length ? orders : `No orders found for UserID: ${userID}`;
+                response(res, {data});
+            }
+        });
+    } catch(error) {
+        response(res, {status: 400, data: error.message});
+    }
+  };
 
   async getUsers(req, res) {
     try {
@@ -143,6 +168,29 @@ module.exports = class Controller {
     }
   }
 
+  async getRestaurant(req, res) {
+    try {
+      const { restaurant_id} = req.params;
+
+      if(isNaN(Number(restaurant_id)) ) {
+        response(res, {status: 400, data: {message: 'RestaurantID should be numerical'}});
+      }
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const order = await dbRepo.getRestaurantById(restaurant_id);
+          const data = order ? order : `Restaurant not found for RestaurantID: ${restaurant_id}`;
+          response(res, { data });
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
   async getRestaurantMenu(req, res) {
     try {
       const { restaurantID } = req.params;
@@ -177,6 +225,15 @@ module.exports = class Controller {
       const hashVal = bcrypt.hashSync(body.password, salt);
       body.password = hashVal;
       await dbRepo.insertRestaurant(body);
+
+      const updatedRestaurants = await dbRepo.getAllRestaurants();
+      const newFoundRestaurant = updatedRestaurants.find(
+        (restaurant) => restaurant.email === body.email
+      );
+      const restaurantIDNew = newFoundRestaurant.restaurant_id;
+
+      await this.sendRestaurantEmail(body.email, restaurantIDNew);
+
       response(res, { status: 201, data: { message: "success" } });
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
@@ -195,6 +252,17 @@ module.exports = class Controller {
           data: { message: 'Restaurant not found' },
         });
       }
+
+      if (!restaurant.verified) {
+        return response(res, {
+          data: {
+            message:
+              "Email not verified. Please check your email for a verification link.",
+          },
+          status: 401,
+        });
+      }
+
       const result = bcrypt.compareSync(body.password, restaurant.password);
 
       if (result) {
@@ -209,6 +277,62 @@ module.exports = class Controller {
       response(res, { status: 400, data: { message: error.message } });
     }
   };
+
+
+  async sendRestaurantEmail(email, restaurantId) {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: "rueatsapp@gmail.com",
+      to: email,
+      subject: "Email Verification for RUEats Restaurant",
+      html: `<p>Click the following link to verify your email:</p>
+            <a href="http://localhost:3000/verifyRestaurant/${restaurantId}">Verify Email</a>`,
+    };
+
+    return transporter.sendMail(mailOptions);
+  }
+
+  async updateRestaurantVerification(req, res) {
+    try {
+      const { restaurant_id } = req.params;
+      const result = await dbRepo.updateRestaurantVerifiedStatus(restaurant_id);
+
+      if (!result) {
+        return response(res, {
+          status: 401,
+          data: { message: "Unauthorized" },
+        });
+      }
+
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Email Verification Success</title>
+      </head>
+      <body>
+        <h1>Email Verification Successful</h1>
+        <p>Your email has been successfully verified for RUEats Restaurant.</p>
+        <p>You can now log in to the RUEats application.</p>
+      </body>
+      </html>
+      `;
+
+      res.setHeader("Content-Type", "text/html");
+      res.write(htmlContent);
+      res.end();
+    } catch (error) {
+      return response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
 
 
   async getLatitudeLongitude(req, res) {
@@ -280,11 +404,24 @@ module.exports = class Controller {
       const hashVal = bcrypt.hashSync(body.password, salt)
       body.password = hashVal;
       await dbRepo.insertAssociate(body);
-      response(res, { status: 201, data: { message: "success" } });
+
+      const updatedAssociates = await dbRepo.getAllAssociates();
+      const newFoundAssociate = updatedAssociates.find(
+        (assoc) => assoc.email === body.email
+      );
+      const associateIDNew = newFoundAssociate.associate_id;
+
+      await this.sendDeliveryAssociateEmail(body.email, associateIDNew);
+
+      response(res, {
+        status: 201,
+        data: { message: "Associate created successfully" },
+      });
     } catch (error) {
       response(res, { status: 400, data: { message: error.message } });
     }
-  };
+  }
+
 
   async loginAssociate(req, res) {
     try {
@@ -299,6 +436,17 @@ module.exports = class Controller {
           status: 404,
         });
       }
+
+      if (user.verified === "false") {
+        return response(res, {
+          data: {
+            message:
+              "Email not verified. Please check your email for a verification link.",
+          },
+          status: 401,
+        });
+      }
+
       const result = bcrypt.compareSync(body.password, user.password);
 
       if (result) {
@@ -313,6 +461,65 @@ module.exports = class Controller {
       response(res, { status: 400, data: { message: error.message } });
     }
   }
+
+  async sendDeliveryAssociateEmail(email, associateId) {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: "rueatsapp@gmail.com",
+      to: email,
+      subject: "Email Verification for RUEats Delivery Associate",
+      html: `<p>Click the following link to verify your email:</p>
+             <a href="http://localhost:3000/verifyAssociate/${associateId}">Verify Email</a>`,
+    };
+
+    return transporter.sendMail(mailOptions);
+  }
+
+  async updateDeliveryAssociateVerification(req, res) {
+    try {
+      const { associate_id } = req.params;
+
+      const associate = await dbRepo.getAssocaiteByIdDB(associate_id);
+
+      if (!associate) {
+        return response(res, {
+          status: 401,
+          data: { message: "Unauthorized" },
+        });
+      }
+
+      await dbRepo.updateAssociateVerifiedStatus(associate_id);
+
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Email Verification Success</title>
+      </head>
+      <body>
+        <h1>Email Verification Successful</h1>
+        <p>Your email has been successfully verified for RUEats Delivery Associate.</p>
+        <p>You can now log in to the RUEats application.</p>
+      </body>
+      </html>
+    `;
+
+      res.setHeader("Content-Type", "text/html");
+      res.write(htmlContent);
+      res.end();
+    } catch (error) {
+      return response(res, { status: 400, data: { message: error.message } });
+    }
+  }
+
+
 
   async getRestaurantNotifications(req, res) {
     try {
@@ -892,6 +1099,76 @@ module.exports = class Controller {
       response(res, { status: 400, data: error.message });
     }
   }
+
+  async updateCart(req, res) {
+    try {
+      const token = req.headers.authorization;
+      
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: {message: 'Unauthorized'} });
+        } else {
+          const { userID, itemID, quantity } = req.body;
+          
+          const updated = await dbRepo.updateCart(userID, itemID, quantity);
+          if (updated === true) {
+            response(res, { data: {message: "Cart updated!"} });
+          } else {
+            response(res, { data: {message: 'Error updating cart' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async clearCart(req, res) {
+    try {
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, {status: 401, data: {message: 'Unauthorized'} });
+        } else {
+          const { userID } = req.params;
+          const cleared = await dbRepo.clearCart(userID);
+          if (cleared === true) {
+            response(res, { data: {message: "Cart cleared!"} });
+          }
+          else {
+            response(res, { data: {message: 'Error clearing cart' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async getCart(req, res) {
+    try {
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, {status: 401, data: {message: 'Unauthorized'} });
+        } else {
+          const { userID } = req.params;
+          const cart = await dbRepo.getCart(userID);
+          if (cart != null) {
+            response(res, { data: cart });
+          }
+          else {
+            response(res, { data: {message: 'Error getting cart' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+            
 
   async getClosestAssociate(req, res) {
     try {

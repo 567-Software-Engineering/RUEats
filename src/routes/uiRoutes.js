@@ -15,6 +15,21 @@ const uiRoutes = {
         }
     },
 
+    "/app/restaurants/:restaurant_id" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/restaurant-profile.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { restaurant_id } = _req.params;
+                    data = data.replace(/{{restaurant_id}}/g, restaurant_id);
+                    console.log(restaurant_id);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
     "/app/restaurant-menu/:restaurantID" : {
         GET:(_req, res) =>{
             fs.readFile('./public/restaurant-menu.html', 'utf8', function (error, data) {
@@ -56,6 +71,46 @@ const uiRoutes = {
             });
         }
     },
+
+
+    "/home" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/home.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+    "/app/cart/:userID" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/cart.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { userID } = _req.params;
+                    data = data.replace(/{{userID}}/g, userID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
+    "/app/users/:userID/orders" : {
+        GET: (_req, res) => {
+            fs.readFile('./public/order-history.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status: 404})
+                } else {
+                    const { userID } = _req.params;
+                    data = data.replace(/{{userID}}/g, userID);
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        }
+    },    
 
 }
 module.exports = uiRoutes

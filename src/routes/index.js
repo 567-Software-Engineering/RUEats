@@ -37,8 +37,17 @@ const routes = {
     "/users/:userID/orders/:orderID" :{
       GET : controller.getUserOrder
     },
+
+    "/users/:userID/orders": {
+      GET: controller.getUserOrderHistory
+    },
+
     "/restaurants": {
       GET: controller.getAllRestaurants,
+    },
+
+    "/restaurants/:restaurant_id": {
+      GET: controller.getRestaurant,
     },
       
     "/get-location":{
@@ -209,6 +218,20 @@ const routes = {
       },
     },
 
+    "/update-cart": {
+      PATCH: (req, res) => {
+        validatePostRequests(req, res, controller.updateCart);
+      },
+    },
+
+    "/clear-cart/:userID": {
+      DELETE: controller.clearCart,
+    },
+
+    "/get-cart/:userID": {
+      GET: controller.getCart,
+    },
+
     "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: (req, res) => {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);
@@ -235,7 +258,15 @@ const routes = {
     },
     "/verify/:user_id": {
       GET: controller.updateUserVerification,
-      },
+    },
+    
+    "/verifyAssociate/:associate_id": {
+      GET: controller.updateDeliveryAssociateVerification,
+    },
+
+    "/verifyRestaurant/:restaurant_id": {
+      GET: controller.updateRestaurantVerification,
+    },
 
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });
