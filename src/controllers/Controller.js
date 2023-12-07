@@ -796,9 +796,14 @@ module.exports = class Controller {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
+          const data_interim = {}
           const orders = await dbRepo.getDeliveryAssociateOrder(associateID);
-          if (orders != null) {
-          const data = orders;
+          data_interim.order = orders
+          data_interim.user = await dbRepo.getUserByIdDB(orders.user_id);
+          data_interim.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(orders.order_id);
+          
+          if (data_interim != null) {
+          const data = data_interim;
           response(res, { data });
           } else {
             response(res, { data: 'No orders found for the given user' });
@@ -823,7 +828,7 @@ module.exports = class Controller {
         if (err) { 
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          if (![1, 2, 3].includes(status)) {
+          if (![0, 1, 2, 3, 4, 5, 6].includes(status)) {
             response(res, { status: 400, data: { message: "Invalid status value." } });
             return;
           }

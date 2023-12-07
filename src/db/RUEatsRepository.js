@@ -960,5 +960,29 @@ module.exports = class RUEatsRepository {
   }
 
 
+  async getOrderItemsNamesPriceFromOrder(orderID) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'select item_name,m.price,oi.quantity from orders_items oi left join menu m ON oi.item_id =m.item_id where oi.order_id = ?';
+        this.connection.query(query, [orderID], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results);
+            } else {
+              resolve(null);
+              // console.log("No orders found");
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getDeliveryAssociateOrder:', error);
+        reject(error);
+      }
+    });
+  }
+
 
 }
