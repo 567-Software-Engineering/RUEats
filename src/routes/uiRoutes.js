@@ -1,6 +1,7 @@
 const response = require("../utils/response");
 let fs = require('fs');
-
+const Controller = require('../controllers/Controller');
+const controller = new Controller();
 
 const uiRoutes = {
     "/app/restaurants" : {
@@ -96,6 +97,34 @@ const uiRoutes = {
             });
         }
     },    
+
+    "/app/login" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/login.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Login page not found!", status : 404})
+                } else {
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
+    "/app/register": {
+        GET:(_req, res) =>{
+            fs.readFile('./public/signup.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Signup page not found!", status : 404})
+                } else {
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        },
+        POST: (req, res) => {
+            // Delegate to controller.createUser method for registration logic
+            controller.createUser(req, res);
+        }
+    }
 
 }
 module.exports = uiRoutes

@@ -197,6 +197,8 @@
 </div>
 
 <script>
+    var jwtToken = '';
+
     let userName = ''; // Global variable to store user name
     let userEmail = '';
 
@@ -204,6 +206,7 @@
                     // Add logic for handling login button click
                     // For example: Redirect to login page or show login modal
                     console.log('Login button clicked');
+                    console.log(jwtToken);
                 }
 
         function handleRegister() {
@@ -211,11 +214,11 @@
             // For example: Redirect to register page or show registration form
             console.log('Register button clicked');
         }
-    async function getData(serverURL, token) {
+    async function getData(serverURL, jwtToken) {
         try {
             const response = await fetch(serverURL, {
                 headers: {
-                    'Authorization': `${token}`
+                    'Authorization': `${jwtToken}`
                 }
             });
             if (!response.ok) {
@@ -231,8 +234,8 @@
     async function loadUserProfile() {
         event.preventDefault();
         // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg5MjczMywiZXhwIjoxNzAxODk2MzMzfQ.sLq32YTH-tF-a6g2LOif7ooucHK8s6yoKRKT3AARx38"
-        if (!token) {
+        // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg5MjczMywiZXhwIjoxNzAxODk2MzMzfQ.sLq32YTH-tF-a6g2LOif7ooucHK8s6yoKRKT3AARx38"
+        if (!jwtToken) {
             // No token found, show access denied message
             document.getElementById('access-denied').style.display = 'block';
             return;
@@ -241,7 +244,7 @@
         // const userID = '11'; // Replace '123' with the actual user ID
         const userProfileURL = `http://localhost:3000/users/{{userID}}`;
 
-        const userProfile = await getData(userProfileURL, token);
+        const userProfile = await getData(userProfileURL, jwtToken);
         if (userProfile.error) {
             // Handle error fetching user profile or invalid token
             console.error('Error fetching user profile:', userProfile.error);
@@ -293,14 +296,14 @@
 
     async function updateUserProfile(userData) {
     const apiUrl = `http://localhost:3000/users/{{userID}}`;
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg5MjczMywiZXhwIjoxNzAxODk2MzMzfQ.sLq32YTH-tF-a6g2LOif7ooucHK8s6yoKRKT3AARx38"
+    // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg5MjczMywiZXhwIjoxNzAxODk2MzMzfQ.sLq32YTH-tF-a6g2LOif7ooucHK8s6yoKRKT3AARx38"
         
     try {
         const response = await fetch(apiUrl, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token
+                'Authorization': jwtToken
             },
             body: JSON.stringify(userData)
         });
@@ -358,7 +361,16 @@
         window.location.href = `/app/users/${userID}/orders`; // Redirect to the order history page
     }
 
-    window.onload = loadUserProfile;
+    function loadToken() {
+    jwtToken = localStorage.getItem('jwtToken') || '';
+    console.log('Token loaded:', jwtToken);
+    }
+
+    window.onload = function() {
+        loadToken(); // Load token first
+        loadUserProfile(); // Then load user profile
+    };
+
 </script>
 
 </body>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <!-- Include the necessary CSS and JavaScript libraries, similar to the user profile page -->
+    <!-- Include Bootstrap CSS, Font Awesome, and other dependencies as in the user profile page -->
+    <style>
+        /* Styles similar to the user profile page for consistency */
+        .container {
+            margin-top: 50px;
+        }
+
+        #registration-form {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        h3 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #dc3545;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #c82333;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: calc(100% - 12px);
+            padding: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        /* Add more styles as needed */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div id="registration-form">
+                <h3>Register</h3>
+                <form id="regForm">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required><br>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required><br>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required><br>
+
+                    <label for="home_address">Home Address:</label>
+                    <input type="text" id="home_address" name="home_address" required><br>
+
+                    <label for="zip_code">Zip Code:</label>
+                    <input type="text" id="zip_code" name="zip_code" required><br>
+
+                    <label for="city">City:</label>
+                    <input type="text" id="city" name="city" required><br>
+
+                    <label for="state">State:</label>
+                    <input type="text" id="state" name="state" required><br>
+
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('regForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        registerUser();
+    });
+
+    async function registerUser() {
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            home_address: document.getElementById('home_address').value,
+            zip_code: document.getElementById('zip_code').value,
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value
+        };
+
+        try {
+            const response = await fetch('http://localhost:3000/users/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+
+            const data = await response.json();
+            console.log('Registration successful:', data);
+            window.alert('Registration successful!');
+            window.location.href = '/app/login'
+            // Redirect user to login page or home page after successful registration
+        } catch (error) {
+            console.error('Error during registration:', error.message);
+            window.alert('Error during registration. Please try again.');
+        }
+    }
+</script>
+
+</body>
+</html>
