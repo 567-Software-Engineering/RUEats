@@ -191,6 +191,50 @@ module.exports = class Controller {
     }
   }
 
+  async updateRestaurantProfile(req, res) {
+    try {
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: "Unauthorized" } });
+        } else {
+          const { restaurant_id } = req.params;
+          const { name, email, phone_number, address, cuisine_type, operating_hours,is_active } = req.body;
+
+          // Check if the email field is provided in the request
+
+          const updatedProfile = {
+            restaurant_id,
+            name,
+            email,
+            phone_number,
+            address,
+            cuisine_type,
+            operating_hours,
+            is_active
+          };
+
+          // Hash the password using bcrypt
+          // if (password) {
+          //   const saltRounds = 10; // You can adjust this according to your needs
+          //   const hashedPassword = await bcrypt.hash(password, saltRounds);
+          //   updatedProfile.password = hashedPassword;
+          // }
+
+          const updated = await dbRepo.updateRestaurantProfileInDB(restaurant_id, updatedProfile);
+
+          if (updated) {
+            response(res, { data: { message: "Restaurant profile updated successfully" } });
+          } else {
+            response(res, { status: 400, data: { message: "No valid updates provided" } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+  }
+
   async getRestaurantMenu(req, res) {
     try {
       const { restaurantID } = req.params;

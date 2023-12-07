@@ -141,6 +141,36 @@ module.exports = class RUEatsRepository {
     });
   }
   
+  async updateRestaurantProfileInDB(restaurant_id, updates) {
+    return new Promise((resolve, reject) => {
+      const updateFields = [];
+      const updateValues = [];
+  
+      // Create a dynamic SQL query with placeholders for updates
+      const placeholders = [];
+      for (const field in updates) {
+        if (field !== 'name' && field !== 'email' && updates[field] !== undefined) {
+          updateFields.push(`${field} = ?`);
+          updateValues.push(updates[field]);
+          placeholders.push('?');
+        }
+      }
+  
+      if (updateFields.length === 0) {
+        resolve(false); // No valid updates provided
+        return;
+      }
+  
+      const query = `UPDATE restaurants SET ${updateFields.join(', ')} WHERE restaurant_id = ?`;
+      this.connection.query(query, [...updateValues, restaurant_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
   updateRestaurantVerifiedStatus(restaurantId) {
     return new Promise((resolve, reject) => {
       const query = `UPDATE restaurants SET verified = '1' WHERE restaurant_id = ?`;
@@ -153,8 +183,6 @@ module.exports = class RUEatsRepository {
       });
     });
   }
-
-
 
   getAllAssociates() {
     return new Promise((resolve, reject) => {

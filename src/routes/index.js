@@ -4,8 +4,8 @@ const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
 const validatePostRequests = require('./../validations/validatePostRequests');
-const validateGetTimeEstimate = require('./../validations/validateGetTimeEstimate')
-
+const validateGetTimeEstimate = require('./../validations/validateGetTimeEstimate');
+const validateRestaurantData = require('./../validations/validateRestaurantData');
 const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
 const controller = new controllerClass();
 
@@ -48,6 +48,9 @@ const routes = {
 
     "/restaurants/:restaurant_id": {
       GET: controller.getRestaurant,
+      PUT: (req, res) => {
+        validateRestaurantData(req, res, controller.updateRestaurantProfile);
+      },
     },
       
     "/get-location":{
