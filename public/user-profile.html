@@ -259,18 +259,13 @@
     let userName = ''; 
     let userEmail = '';
 
-        function handleLogin() {
-                    // Add logic for handling login button click
-                    // For example: Redirect to login page or show login modal
-                    console.log('Login button clicked');
-                    console.log(jwtToken);
+        function redirectToRestaurants() {
+            event.preventDefault()
+            window.location.href = `/app/restaurants`; // Redirect to the order history page
+    
                 }
 
-        function handleRegister() {
-            // Add logic for handling register button click
-            // For example: Redirect to register page or show registration form
-            console.log('Register button clicked');
-        }
+
     async function getData(serverURL, jwtToken) {
         try {
             const response = await fetch(serverURL, {
