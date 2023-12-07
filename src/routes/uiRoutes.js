@@ -124,7 +124,63 @@ const uiRoutes = {
             // Delegate to controller.createUser method for registration logic
             controller.createUser(req, res);
         }
-    }
+    },
+
+    "/app/restaurantlogin": {
+        GET: (_req, res) => {
+            fs.readFile('./public/restaurant-login.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Restaurant Login page not found!", status: 404});
+                } else {
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        }
+    },
+
+    "/app/restaurantregistration": {
+        GET: (_req, res) => {
+            fs.readFile('./public/restaurant-signup.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Restaurant Signup page not found!", status: 404});
+                } else {
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        },
+        POST: (req, res) => {
+            // Delegate to a suitable method in the controller for restaurant registration
+            controller.createRestaurant(req, res);
+        }
+    },
+
+    "/app/deliveryassociatelogin": {
+        GET: (_req, res) => {
+            fs.readFile('./public/delivery-associate-login.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Delivery Associate Login page not found!", status: 404});
+                } else {
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        }
+    },
+
+    "/app/deliveryassociateregistration": {
+        GET: (_req, res) => {
+            fs.readFile('./public/delivery-associate-signup.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Delivery Associate Signup page not found!", status: 404});
+                } else {
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        },
+        POST: (req, res) => {
+            // Delegate to a suitable method in the controller for delivery associate registration
+            controller.createDeliveryAssociate(req, res);
+        }
+    },
 
 }
 module.exports = uiRoutes

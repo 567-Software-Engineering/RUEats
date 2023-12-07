@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delivery Associate Login</title>
+    <!-- Include CSS and JavaScript libraries as in the restaurant login page -->
+    <style>
+        /* Similar styles as in the restaurant login page */
+        .container {
+            margin-top: 50px;
+        }
+
+        #login-form {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        h3 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #dc3545;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #c82333;
+        }
+
+        input[type='text'],
+        input[type="email"],
+        input[type="password"] {
+            width: calc(100% - 12px);
+            padding: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        /* ... */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div id="login-form">
+                <h3>Delivery Associate Login</h3>
+                <form id="deliveryAssociateLoginForm">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required><br>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required><br>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required><br>
+
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('deliveryAssociateLoginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        loginDeliveryAssociate();
+    });
+
+    async function loginDeliveryAssociate() {
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        };
+
+        try {
+            const response = await fetch('http://localhost:3000/delivery-associate/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('jwtToken', data.token);
+                console.log('Delivery Associate login successful:', data);
+                window.alert('Login successful!');
+                window.location.href = '/app/restaurants'; // Redirect to the delivery dashboard
+            } else {
+                throw new Error('Token not received');
+            }
+        } catch (error) {
+            console.error('Error during delivery associate login:', error.message);
+            window.alert('Error during login. Please try again.');
+        }
+    }
+</script>
+
+</body>
+</html>

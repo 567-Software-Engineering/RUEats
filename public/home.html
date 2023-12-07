@@ -130,6 +130,18 @@
                 <li class="nav-item">
                     <a class="nav-link" href="" onclick="redirectToLogin()">Login</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="redirectToRestaurantLogin()">Restaurant Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="redirectToRestaurantRegisteration()">Restaurant Registration</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="redirectToDeliveryAssociateLogin()">Delivery Associate Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="redirectToDeliveryAssociateRegisteration()">Delivery Associate Registration</a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -201,10 +213,30 @@
             window.location.href = '/app/register';
         }
 
+        function redirectToRestaurantLogin() {
+            event.preventDefault();
+            window.location.href = '/app/restaurantlogin';
+        }
+
+        function redirectToRestaurantRegisteration() {
+            event.preventDefault();
+            window.location.href = '/app/restaurantregistration';
+        }
+
+        function redirectToDeliveryAssociateLogin() {
+            event.preventDefault();
+            window.location.href = '/app/deliveryassociatelogin';
+        }
+
+        function redirectToDeliveryAssociateRegisteration() {
+            event.preventDefault();
+            window.location.href = '/app/deliveryassociateregistration';
+        }
+
         function redirectToRestaurants() {
             event.preventDefault();
             window.location.href = '/app/restaurants';
-        }
+        }    
     </script>
 </body>
 </html>
