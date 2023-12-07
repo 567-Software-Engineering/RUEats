@@ -1736,34 +1736,34 @@ module.exports = class Controller {
 
   async getOrderDetailsById(req, res) {
     try {
-        // Retrieve both order_id and restaurant_id from URL parameters
-        const { restaurant_id, order_id } = req.params;
+        const { order_id, restaurant_id } = req.params;
         const token = req.headers.authorization;
-        
-        // Verify the JWT token
+
         jwt.verify(token, secretKey, async (err, decoded) => {
-          if (err) {
-            response(res, { status: 401, data: { message: 'Unauthorized' } });
-            return;
-          }
-          // Check if the decoded restaurant_id matches the restaurant_id in the request
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+                return;
+            }
+
             if (decoded.restaurant_id !== parseInt(restaurant_id)) {
                 response(res, { status: 403, data: { message: 'Forbidden: Cannot view orders for other restaurants.' } });
                 return;
             }
-            // Fetch the order details
-            const orderDetails = await dbRepo.getOrderDetailsByIdDB(order_id);
+
+            // Fetch the order details and verify that the order belongs to the restaurant
+            const orderDetails = await dbRepo.getOrderDetailsByIdDB(order_id, restaurant_id);
 
             if (orderDetails && orderDetails.length > 0) {
                 response(res, { data: orderDetails });
             } else {
-                response(res, { status: 404, data: { message: "Order not found" } });
+                response(res, { status: 404, data: { message: "Order not found or does not belong to this restaurant" } });
             }
         });
     } catch (error) {
         response(res, { status: 500, data: { message: "Internal Server Error" } });
     }
 }
+
   
 
 }

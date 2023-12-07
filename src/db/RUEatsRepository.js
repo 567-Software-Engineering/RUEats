@@ -1068,18 +1068,20 @@ module.exports = class RUEatsRepository {
     });
   }
 
-  getOrderDetailsByIdDB(order_id) {
+  getOrderDetailsByIdDB(order_id, restaurant_id) {
     return new Promise((resolve, reject) => {
       try {
-        // SQL query to join the 'menu' and 'orders_items' tables and select the required columns
+        // SQL query to join 'menu', 'orders_items', and potentially 'orders' or another table 
+        // that associates orders with restaurants, depending on your database schema
         const query = `
           SELECT m.item_name, m.is_available, m.image_url, m.price, oi.quantity
           FROM menu m
           JOIN orders_items oi ON m.item_id = oi.item_id
-          WHERE oi.order_id = ?;
+          JOIN orders o ON oi.order_id = o.order_id
+          WHERE oi.order_id = ? AND o.restaurant_id = ?;
         `;
 
-        this.connection.query(query, [order_id], (error, results) => {
+        this.connection.query(query, [order_id, restaurant_id], (error, results) => {
           if (error) {
             console.error('Database error:', error);
             reject(error);
@@ -1093,6 +1095,7 @@ module.exports = class RUEatsRepository {
       }
     });
 }
+
 
   async getCart(userID) {
     return new Promise((resolve, reject) => {
