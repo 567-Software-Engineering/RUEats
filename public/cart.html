@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <title>Cart</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            RUEats
+        </a>
+    </nav>
+    
+    <div class="container">
+        <div id="cart-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+    </div>
+    
+
+<script>
+
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE5MDQ0ODcsImV4cCI6MTcwMTkwODA4N30.LwCDKlO5ZVLcSONlhMsdeH19HT8-R4bg0WnrFzwkbY4';
+async function getData(serverURL, token) {
+        try {
+            const response = await fetch(serverURL, {
+                headers: {
+                    'Authorization': `${token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error:', error);
+            return { error: error.message };
+        }
+    }
+
+    async function loadCart() {
+        event.preventDefault();
+        // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
+        // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo";
+        if (!token) {
+            // No token found, show access denied message
+            // document.getElementById('access-denied').style.display = 'block';
+            alert("No token found");
+            return;
+        }
+
+        // Get cart
+        const getCartURL = `http://localhost:3000/get-cart/{{userID}}`;
+        console.log(getCartURL);
+
+        const cart = await getData(getCartURL, token);
+        console.log(cart);
+
+        if (cart.error) {
+            // Handle error fetching cart or invalid token
+            console.error('Error fetching cart:', cart.error);
+            // document.getElementById('access-denied').style.display = 'block';
+            alert("Error fetching cart");
+            return;
+        }
+        let subTotalValue = 0;
+        // const cartDetails = await getData(`http://localhost:3000/get-cart-details/{{userID}}`, token);
+
+        let container = document.getElementById('cart-container');
+
+        let cartItemDiv = document.createElement('div');
+        cartItemDiv.className = 'col-md-4 mb-4';
+
+        cart.forEach(cartItem => {
+            let card = document.createElement('div');
+            card.className = 'row-md-4 mb-4';
+            card.innerHTML = `
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">${cartItem.item_name}</h5>
+                    <img src=${cartItem.image_url} width="100px" height="100px">
+                    <p class="card-text">Quantity: ${cartItem.quantity}</p>
+                    <p class="card-text">Unit Price: $${cartItem.price}</p>
+                    <p class="card-text">Item sub-total: $${cartItem.price * cartItem.quantity}</p>
+
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-outline-secondary" onclick="decrementQuantity(this, '${cartItem.price}', '${cartItem.item_id}', '${cartItem.item_name}')">-</button>
+                        </span>
+                        <input type="text" class="form-control" value="${cartItem.quantity}" readonly>
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-outline-secondary" onclick="incrementQuantity(this, '${cartItem.price}', '${cartItem.item_id}', '${cartItem.item_name}')">+</button>
+                        </span>
+                    </div>   
+                </div>
+            </div>
+            `
+            
+            subTotalValue += cartItem.price * cartItem.quantity;
+            cartItemDiv.appendChild(card);
+            
+        })
+
+        let subTotalDiv = document.createElement('div');
+        subTotalDiv.className = 'col-md-4 mb-4';
+        subTotalDiv.innerHTML = `
+        <h3>Order Total: $${subTotalValue}</h3>
+        
+        <input type="button" value="Checkout" class="btn btn-primary" onclick = "checkoutCart(this, '${subTotalValue}')">
+        `
+        // <input type="button" value="Checkout" class="btn btn-primary" onclick = "checkoutCart(this, '${JSON.stringify(cart)}', '${subTotalValue}')">
+
+        container.appendChild(cartItemDiv);
+        container.appendChild(subTotalDiv);
+        
+    }
+
+    async function checkoutCart(button, subTotalValue)
+    {
+        //store cart in local storage
+        // localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem('subTotalValue', subTotalValue);
+
+        window.location.href = "http://localhost:3000/app/payment-form";
+
+    }
+
+
+    async function incrementQuantity(button, price, itemID, itemName) {
+        let input = button.parentElement.parentElement.querySelector('input');
+        let quantity = parseInt(input.value);
+        input.value = quantity + 1;
+        // updateButton(button,price);
+
+        // let userID = getUserIDFromLocalStorage(); //wip
+        let userID = 83;
+        // let token = getTokenFromLocalStorage(); //wip
+        // let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo';
+
+        if (!isNaN(price) && !isNaN(input.value)) {
+            let totalPrice = price * input.value;
+
+            // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
+
+            const response = await fetch('http://localhost:3000/update-cart', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${token}`
+                },
+                body: JSON.stringify({
+                    userID: userID, //wip
+                    itemID: itemID,
+                    quantity: input.value
+                })
+            });
+
+            if (response.ok) {
+                // alert(`Updated cart: Item - ${itemName}, Quantity - ${input.value}, Item Sub-Total - $${totalPrice.toFixed(2)}`);
+            } else {
+                alert(`Error: ${response.status}`);
+            }
+            // alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
+        }
+
+        location.reload();
+
+
+    }
+
+    async function decrementQuantity(button, price, itemID, itemName) {
+        let input = button.parentElement.parentElement.querySelector('input');
+        let quantity = parseInt(input.value);
+        if (quantity > 0) {
+            input.value = quantity - 1;
+            // updateButton(button,price);
+            // let userID = getUserIDFromLocalStorage(); //wip
+        let userID = 83;
+        // let token = getTokenFromLocalStorage(); //wip
+        // let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo';
+
+        if (!isNaN(price) && !isNaN(input.value)) {
+            let totalPrice = price * input.value;
+
+            // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
+
+            const response = await fetch('http://localhost:3000/update-cart', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${token}`
+                },
+                body: JSON.stringify({
+                    userID: userID, //wip
+                    itemID: itemID,
+                    quantity: input.value
+                })
+            });
+
+            if (response.ok) {
+                // alert(`Updated cart: Item - ${itemName}, Quantity - ${input.value}, Item Sub-Total - $${totalPrice.toFixed(2)}`);
+            } else {
+                alert(`Error: ${response.status}`);
+            }
+            // alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
+        }
+
+        location.reload();
+        }
+    }
+
+    function getTokenFromLocalStorage() {
+        // Implement logic to get the token from local storage or cookies
+        // For example:
+        // return localStorage.getItem('token');
+        // or retrieve token from cookies
+    }
+
+    window.onload = loadCart;
+
+</script>
+
+</body>
+</html>

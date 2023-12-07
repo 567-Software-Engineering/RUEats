@@ -90,7 +90,7 @@
     function decrementQuantity(button, price) {
         let input = button.parentElement.parentElement.querySelector('input');
         let quantity = parseInt(input.value);
-        if (quantity > 1) {
+        if (quantity > 0) {
             input.value = quantity - 1;
             updateButton(button,price);
         }
@@ -111,19 +111,55 @@
 
 
 
-    function addToCart(button, itemId, itemName, price) {
+    async function addToCart(button, itemId, itemName, price) {
         let card = button.closest('.card-body');
         let quantity = parseInt(card.querySelector('input').value);
+        // let userID = getUserIDFromLocalStorage(); //wip
+        let userID = 79;
+        // let token = getTokenFromLocalStorage(); //wip
+        let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTgxOTIzMywiZXhwIjoxNzAxODIyODMzfQ.9WdgFbc79sf2WfNwp1FfRVzUBU_PxnNwdtlbA5RgGIM';
 
         if (!isNaN(price) && !isNaN(quantity)) {
             let totalPrice = price * quantity;
 
             // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
-            alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
+
+            const response = await fetch('http://localhost:3000/update-cart', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${token}`
+                },
+                body: JSON.stringify({
+                    userID: userID, //wip
+                    itemID: itemId,
+                    quantity: quantity
+                })
+            });
+
+            if (response.ok) {
+                alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
+            } else {
+                alert(`Error: ${response.status}`);
+            }
+            // alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
 
         }
     }
 
+    function getUserIDFromLocalStorage() { //wip
+        // Implement logic to get the userID from local storage or cookies
+        // For example:
+        // return localStorage.getItem('userID');
+        // or retrieve token from cookies
+    }
+
+    function getTokenFromLocalStorage() { //wip
+        // Implement logic to get the token from local storage or cookies
+        // For example:
+        // return localStorage.getItem('token');
+        // or retrieve token from cookies
+    }
 
 
 </script>

@@ -4,9 +4,11 @@ const validateUserData = require('./../validations/validateUserData');
 const validateLocationData = require('./../validations/validateLocationData');
 const validateSetLocationData = require('./../validations/validateSetLocationData');
 const validatePostRequests = require('./../validations/validatePostRequests');
-const validateGetTimeEstimate = require('./../validations/validateGetTimeEstimate')
-
+const validateGetTimeEstimate = require('./../validations/validateGetTimeEstimate');
+const validateRestaurantData = require('./../validations/validateRestaurantData');
+const validatePaymentToken = require('./../validations/validatePaymentToken');
 const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
+
 const controller = new controllerClass();
 
 const routes = {
@@ -37,12 +39,20 @@ const routes = {
     "/users/:userID/orders/:orderID" :{
       GET : controller.getUserOrder
     },
+
+    "/users/:userID/orders": {
+      GET: controller.getUserOrderHistory
+    },
+
     "/restaurants": {
       GET: controller.getAllRestaurants,
     },
 
     "/restaurants/:restaurant_id": {
       GET: controller.getRestaurant,
+      PUT: (req, res) => {
+        validateRestaurantData(req, res, controller.updateRestaurantProfile);
+      },
     },
       
     "/get-location":{
@@ -223,6 +233,16 @@ const routes = {
       DELETE: controller.clearCart,
     },
 
+    "/get-cart/:userID": {
+      GET: controller.getCart,
+    },
+
+    "/add-order": {
+      POST: (req, res) => {
+        validatePostRequests(req, res, controller.addOrder);
+      },
+    },
+
     "/accept-decline-order/:restaurant_id/:order_id": {
         PATCH: (req, res) => {
             validatePostRequests(req, res, controller.acceptOrDeclineOrder);
@@ -257,6 +277,10 @@ const routes = {
 
     "/get-active-orders/:restaurant_id/orders/:order_id": {
       GET: controller.getOrderDetailsById,
+    },
+
+    "/verifyRestaurant/:restaurant_id": {
+      GET: controller.updateRestaurantVerification,
     },
 
     notFound: (_req, res) => {
