@@ -1,25 +1,183 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Stripe Payment API</title>
-  <script src="https://js.stripe.com/v3/"
-  crossorigin="anonymous"></script>
+  <script src="https://js.stripe.com/v3/" crossorigin="anonymous"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    #payment-form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+
+    .form-row {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    #card-element {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    #card-errors {
+      color: red;
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #paymentStatus {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
+
+
 </head>
+
 <body>
   <form id="payment-form" , method="GET">
     <div class="form-row" height="3000px">
+      <div id="cart-value">
+        Pay: $0
+      </div>
+      <br>
       <label for="card-element">Credit or debit card</label>
       <div id="card-element">
         <!-- A Stripe Element will be inserted here. -->
       </div>
       <div id="card-errors" role="alert" style="color: red;"></div>
     </div>
-    <div id = "any_error"></div>
+    <div id="any_error"></div>
     <button type="submit">Submit Payment</button>
+    <h1 id="paymentStatus"></h1>
   </form>
-  <h1 id = "paymentStatus"></h1>
 
-  <script src="/payment-client-token">
+
+  <script>
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQUQgUlMiLCJ1c2VyX2lkIjo4MCwiaWF0IjoxNzAxOTY5NTgzLCJleHAiOjE3MDE5NzMxODN9.yQqDywOt1v1bQHHraBBUJFdbbaDCqOdk1tErfHso9uo';
+    document.addEventListener('DOMContentLoaded', function () {
+      const stripe = Stripe(
+        'pk_test_51O7NOrDtd64NB5jL3sQrmsGQOSdMvTUpds9N0P7nfmT4697waURCZAmGs6vrIQjALewIeBpMJlDScO2NBr7h9ifN00J94KcMEj'
+      ); // Publishable key
+
+
+      // get subTotalValue from local storage
+      const subTotalValue = localStorage.getItem('subTotalValue');
+
+      if (subTotalValue) {
+        document.getElementById("cart-value").innerHTML = "Pay $" + subTotalValue;
+      }
+      else {
+        document.getElementById("cart-value").innerHTML = "Pay $ 0";
+      }
+      console.log(subTotalValue);
+
+      const elements = stripe.elements();
+      const cardElement = elements.create('card');
+
+      cardElement.mount('#card-element');
+
+      const form = document.getElementById('payment-form');
+      const errorElement = document.getElementById('card-errors');
+
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        try {
+          const { token, error } = await stripe.createToken(cardElement);
+
+          if (error) {
+            // Display error to the user
+            errorElement.textContent = error.message;
+            console.log(error.message);
+          } else {
+            // Clear any previous error message.
+            console.log('paymentToken');
+            console.log(token.id);
+
+            errorElement.textContent = '';
+            // Send the token to your server to complete the payment.
+            try {
+              const response = await fetch('http://localhost:3000/submit-token', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `${token}`
+                },
+                body: JSON.stringify({
+                  token: token.id,
+                  amount: subTotalValue
+                }), // Amount comes from orders
+              });
+
+              const responseData = await response.json();
+              console.log(responseData);
+
+              document.getElementById("paymentStatus").innerHTML = "Payment Successful!";
+
+              const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE5MDQ0ODcsImV4cCI6MTcwMTkwODA4N30.LwCDKlO5ZVLcSONlhMsdeH19HT8-R4bg0WnrFzwkbY4';
+              const response2 = await fetch('http://localhost:3000/add-order', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `${authToken}`
+                },
+                body: JSON.stringify({
+                  userID: 83,
+                  orderAmount: subTotalValue,
+                })
+              }
+              );
+
+
+            } catch (err) {
+              document.getElementById("paymentStatus").innerHTML = "Payment Unsuccessful!";
+              console.log(err);
+            }
+          }
+        } catch (err) {
+          console.error('Error creating token:', err);
+        }
+      });
+    });
+
   </script>
 </body>
+
 </html>

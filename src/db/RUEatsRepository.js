@@ -68,6 +68,18 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  getOrderHistoryByUserID(userID) {
+    return new Promise((resolve, reject) => {
+        this.connection.query('SELECT * FROM orders WHERE user_id = ?', [userID], function (error, results) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+  }
+
   getRestaurantById(restaurant_id) {
     return new Promise((resolve, reject) => {
       this.connection.query(
@@ -104,7 +116,7 @@ module.exports = class RUEatsRepository {
   insertRestaurant(newRestaurant) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO restaurants (name, email, phone_number, address, cuisine_type, rating, operating_hours, is_active, password, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newRestaurant.name,
           newRestaurant.email,
@@ -114,7 +126,8 @@ module.exports = class RUEatsRepository {
           newRestaurant.rating || null, // Assuming it can be null
           newRestaurant.operating_hours || null, // Assuming it can be null
           newRestaurant.is_active || true, // Assuming default is active 
-          newRestaurant.password
+          newRestaurant.password,
+          0,
         ];
 
         this.connection.query(query, values, (error, results) => {
@@ -130,8 +143,48 @@ module.exports = class RUEatsRepository {
     });
   }
   
-
-
+  async updateRestaurantProfileInDB(restaurant_id, updates) {
+    return new Promise((resolve, reject) => {
+      const updateFields = [];
+      const updateValues = [];
+  
+      // Create a dynamic SQL query with placeholders for updates
+      const placeholders = [];
+      for (const field in updates) {
+        if (field !== 'name' && field !== 'email' && updates[field] !== undefined) {
+          updateFields.push(`${field} = ?`);
+          updateValues.push(updates[field]);
+          placeholders.push('?');
+        }
+      }
+  
+      if (updateFields.length === 0) {
+        resolve(false); // No valid updates provided
+        return;
+      }
+  
+      const query = `UPDATE restaurants SET ${updateFields.join(', ')} WHERE restaurant_id = ?`;
+      this.connection.query(query, [...updateValues, restaurant_id], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+  updateRestaurantVerifiedStatus(restaurantId) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE restaurants SET verified = '1' WHERE restaurant_id = ?`;
+      this.connection.query(query, [restaurantId], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
 
   getAllAssociates() {
     return new Promise((resolve, reject) => {
@@ -1004,6 +1057,152 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  getOrderDetailsByIdDB(order_id, restaurant_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        // SQL query to join 'menu', 'orders_items', and potentially 'orders' or another table 
+        // that associates orders with restaurants, depending on your database schema
+        const query = `
+          SELECT m.item_name, m.is_available, m.image_url, m.price, oi.quantity
+          FROM menu m
+          JOIN orders_items oi ON m.item_id = oi.item_id
+          JOIN orders o ON oi.order_id = o.order_id
+          WHERE oi.order_id = ? AND o.restaurant_id = ?;
+        `;
+
+        this.connection.query(query, [order_id, restaurant_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      } catch (error) {
+        console.error('Error in getOrderDetailsByIdDB:', error);
+        reject(error);
+      }
+    });
+}
 
 
+  async getCart(userID) {
+    return new Promise((resolve, reject) => {
+      // const query = `SELECT item_id, quantity FROM cart WHERE user_id = ?`;
+      const query = `SELECT c.item_id item_id, c.quantity quantity, m.item_name item_name, m.price price, m.image_url image_url
+      FROM cart c INNER JOIN menu m
+      ON c.item_id = m.item_id
+      WHERE c.user_id = ?`;
+      this.connection.query(query, [userID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+  }
+
+  async getOrderItemsNamesPriceFromOrder(orderID) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'select item_name,m.price,oi.quantity from orders_items oi left join menu m ON oi.item_id =m.item_id where oi.order_id = ?';
+        this.connection.query(query, [orderID], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results);
+            } else {
+              resolve(null);
+              // console.log("No orders found");
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getDeliveryAssociateOrder:', error);
+        reject(error);
+      }
+    });
+  }
+  async addOrder(restaurantID, cart, userDetails, orderAmount) {
+    return new Promise((resolve, reject) => {
+
+            
+      const query = `INSERT INTO orders 
+                      (
+                        order_date ,
+                        estimated_delivery_time ,
+                        delivery_address ,
+                        special_instructions ,
+                        total_amount ,
+                        user_id ,
+                        restaurant_id ,
+                        status) VALUES (
+                          ?, 
+                          ?,
+                           ?,
+                            ?,
+                             ?,
+                              ?,
+                               ?,
+                                 0
+                                  )`;
+
+
+      // const query = `INSERT INTO orders (order_date,estimated_delivery_time,delivery_address,special_instructions,total_amount,user_id,restaurant_id,associate_id,status,img_src) VALUES (?,?,?,?,?,?,?,?,?,?,?)`;
+
+      const values = [
+        new Date().toISOString().slice(0, 19).replace('T', ' '),
+        new Date().toISOString().slice(0, 19).replace('T', ' '),
+        userDetails.home_address,
+        'Leave at the front door.',
+        orderAmount,
+        userDetails.user_id,
+        restaurantID,
+        0
+      ];
+
+      this.connection.query(query, values, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          // console.log(results);
+          // console.log(results.insertId);
+          resolve(results);
+        }
+      });
+    });
+  }
+
+  async getRestaurantIDByItemID(itemID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT restaurant_id FROM menu WHERE item_id = ?`;
+      this.connection.query(query, [itemID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results[0].restaurant_id);
+        }
+      });
+    });
+  }
+
+  async addOrderItems(values) {
+    return new Promise((resolve, reject) => {
+      // for (let i = 0; i < values.length; i++) {
+      //   values[i].push(values[0][0]);
+      // }
+      const query = `INSERT INTO orders_items (quantity, order_id, item_id) VALUES (?, ?, ?)`;
+      this.connection.query(query, values, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+  }
 }
