@@ -1216,4 +1216,24 @@ module.exports = class RUEatsRepository {
     });
 
   }
+
+  updateUserPasswordDB(user_id, new_password) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'UPDATE users SET password = ? WHERE user_id = ?';
+        this.connection.query(query, [new_password, user_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            resolve(results.affectedRows); // Return the number of affected rows after the update
+          }
+        });
+      } catch (error) {
+        console.error('Error in updateUserPasswordDB:', error);
+        reject(error);
+      }
+    });
+  }
+  
 }

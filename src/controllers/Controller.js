@@ -1772,6 +1772,33 @@ module.exports = class Controller {
     }
 }
 
-  
+async changePassword(req, res) {
+  try {
+    const { userId, oldPassword, newPassword } = req.body; // Assuming the request body contains userID, oldPassword, and newPassword
+
+    const user = await dbRepo.getUserByIdDB(userId); // Fetch user data based on user ID
+
+    if (!user) {
+      return response(res, {
+        data: { message: 'User not found' },
+        status: 404,
+      });
+    }
+
+    const result = bcrypt.compareSync(oldPassword, user.password); // Compare old password with stored password
+
+    if (result) {
+      const hashedPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password
+      await dbRepo.updateUserPasswordDB(userId, hashedPassword); // Update user's password in the database
+
+      response(res, { status: 200, data: { message: 'Password updated successfully' } });
+    } else {
+      response(res, { status: 401, data: { message: 'Invalid old password' } });
+    }
+  } catch (error) {
+    response(res, { status: 400, data: { message: error.message } });
+  }
+}
+
 
 }
