@@ -105,7 +105,11 @@
             if (data.token) {
                 // Store the token in local storage
                 localStorage.setItem('jwtToken', data.token);
-                console.log('Login successful:', data);
+                localStorage.setItem('name', data.name);
+                localStorage.setItem('email', data.email);
+                localStorage.setItem('user_id', data.user_id);
+                console.log(localStorage.getItem("user_id"));
+                //console.log('Login successful:', data);
                 window.alert('Login successful!');
                 window.location.href = '/app/restaurants';
                 // Redirect user to home page or dashboard after successful login
