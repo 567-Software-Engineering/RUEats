@@ -255,6 +255,10 @@ const routes = {
       GET: controller.updateDeliveryAssociateVerification,
     },
 
+    "/get-active-orders/:restaurant_id/orders/:order_id": {
+      GET: controller.getOrderDetailsById,
+    },
+
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });
 

@@ -1015,6 +1015,32 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  getOrderDetailsByIdDB(order_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        // SQL query to join the 'menu' and 'orders_items' tables and select the required columns
+        const query = `
+          SELECT m.item_name, m.is_available, m.image_url, m.price, oi.quantity
+          FROM menu m
+          JOIN orders_items oi ON m.item_id = oi.item_id
+          WHERE oi.order_id = ?;
+        `;
+
+        this.connection.query(query, [order_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      } catch (error) {
+        console.error('Error in getOrderDetailsByIdDB:', error);
+        reject(error);
+      }
+    });
+}
+
 
 
 }
