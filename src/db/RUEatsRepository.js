@@ -1070,7 +1070,11 @@ module.exports = class RUEatsRepository {
 
   async getCart(userID) {
     return new Promise((resolve, reject) => {
-      const query = `SELECT item_id, quantity FROM cart WHERE user_id = ?`;
+      // const query = `SELECT item_id, quantity FROM cart WHERE user_id = ?`;
+      const query = `SELECT c.item_id item_id, c.quantity quantity, m.item_name item_name, m.price price, m.image_url image_url
+      FROM cart c INNER JOIN menu m
+      ON c.item_id = m.item_id
+      WHERE c.user_id = ?`;
       this.connection.query(query, [userID], (error, results) => {
         if (error) {
           reject(error);
@@ -1104,7 +1108,83 @@ module.exports = class RUEatsRepository {
       }
     });
   }
+  async addOrder(restaurantID, cart, userDetails, orderAmount) {
+    return new Promise((resolve, reject) => {
+
+            
+      const query = `INSERT INTO orders 
+                      (
+                        order_date ,
+                        estimated_delivery_time ,
+                        delivery_address ,
+                        special_instructions ,
+                        total_amount ,
+                        user_id ,
+                        restaurant_id ,
+                        status) VALUES (
+                          ?, 
+                          ?,
+                           ?,
+                            ?,
+                             ?,
+                              ?,
+                               ?,
+                                 0
+                                  )`;
 
 
+      // const query = `INSERT INTO orders (order_date,estimated_delivery_time,delivery_address,special_instructions,total_amount,user_id,restaurant_id,associate_id,status,img_src) VALUES (?,?,?,?,?,?,?,?,?,?,?)`;
 
+      const values = [
+        new Date().toISOString().slice(0, 19).replace('T', ' '),
+        new Date().toISOString().slice(0, 19).replace('T', ' '),
+        userDetails.home_address,
+        'Leave at the front door.',
+        orderAmount,
+        userDetails.user_id,
+        restaurantID,
+        0
+      ];
+
+      this.connection.query(query, values, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          // console.log(results);
+          // console.log(results.insertId);
+          resolve(results);
+        }
+      });
+    });
+  }
+
+  async getRestaurantIDByItemID(itemID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT restaurant_id FROM menu WHERE item_id = ?`;
+      this.connection.query(query, [itemID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results[0].restaurant_id);
+        }
+      });
+    });
+  }
+
+  async addOrderItems(values) {
+    return new Promise((resolve, reject) => {
+      // for (let i = 0; i < values.length; i++) {
+      //   values[i].push(values[0][0]);
+      // }
+      const query = `INSERT INTO orders_items (quantity, order_id, item_id) VALUES (?, ?, ?)`;
+      this.connection.query(query, values, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+  }
 }

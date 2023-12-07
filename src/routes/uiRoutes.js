@@ -111,6 +111,20 @@ const uiRoutes = {
             });
         }
     },    
+    
+    "/app/payment-form" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/payment-form.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    // const { userID } = _req.params;
+                    // data = data.replace(/{{userID}}/g, userID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
 
 }
 module.exports = uiRoutes

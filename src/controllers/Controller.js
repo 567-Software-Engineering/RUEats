@@ -1020,7 +1020,7 @@ module.exports = class Controller {
 
       await stripe.charges
         .create({
-          amount: 10000, // Amount in cents
+          amount: requestBody.amount * 100, // Amount in cents
           currency: 'usd',
           description: 'Example Charge',
           source: requestBody.token,
@@ -1205,6 +1205,57 @@ module.exports = class Controller {
           }
           else {
             response(res, { data: {message: 'Error getting cart' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async addOrder(req, res) {
+    try {
+      const token = req.headers.authorization;
+      console.log(token);
+      const { userID, orderAmount } = req.body;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, {status: 401, data: {message: 'Unauthorized'} });
+        }
+        else {
+          const userDetails = await dbRepo.getUserByIdDB(userID);
+          const cart = await dbRepo.getCart(userID);
+          const restaurantID = await dbRepo.getRestaurantIDByItemID(cart[0].item_id);
+
+          const results = await dbRepo.addOrder(restaurantID, cart, userDetails, orderAmount);          
+
+          if (results.affectedRows > 0) {
+
+            let values = [];
+            for (let index = 0; index < cart.length; index++) {
+              const element = cart[index];
+              values.push([element.quantity, results.insertId, element.item_id,]);
+            }
+            let resultsOrderItems = [];
+            console.log(values);
+            for (let index = 0; index < values.length; index++) {
+              const element = values[index];
+              // console.log(element);
+              resultsOrderItems.push(await dbRepo.addOrderItems(element));
+            }
+            
+            if (resultsOrderItems[0].affectedRows > 0) {
+              response(res, { data: {message: "Order and order items added!"} });
+            }
+            else {
+              response(res, { data: {message: 'Error adding order' } });
+            }
+
+            // response(res, { data: {message: "Order added!"} });
+          }
+          else {
+            response(res, { data: {message: 'Error adding order' } });
           }
         }
       });
