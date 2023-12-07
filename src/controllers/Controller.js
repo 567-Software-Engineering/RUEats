@@ -122,31 +122,39 @@ module.exports = class Controller {
     try {
       const body = req.body;
       const users = await dbRepo.getAllUsers();
-
+  
       const user = users.find((user) => user.name === body.name || user.email === body.email);
-
+  
       if (!user) {
         return response(res, {
           data: { message: 'User not found' },
           status: 404,
         });
       }
-
+  
       if (user.verified === 'false') {
         return response(res, {
           data: { message: 'Email not verified. Please check your email for a verification link.' },
           status: 401,
         });
       }
-
-
+  
       const result = bcrypt.compareSync(body.password, user.password);
-
+  
       if (result) {
         const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
           expiresIn: '1h',
         });
-        response(res, { status: 200, data: { token } });
+  
+        // Prepare response with userID, email, name, and token
+        const responseData = {
+          user_id: user.user_id,
+          email: user.email,
+          name: user.name,
+          token: token,
+        };
+  
+        response(res, { status: 200, data: responseData });
       } else {
         response(res, { status: 401, data: { message: 'Authentication failed' } });
       }
