@@ -58,6 +58,21 @@ const uiRoutes = {
         }
     },
 
+    "/app/delivery-associate-home/:associateID" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/delivery-associate-home.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { associateID } = _req.params;
+                    data = data.replace(/{{associateID}}/g, associateID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
+
     "/home" : {
         GET:(_req, res) =>{
             fs.readFile('./public/home.html', 'utf8', function (error, data) {
