@@ -43,7 +43,7 @@
             padding: 10px 0;
         }
         .card-body {
-            padding: 0rem; /* Adjust this value as needed */
+            padding: 1rem; /* Adjust this value as needed */
         }
         .input-group-btn {
             padding: 0 10px; /* Adjust this value as needed */
@@ -51,13 +51,162 @@
 
 
     </style>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            height: 100vh; /* Ensure full viewport height */
+        }
+        /* Additional styling for the dropdown menu */
+        /* Additional styling for the dropdown menu */
+        .dropdown-menu {
+            background-color: #fff;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+            color: #333;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #dc3545;
+        }
+
+
+
+        header {
+            background-color: #dc3545; /* Scarlet color theme */
+            color: white;
+            padding: 20px;
+        }
+
+        .carousel {
+            position: relative;
+            height: 100vh; /* Adjust based on your requirement */
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .navbar {
+            background-color: #dc3545;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff;
+        }
+
+        .nav-link {
+            /* Adjusting the link style to button */
+            padding: 5px 20px;
+            border: 2px solid #f8bdc5;
+            border-radius: 15px;
+            color: #d0c3c4;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .nav-link:hover {
+            background-color: #eea5aa;
+            color: #fff;
+            text-decoration: none; /* Remove underline on hover */
+        }
+
+        /* Centered button */
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            padding: 10px 40px; /* Adjust button padding */
+            font-size: 24px; /* Adjust button font size */
+            border-radius: 20px; /* Rounded edges */
+            background-color: #dc3545; /* Scarlet color */
+            color: white; /* Text color */
+            border: none; /* No border */
+            cursor: pointer;
+            transition: all 0.3s ease; /* Smooth transition */
+        }
+
+        .carousel-button:hover {
+            background-color: #c82333; /* Darker shade on hover */
+        }
+        .navbar-brand img {
+            max-width: 50px; /* Maximum width of the logo */
+            height: auto; /* Maintain aspect ratio */
+            /* You can add more styling if required */
+        }
+
+        .over-carousel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            font-size: 40px;
+            color: #fff; /* Change text color to white for better contrast */
+            font-weight: bold; /* Make the text more prominent */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a subtle shadow effect */
+            background-color: rgba(235, 227, 227, 0.7); /* Semi-transparent background */
+            padding: 5px 20px; /* Increase padding for better readability */
+            border-radius: 10px; /* Add rounded corners */
+            transition: color 0.3s ease;
+        }
+        .over-carousel:hover {
+            color: #dc3545; /* Change text color on hover to a scarlet-related color */
+        }
+
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-light">
+<nav class="navbar navbar-expand-lg navbar-light">
     <a class="navbar-brand" href="#">
-        <img src="path_to_your_logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo">
         RUEats
     </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown"> <!-- Adding dropdown class -->
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More Logins
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="" onclick="redirectToRestaurantLogin()">Restaurant Login</a>
+                    <a class="dropdown-item" href="" onclick="redirectToRestaurantRegisteration()">Restaurant Registration</a>
+                    <a class="dropdown-item" href="" onclick="redirectToDeliveryAssociateLogin()">Delivery Associate Login</a>
+                    <a class="dropdown-item" href="" onclick="redirectToDeliveryAssociateRegisteration()">Delivery Associate Registration</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="" onclick="redirectToRegister()">Sign Up</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="" onclick="redirectToLogin()">Login</a>
+            </li>
+
+        </ul>
+    </div>
 </nav>
 <div class="container">
     <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
@@ -95,33 +244,59 @@
             let card = document.createElement('div');
             card.className = 'col-md-4 mb-4';
             card.innerHTML = `
-    <div class="card h-100 shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">${menuItem.item_name}</h5>
-            <img src=${menuItem.image_url} width="100px" height="100px">
-            <p class="card-text">${menuItem.description}</p>
-            <p class="card-text">$${menuItem.price}</p>
-            <div class="input-group">
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-danger" onclick="decrementQuantity(this, '${menuItem.price}')">-</button>
-                </span>
-                <input type="text" class="form-control" value="1" readonly>
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-success" onclick="incrementQuantity(this, '${menuItem.price}')">+</button>
-                </span>
-            </div>
-            <div class="text-center pt-3">
-                <button class="btn btn-primary" onclick="addToCart(this , '${menuItem.item_id}', '${menuItem.item_name}', ${menuItem.price})">Add to Cart</button>
-            </div>
-        </div>
-    </div>
-`;
-
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">${menuItem.item_name}</h5>
+                        <img src=${menuItem.image_url} width="100px" height="100px">
+                        <p class="card-text">${menuItem.description}</p>
+                        <p class="card-text">$${menuItem.price}</p>
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-danger" onclick="decrementQuantity(this, '${menuItem.price}')">-</button>
+                            </span>
+                            <input type="text" class="form-control" value="1" readonly>
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-success" onclick="incrementQuantity(this, '${menuItem.price}')">+</button>
+                            </span>
+                        </div>
+                        <div class="text-center pt-3">
+                            <button class="btn btn-primary" onclick="addToCart(this , '${menuItem.item_id}', '${menuItem.item_name}', ${menuItem.price})">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            `;
 
             row.appendChild(card);
         });
 
         container.appendChild(row);
+
+        // Fetch and display the reviews
+        let reviewsResult = await getData('http://localhost:3000/restaurants-reviews/{{restaurantID}}', {});
+        let reviews = JSON.parse(reviewsResult.response);
+
+        let reviewsContainer = document.createElement('div');
+        reviewsContainer.className = 'mt-5';
+
+        let reviewsTitle = document.createElement('h2');
+        reviewsTitle.textContent = 'Reviews';
+        reviewsContainer.appendChild(reviewsTitle);
+
+        reviews.forEach(review => {
+            let reviewCard = document.createElement('div');
+            reviewCard.className = 'card mt-3';
+            reviewCard.innerHTML = `
+                <div class="card-body">
+                    <h5 class="card-title">${review.review_title}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Review by User ${review.author_id} on ${new Date(review.date_created).toLocaleDateString()}</h6>
+                    <p class="card-text">${review.description}</p>
+                    <p class="card-text"><small class="text-muted">${'★'.repeat(parseInt(review.stars))}</small></p>
+                </div>
+            `;
+            reviewsContainer.appendChild(reviewCard);
+        });
+
+        container.appendChild(reviewsContainer);
     })();
 
     function incrementQuantity(button, price) {
@@ -152,21 +327,14 @@
         }
     }
 
-
-
-
     async function addToCart(button, itemId, itemName, price) {
         let card = button.closest('.card-body');
         let quantity = parseInt(card.querySelector('input').value);
-        // let userID = getUserIDFromLocalStorage(); //wip
         let userID = 79;
-        // let token = getTokenFromLocalStorage(); //wip
         let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTgxOTIzMywiZXhwIjoxNzAxODIyODMzfQ.9WdgFbc79sf2WfNwp1FfRVzUBU_PxnNwdtlbA5RgGIM';
 
         if (!isNaN(price) && !isNaN(quantity)) {
             let totalPrice = price * quantity;
-
-            // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
 
             const response = await fetch('http://localhost:3000/update-cart', {
                 method: 'PATCH',
@@ -175,7 +343,7 @@
                     'Authorization': `${token}`
                 },
                 body: JSON.stringify({
-                    userID: userID, //wip
+                    userID: userID,
                     itemID: itemId,
                     quantity: quantity
                 })
@@ -186,27 +354,10 @@
             } else {
                 alert(`Error: ${response.status}`);
             }
-            // alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
-
         }
     }
-
-    function getUserIDFromLocalStorage() { //wip
-        // Implement logic to get the userID from local storage or cookies
-        // For example:
-        // return localStorage.getItem('userID');
-        // or retrieve token from cookies
-    }
-
-    function getTokenFromLocalStorage() { //wip
-        // Implement logic to get the token from local storage or cookies
-        // For example:
-        // return localStorage.getItem('token');
-        // or retrieve token from cookies
-    }
-
-
 </script>
+
 
 </body>
 </html>
