@@ -22,29 +22,58 @@
             font-family: 'Arial', sans-serif;
         }
 
-        .navbar {
-            background-color: #dc3545;
-        }
-
-        .navbar-brand {
-            color: #fff;
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-
-        .navbar-toggler-icon {
-            background-color: #fff;
-        }
-
-        .nav-link {
-            color: #fff;
-        }
-
+        
         .container {
             margin-top: 50px;
         }
 
+        /* Navbar Styling */
+        .navbar {
+            background-color: #dc3545; /* Background color for the navbar */
+        }
+
+        .navbar-brand {
+            color: #fff; /* Color for the brand text */
+            font-weight: bold; /* Bold font weight */
+            font-size: 1.5rem; /* Font size for the brand */
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff; /* Background color for the toggler icon */
+        }
+
+        .nav-link {
+            padding: 5px 20px; /* Padding for the links */
+            border: 2px solid #f8bdc5; /* Border style for the links */
+            border-radius: 15px; /* Border radius for the links */
+            color: #d0c3c4; /* Text color for the links */
+            font-weight: bold; /* Bold font weight */
+            text-align: center; /* Center align the text */
+            transition: all 0.3s ease; /* Transition effect on hover */
+            margin-right: 10px; /* Margin between links */
+        }
+
+        .nav-link:hover {
+            background-color: #eea5aa; /* Background color on hover */
+            color: #fff; /* Text color on hover */
+            text-decoration: none; /* Remove underline on hover */
+        }
+
+        .navbar-brand img {
+            max-width: 50px; /* Maximum width of the logo */
+            height: auto; /* Maintain aspect ratio */
+            /* Additional styling for the brand image if required */
+        }
+
+
         #user-profile {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        #update-password {
             background-color: #fff;
             border-radius: 10px;
             padding: 30px;
@@ -155,7 +184,32 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">
+            <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo">
+            RUEats
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="redirectToRestaurants()">Restaurants</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="handleLogout()">Log out</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    
+<!-- <nav class="navbar navbar-expand-lg navbar-light">
     <a class="navbar-brand" href="#">
         RUEats
     </a>
@@ -172,13 +226,16 @@
             </li>
         </ul>
     </div>
-</nav>
+</nav> -->
 
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-6 mx-auto">
             <div id="user-profile" style="display: none;">
                 <!-- User Profile content will be displayed here -->
+            </div>
+            <br>
+            <div id="update-password" style="display: none;">
             </div>
             <br>
             <div id="privacy-policy" style="display: none;">
@@ -198,22 +255,17 @@
 
 <script>
     var jwtToken = '';
-
-    let userName = ''; // Global variable to store user name
+    var user_id = '';
+    let userName = ''; 
     let userEmail = '';
 
-        function handleLogin() {
-                    // Add logic for handling login button click
-                    // For example: Redirect to login page or show login modal
-                    console.log('Login button clicked');
-                    console.log(jwtToken);
+        function redirectToRestaurants() {
+            event.preventDefault()
+            window.location.href = `/app/restaurants`; // Redirect to the order history page
+    
                 }
 
-        function handleRegister() {
-            // Add logic for handling register button click
-            // For example: Redirect to register page or show registration form
-            console.log('Register button clicked');
-        }
+
     async function getData(serverURL, jwtToken) {
         try {
             const response = await fetch(serverURL, {
@@ -230,6 +282,24 @@
             return { error: error.message };
         }
     }
+
+    async function updateUserPasswordHandler(form) {
+        const passwordData = {
+            userId: user_id,
+            oldPassword: form.currentPassword.value,
+            newPassword: form.newPassword.value,
+        };
+
+        updateUserPassword(passwordData)
+        console.log('Updating password:', passwordData);
+
+        // Clear the form fields after submission (optional)
+        form.currentPassword.value = '';
+        form.newPassword.value = '';
+
+        // You can add the logic to update the password via API call here
+    }
+
 
     async function loadUserProfile() {
         event.preventDefault();
@@ -258,7 +328,7 @@
         userEmail = userProfile.email;
         userProfileDiv.style.display = 'block';
         userProfileDiv.innerHTML = `
-            <h3>User Profile</h3>
+            <h3>User Profile       <a id="scroll-password" href="#update-password" onclick="smoothScroll('update-password')" style="font-size: 14px; margin-left: 40px;">Click here to Update password</a></h3>
             <form id="profileForm">
                 <p><strong>Name:</strong> ${userProfile.name}</p>
                 <p><strong>Email:</strong> ${userProfile.email}</p>
@@ -291,13 +361,63 @@
                 <h3>Privacy</h3>
                 <p>RUEats protects your privacy and personal information. You can choose to share your information with businesses so they can send you promotions and emails.</p>
         `;
+
+        const updatePassword = document.getElementById('update-password');
+        updatePassword.style.display = 'block';
+        updatePassword.innerHTML = `
+
+<h3>Update Password</h3>
+<form id="passwordForm">
+<label for="password"><strong>Current Password*:</strong></label>
+<div class="password-input">
+    <input type="password" id="currentPassword" name="password" placeholder="Enter current password" required>
+</div>
+<label for="password"><strong>New Password*:</strong></label>
+<div class="password-input">
+    <input type="password" id="newPassword" name="password" placeholder="Enter new password" required>
+</div>
+<button type="submit">Update</button>
+</form>
+`     
+
+
+        document.getElementById('passwordForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        updateUserPasswordHandler(this);
+    });
     }
 
 
+    async function updateUserPassword(passwordData) {
+    const apiUrl = `http://localhost:3000/users/updatePassword`;
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': jwtToken
+            },
+            body: JSON.stringify(passwordData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+
+        const data = await response.json();
+        console.log('Password updated successfully:', data);
+        window.alert('Password updated successfully!');
+        // You may want to handle UI updates or redirection here after successful password update
+    } catch (error) {
+        console.error('Error:', error.message);
+        window.alert('Error updating the password: Please check your input');
+        // Handle error scenario here
+    }
+}
+
+
     async function updateUserProfile(userData) {
-    const apiUrl = `http://localhost:3000/users/{{userID}}`;
-    // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg5MjczMywiZXhwIjoxNzAxODk2MzMzfQ.sLq32YTH-tF-a6g2LOif7ooucHK8s6yoKRKT3AARx38"
-        
+    const apiUrl = `http://localhost:3000/users/{{userID}}`;   
     try {
         const response = await fetch(apiUrl, {
             method: 'PUT',
@@ -349,13 +469,6 @@
     }
 
 
-    function getTokenFromLocalStorage() {
-        // Implement logic to get the token from local storage or cookies
-        // For example:
-        // return localStorage.getItem('token');
-        // or retrieve token from cookies
-    }
-
     function viewOrderHistory() {
         const userID = '{{userID}}'; // Replace with actual userID or retrieve from a secure source
         window.location.href = `/app/users/${userID}/orders`; // Redirect to the order history page
@@ -363,6 +476,9 @@
 
     function loadToken() {
     jwtToken = localStorage.getItem('jwtToken') || '';
+    userEmail = localStorage.getItem('email') || '';
+    userName = localStorage.getItem('name') || '';
+    user_id = localStorage.getItem('user_id') || '';
     console.log('Token loaded:', jwtToken);
     }
 

@@ -283,6 +283,12 @@ const routes = {
       GET: controller.updateRestaurantVerification,
     },
 
+    "/users/updatePassword": {
+      PUT: (req, res) => {
+        validatePostRequests(req, res, controller.changePassword);
+      },
+    },
+
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });
 
