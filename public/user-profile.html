@@ -482,6 +482,25 @@
     console.log('Token loaded:', jwtToken);
     }
 
+    function handleLogout() {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('email');
+    localStorage.removeItem('name');
+    localStorage.removeItem('user_id');
+    event.preventDefault();
+    window.location.href = '/home';
+}
+
+    function handleLogin() {
+        event.preventDefault();
+        window.location.href = `/app/login`; // Redirect to the order history page
+    }
+    function handleRegister() {
+        event.preventDefault();
+        window.location.href = `/app/register`; // Redirect to the order history page
+    }
+
+
     window.onload = function() {
         loadToken(); // Load token first
         loadUserProfile(); // Then load user profile
