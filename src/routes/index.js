@@ -6,7 +6,9 @@ const validateSetLocationData = require('./../validations/validateSetLocationDat
 const validatePostRequests = require('./../validations/validatePostRequests');
 const validateGetTimeEstimate = require('./../validations/validateGetTimeEstimate');
 const validateRestaurantData = require('./../validations/validateRestaurantData');
+const validatePaymentToken = require('./../validations/validatePaymentToken');
 const validateDeliveryAssociate = require('../validations/validateDeliveryAssociate');
+
 const controller = new controllerClass();
 
 const routes = {
@@ -233,6 +235,12 @@ const routes = {
 
     "/get-cart/:userID": {
       GET: controller.getCart,
+    },
+
+    "/add-order": {
+      POST: (req, res) => {
+        validatePostRequests(req, res, controller.addOrder);
+      },
     },
 
     "/accept-decline-order/:restaurant_id/:order_id": {
