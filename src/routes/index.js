@@ -275,6 +275,10 @@ const routes = {
       GET: controller.updateDeliveryAssociateVerification,
     },
 
+    "/get-active-orders/:restaurant_id/orders/:order_id": {
+      GET: controller.getOrderDetailsById,
+    },
+
     "/verifyRestaurant/:restaurant_id": {
       GET: controller.updateRestaurantVerification,
     },

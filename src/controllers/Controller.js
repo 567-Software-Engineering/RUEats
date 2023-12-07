@@ -860,6 +860,11 @@ module.exports = class Controller {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
+
+          if (decoded.restaurant_id !== parseInt(restaurant_id)) {
+            response(res, { status: 403, data: { message: 'Forbidden: Cannot view notifications for other restaurants.' } });
+            return;
+          }
           const orders = await dbRepo.getActiveOrdersByRestaurantID(restaurant_id);
           const data = orders.length ? orders : `No orders found for RestaurantID: ${restaurant_id}`;
           response(res, { data });
@@ -1729,7 +1734,36 @@ module.exports = class Controller {
     }
   }
 
- 
+  async getOrderDetailsById(req, res) {
+    try {
+        const { order_id, restaurant_id } = req.params;
+        const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+                return;
+            }
+
+            if (decoded.restaurant_id !== parseInt(restaurant_id)) {
+                response(res, { status: 403, data: { message: 'Forbidden: Cannot view orders for other restaurants.' } });
+                return;
+            }
+
+            // Fetch the order details and verify that the order belongs to the restaurant
+            const orderDetails = await dbRepo.getOrderDetailsByIdDB(order_id, restaurant_id);
+
+            if (orderDetails && orderDetails.length > 0) {
+                response(res, { data: orderDetails });
+            } else {
+                response(res, { status: 404, data: { message: "Order not found or does not belong to this restaurant" } });
+            }
+        });
+    } catch (error) {
+        response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+}
+
   
 
 }

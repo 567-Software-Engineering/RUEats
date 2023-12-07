@@ -126,5 +126,20 @@ const uiRoutes = {
         }
     },
 
+    "/app/restaurants-orders/:restaurant_id" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/restaurant-orders.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { restaurant_id } = _req.params;
+                    data = data.replace(/{{restaurant_id}}/g, restaurant_id);
+                    console.log(restaurant_id);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
 }
 module.exports = uiRoutes
