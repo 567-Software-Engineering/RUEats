@@ -70,7 +70,12 @@ module.exports = class RUEatsRepository {
 
   getOrderHistoryByUserID(userID) {
     return new Promise((resolve, reject) => {
-        this.connection.query('SELECT * FROM orders WHERE user_id = ?', [userID], function (error, results) {
+        const query = `SELECT orders.order_id, orders.order_date, orders.total_amount, restaurants.name AS restaurant_name 
+                       FROM orders 
+                       JOIN restaurants ON orders.restaurant_id = restaurants.restaurant_id 
+                       WHERE orders.user_id = ?`;
+
+        this.connection.query(query, [userID], function (error, results) {
             if (error) {
                 reject(error);
             } else {

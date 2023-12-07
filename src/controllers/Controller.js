@@ -637,6 +637,7 @@ module.exports = class Controller {
 
   async postRestaurantReview(req, res) {
     try {
+      console.log(req);
       const { restaurantID } = req.params;
       const token = req.headers.authorization;
       jwt.verify(token, secretKey, async (err, decoded) => {

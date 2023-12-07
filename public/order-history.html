@@ -66,6 +66,15 @@
         strong {
             color: #dc3545;
         }
+        .star {
+            color: gray;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .star.selected {
+            color: gold;
+        }
     </style>
 </head>
 <body>
@@ -109,7 +118,7 @@
 
 <script>
     async function loadOrderHistory() {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMTg4MjU5NCwiZXhwIjoxNzAxODg2MTk0fQ.HImWO3I4sreDybWn2ld5S35YXfLBVeY1oEOdmvHB8Sg"; // Ideally, this should come from a secure source like localStorage
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMTkyMTI2MywiZXhwIjoxNzAxOTI0ODYzfQ.oDrKgPZI_O2usJVXNEjldc2dZHcgcNOcPbVn4KZGi08";
         const userID = '{{userID}}'; // Replace with actual userID or retrieve from a secure source
         const orderHistoryURL = `http://localhost:3000/users/{{userID}}/orders`;
         const userDetailsURL = `http://localhost:3000/users/${userID}`;
@@ -150,26 +159,30 @@
 
     function displayOrderHistory(orders) {
         const orderHistoryDiv = document.getElementById('order-history');
-        orderHistoryDiv.style.display = 'block';
         orderHistoryDiv.innerHTML = '<h4>Your Orders</h4>';
-
+        console.log(orders);
         orders.forEach(order => {
+            let reviewButtonHTML = order.status === 5 
+            ? `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`
+            : '';
             orderHistoryDiv.innerHTML += `
                 <div class="order">
-                    <p>Order ID: ${order.order_id}</p>
-                    <p>Order Date: ${order.order_date}</p>
-                    <p>Total Amount: ${order.total_amount}</p>
-                    <button onclick="addReview(${order.order_id})">Add Review</button>
+                    <p>Restaurant: ${order.restaurant_name}</p>
+                    <p>Order Date: ${new Date(order.order_date).toLocaleDateString()}</p>
+                    <p>Total Amount: $${order.total_amount.toFixed(2)}</p>
+                    ${reviewButtonHTML}
                     &nbsp;
                     <button onclick="orderDetails(${order.order_id})">View Details</button>
                 </div>
                 <hr>`;
         });
+
+        orderHistoryDiv.style.display = 'block';
     }
 
-    function addReview(orderID) {
-        // Logic to handle review addition
-        // This might involve redirecting to another page or opening a modal form
+    function addReview(restaurantID) {
+        document.getElementById('review-restaurant-id').value = restaurantID;
+        $('#reviewModal').modal('show');
     }
 
     function viewDetails(orderID) {
@@ -177,8 +190,127 @@
         // This might involve redirecting to another page or opening a modal form
     }
 
-    window.onload = loadOrderHistory;
+    async function submitReview(event) {
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMTkxODkzOSwiZXhwIjoxNzAxOTIyNTM5fQ.xT8aJZT6Q1GyTtyd5lkdOkJlIDAJibAcNxSt2svC4Oc";
+        event.preventDefault();
+        const formData = new FormData();
+        formData.append('restaurant_id', document.getElementById('review-restaurant-id').value);
+        formData.append('review_title', document.getElementById('review-title').value);
+        formData.append('description', document.getElementById('review-description').value);
+        formData.append('stars', document.getElementById('review-stars').value);
+        
+        const mediaFile = document.getElementById('review-media').files[0];
+        if (mediaFile) {
+            formData.append('media', mediaFile);
+        }
+        document.write(document.getElementById('review-restaurant-id').value);
+        const reviewURL = `http://localhost:3000/restaurants/${formData.get('restaurant_id')}/reviews`;
+        try {
+            const response = await fetch(reviewURL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': token
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Error submitting review.');
+            }
+
+            const result = await response.json();
+            if (result.error) {
+                console.error('Error:', result.error);
+            } else {
+                alert('Review submitted successfully!');
+                document.getElementById('review-form').reset();
+                $('#reviewModal').modal('hide');
+                resetStarRating();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to submit review.');
+        }
+    }
+
+    function setupStarRating() {
+        document.querySelectorAll('.star').forEach(star => {
+            star.onclick = function() {
+                let rating = this.getAttribute('data-value');
+                document.getElementById('review-stars').value = rating;
+                updateStarDisplay(rating);
+            };
+        });
+    }
+
+    function updateStarDisplay(rating) {
+        document.querySelectorAll('.star').forEach(star => {
+            let starValue = star.getAttribute('data-value');
+            if (starValue <= rating) {
+                star.classList.add('selected');
+            } else {
+                star.classList.remove('selected');
+            }
+        });
+    }
+
+    function resetStarRating() {
+        document.querySelectorAll('.star').forEach(star => {
+            star.classList.remove('selected');
+        });
+        document.getElementById('review-stars').value = '';
+    }
+
+
+    window.onload = () => {
+        loadOrderHistory();
+        setupStarRating();
+    };
 </script>
 
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Add a Review</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="review-form">
+                    <input type="hidden" id="review-restaurant-id" name="restaurant_id">
+                    <div class="form-group">
+                        <label for="review-title">Title:</label>
+                        <input type="text" class="form-control" id="review-title" name="review_title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-description">Description:</label>
+                        <textarea class="form-control" id="review-description" name="description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Rating:</label>
+                        <div id="star-rating">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <input type="hidden" id="review-stars" name="stars">
+                    </div>
+                    <div class="form-group">
+                        <label for="review-media">Media (Image/Video):</label>
+                        <input type="file" class="form-control" id="review-media" name="media" accept="image/*,video/*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="resetStarRating();">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitReview(event)">Submit Review</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
