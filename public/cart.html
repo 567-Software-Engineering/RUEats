@@ -27,6 +27,7 @@
 
 <script>
 
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE5MDQ0ODcsImV4cCI6MTcwMTkwODA4N30.LwCDKlO5ZVLcSONlhMsdeH19HT8-R4bg0WnrFzwkbY4';
 async function getData(serverURL, token) {
         try {
             const response = await fetch(serverURL, {
@@ -47,7 +48,7 @@ async function getData(serverURL, token) {
     async function loadCart() {
         event.preventDefault();
         // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTgyNDcwMiwiZXhwIjoxNzAxODI4MzAyfQ.f18FylgE-SoBxOAeC_F9a6R6zEEqLzpykk2fgjXQaVE"
+        // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo";
         if (!token) {
             // No token found, show access denied message
             // document.getElementById('access-denied').style.display = 'block';
@@ -59,19 +60,19 @@ async function getData(serverURL, token) {
         const getCartURL = `http://localhost:3000/get-cart/{{userID}}`;
         console.log(getCartURL);
 
-        const result = await getData(getCartURL, token);
-        console.log(result);
+        const cart = await getData(getCartURL, token);
+        console.log(cart);
 
-        if (result.error) {
+        if (cart.error) {
             // Handle error fetching cart or invalid token
             console.error('Error fetching cart:', cart.error);
             // document.getElementById('access-denied').style.display = 'block';
             alert("Error fetching cart");
             return;
         }
+        let subTotalValue = 0;
+        // const cartDetails = await getData(`http://localhost:3000/get-cart-details/{{userID}}`, token);
 
-        // let cart = JSON.parse(result.response);
-        let cart = result;
         let container = document.getElementById('cart-container');
 
         let cartItemDiv = document.createElement('div');
@@ -79,83 +80,140 @@ async function getData(serverURL, token) {
 
         cart.forEach(cartItem => {
             let card = document.createElement('div');
-            card.className = 'col-md-4 mb-4';
+            card.className = 'row-md-4 mb-4';
             card.innerHTML = `
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
-                    <p class="card-text">${cartItem.item_id}</p>
-                    <p class="card-text">${cartItem.quantity}</p>
+                    <h5 class="card-title">${cartItem.item_name}</h5>
+                    <img src=${cartItem.image_url} width="100px" height="100px">
+                    <p class="card-text">Quantity: ${cartItem.quantity}</p>
+                    <p class="card-text">Unit Price: $${cartItem.price}</p>
+                    <p class="card-text">Item sub-total: $${cartItem.price * cartItem.quantity}</p>
+
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-outline-secondary" onclick="decrementQuantity(this, '${cartItem.price}', '${cartItem.item_id}', '${cartItem.item_name}')">-</button>
+                        </span>
+                        <input type="text" class="form-control" value="${cartItem.quantity}" readonly>
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-outline-secondary" onclick="incrementQuantity(this, '${cartItem.price}', '${cartItem.item_id}', '${cartItem.item_name}')">+</button>
+                        </span>
+                    </div>   
                 </div>
             </div>
             `
-
-
-
-            // card.innerHTML = `
-            //             <div class="card h-100 shadow-sm">
-            //                 <div class="card-body">
-            //                     <h5 class="card-title">${menuItem.item_name}</h5>
-            //                     <!--<img src=${menuItem.image_url} width="100px" height="100px">-->
-            //                     <p class="card-text">${menuItem.description}</p>
-            //                     <p class="card-text">$${menuItem.price}</p>
-            //                     <div class="input-group">
-            //                         <span class="input-group-btn">
-            //                             <button type="button" class="btn btn-outline-secondary" onclick="decrementQuantity(this, '${menuItem.price}')">-</button>
-            //                         </span>
-            //                         <input type="text" class="form-control" value="1" readonly>
-            //                         <span class="input-group-btn">
-            //                             <button type="button" class="btn btn-outline-secondary" onclick="incrementQuantity(this, '${menuItem.price}')">+</button>
-            //                         </span>
-            //                     </div>
-
-            //                     <button class="btn btn-primary" onclick="addToCart(this , '${menuItem.item_id}', '${menuItem.item_name}', ${menuItem.price})">Add to Cart</button>
-            //                 </div>
-            //             </div>
-            //         `;
-
+            
+            subTotalValue += cartItem.price * cartItem.quantity;
             cartItemDiv.appendChild(card);
+            
         })
 
+        let subTotalDiv = document.createElement('div');
+        subTotalDiv.className = 'col-md-4 mb-4';
+        subTotalDiv.innerHTML = `
+        <h3>Order Total: $${subTotalValue}</h3>
+        
+        <input type="button" value="Checkout" class="btn btn-primary" onclick = "checkoutCart(this, '${subTotalValue}')">
+        `
+        // <input type="button" value="Checkout" class="btn btn-primary" onclick = "checkoutCart(this, '${JSON.stringify(cart)}', '${subTotalValue}')">
+
         container.appendChild(cartItemDiv);
+        container.appendChild(subTotalDiv);
         
-        
-        
-        
-        
-        
-        // Display cart
-        // for (let i = 0; i < cart.length; i++) {
-        //     const item = cart[i];
-        //     const cartBaseDiv = document.getElementById('cart-base');
-        //     cartBaseDiv.style.display = 'block';
-        //     cartBaseDiv.innerHTML = `
-        //         <p><strong>Item:</strong> ${item.item_id}</p>
-        //         <p><strong>Quantity:</strong> ${item.quantity}</p>
-        //         <p><strong>Price:</strong> ${item.price}</p>
-        //     `;
-        // }
+    }
+
+    async function checkoutCart(button, subTotalValue)
+    {
+        //store cart in local storage
+        // localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem('subTotalValue', subTotalValue);
+
+        window.location.href = "http://localhost:3000/app/payment-form";
+
+    }
 
 
-        
-        // const userProfileDiv = document.getElementById('cart-base');
-        // userProfileDiv.style.display = 'block';
-        // userProfileDiv.innerHTML = `
-        //     <h3>User Profile</h3>
-        //     <p><strong>Name:</strong> ${userProfile.name}</p>
-        //     <p><strong>Email:</strong> ${userProfile.email}</p>
-        //     <p><strong>Address:</strong> ${userProfile.home_address}</p>
-        //     <p><strong>City:</strong> ${userProfile.city}</p>
-        //     <p><strong>State:</strong> ${userProfile.state}</p>
-        //     <p><strong>Zip Code:</strong> ${userProfile.zip_code}</p>
-        // `;
+    async function incrementQuantity(button, price, itemID, itemName) {
+        let input = button.parentElement.parentElement.querySelector('input');
+        let quantity = parseInt(input.value);
+        input.value = quantity + 1;
+        // updateButton(button,price);
+
+        // let userID = getUserIDFromLocalStorage(); //wip
+        let userID = 83;
+        // let token = getTokenFromLocalStorage(); //wip
+        // let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo';
+
+        if (!isNaN(price) && !isNaN(input.value)) {
+            let totalPrice = price * input.value;
+
+            // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
+
+            const response = await fetch('http://localhost:3000/update-cart', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${token}`
+                },
+                body: JSON.stringify({
+                    userID: userID, //wip
+                    itemID: itemID,
+                    quantity: input.value
+                })
+            });
+
+            if (response.ok) {
+                // alert(`Updated cart: Item - ${itemName}, Quantity - ${input.value}, Item Sub-Total - $${totalPrice.toFixed(2)}`);
+            } else {
+                alert(`Error: ${response.status}`);
+            }
+            // alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
+        }
+
+        location.reload();
 
 
-        //  const privacyPolicy = document.getElementById('privacy-policy');
-        //  privacyPolicy.style.display = 'block';
-        //  privacyPolicy.innerHTML = `
-        //         <h3>Privacy</h3>
-        //         <p>RUEats protects your privacy and personal information. You can choose to share your information with businesses so they can send you promotions and emails.</p>
-        // `;
+    }
+
+    async function decrementQuantity(button, price, itemID, itemName) {
+        let input = button.parentElement.parentElement.querySelector('input');
+        let quantity = parseInt(input.value);
+        if (quantity > 0) {
+            input.value = quantity - 1;
+            // updateButton(button,price);
+            // let userID = getUserIDFromLocalStorage(); //wip
+        let userID = 83;
+        // let token = getTokenFromLocalStorage(); //wip
+        // let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo';
+
+        if (!isNaN(price) && !isNaN(input.value)) {
+            let totalPrice = price * input.value;
+
+            // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
+
+            const response = await fetch('http://localhost:3000/update-cart', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${token}`
+                },
+                body: JSON.stringify({
+                    userID: userID, //wip
+                    itemID: itemID,
+                    quantity: input.value
+                })
+            });
+
+            if (response.ok) {
+                // alert(`Updated cart: Item - ${itemName}, Quantity - ${input.value}, Item Sub-Total - $${totalPrice.toFixed(2)}`);
+            } else {
+                alert(`Error: ${response.status}`);
+            }
+            // alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
+        }
+
+        location.reload();
+        }
     }
 
     function getTokenFromLocalStorage() {

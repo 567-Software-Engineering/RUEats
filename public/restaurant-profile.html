@@ -10,6 +10,9 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+     <!-- Font Awesome CSS -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-...your-integrity-hash-here..." crossorigin="anonymous" />
+
     <style>
         body {
             background-color: #f8f9fa;
@@ -84,29 +87,10 @@
         <div class="col-md-6 mx-auto">
             <div id="restaurant-profile" style="display: none;">
                 <!-- Restaurant Profile content will be displayed here -->
-                <div id="restaurant-profile-content"></div>
-                <button class="btn btn-primary" onclick="openEditDialog()">Edit</button>
-            </div>
-            <div id="access-denied" style="display: none;">
-                <h3>Access Denied</h3>
-                <p>Please log in to view the restaurant profile.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Restaurant Modal -->
-<div class="modal" id="editRestaurantModal">
-    <!-- ... (your existing modal content) ... -->
-</div>
-
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6 mx-auto">
-            <div id="restaurant-profile" style="display: none;">
-                <!-- Restaurant Profile content will be displayed here -->
-                <div id="restaurant-profile-content"></div>
-                <button class="btn btn-primary" onclick="openEditDialog()">Edit</button>
+                <div id="restaurant-profile-header">
+                    <i class="fas fa-edit ml-2" style="cursor: pointer;" onclick="openEditDialog()"></i>
+                </div>
+                <div  id="restaurant-profile-content"></div>
             </div>
             <div id="access-denied" style="display: none;">
                 <h3>Access Denied</h3>
@@ -120,7 +104,6 @@
 <div class="modal" id="editRestaurantModal">
     <div class="modal-dialog">
         <div class="modal-content">
-
             <!-- Modal Header -->
             <div class="modal-header">
                 <h4 class="modal-title">Edit Restaurant</h4>
@@ -129,13 +112,41 @@
 
             <!-- Modal Body -->
             <div class="modal-body">
-                <!-- Add form fields for editing restaurant data -->
-                <!-- Example: -->
-                <div class="form-group">
-                    <label for="editRestaurantName">Name:</label>
-                    <input type="text" class="form-control" id="editRestaurantName" value="">
-                </div>
-                <!-- Add other form fields as needed -->
+                <!-- Add a form for editing restaurant data -->
+                <form id="editRestaurantForm">
+                    <div class="form-group">
+                        <label for="editRestaurantName">Name:</label>
+                        <input type="text" class="form-control" id="editRestaurantName" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRestaurantEmail">Email:</label>
+                        <input type="email" class="form-control" id="editRestaurantEmail" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRestaurantPhoneNumber">Phone Number:</label>
+                        <input type="tel" class="form-control" id="editRestaurantPhoneNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRestaurantAddress">Address:</label>
+                        <input type="text" class="form-control" id="editRestaurantAddress">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRestaurantCuisineType">Cuisine Type:</label>
+                        <input type="text" class="form-control" id="editRestaurantCuisineType">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRestaurantOperatingHours">Operating Hours:</label>
+                        <input type="text" class="form-control" id="editRestaurantOperatingHours">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRestaurantStatus">Status:</label>
+                        <select class="form-control" id="editRestaurantStatus">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <!-- Add other form fields as needed -->
+                </form>
             </div>
 
             <!-- Modal Footer -->
@@ -143,7 +154,6 @@
                 <button type="button" class="btn btn-primary" onclick="saveEditedData()">Save Changes</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
-
         </div>
     </div>
 </div>
@@ -168,7 +178,7 @@
 
     async function loadRestaurantProfile() {
         event.preventDefault();
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTgxMDg3OCwiZXhwIjoxNzAxODE0NDc4fQ.TTqHKVARqvxyuFDtl6JWAVE5NiqL_IyCl7yjh8Iu8uo"; // Replace with the actual token
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTmFydXRvIFV6dW1ha2lpIiwidXNlcl9pZCI6MTEsImlhdCI6MTcwMTkwODM1NCwiZXhwIjoxNzAxOTExOTU0fQ.TjER-UwvtbA10rjP6S_ombK87_VUgRmzu1USB65J06I"; // Replace with the actual token
         if (!token) {
             // No token found, show access denied message
             document.getElementById('access-denied').style.display = 'block';
@@ -192,10 +202,16 @@
         const restaurantProfileDiv = document.getElementById('restaurant-profile');
         restaurantProfileDiv.style.display = 'block';
 
+        const restaurantProfileHeaderDiv = document.getElementById('restaurant-profile-header');
+        restaurantProfileHeaderDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <h3>${restaurantProfile[0].name}</h3>
+            <i class="fas fa-edit ml-2" style="cursor: pointer;" onclick="openEditDialog()"></i>
+            </div>
+        `;
         // Display restaurant profile content inside the 'restaurant-profile-content' div
         const restaurantProfileContentDiv = document.getElementById('restaurant-profile-content');
         restaurantProfileContentDiv.innerHTML = `
-            <h3>${restaurantProfile[0].name}</h3>
             <p><strong>Email:</strong> ${restaurantProfile[0].email}</p>
             <p><strong>Phone Number:</strong> ${restaurantProfile[0].phone_number}</p>
             <p><strong>Address:</strong> ${restaurantProfile[0].address}</p>
@@ -204,6 +220,23 @@
             <p><strong>Operating Hours:</strong> ${restaurantProfile[0].operating_hours}</p>
             <p><strong>Status:</strong> ${restaurantProfile[0].is_active ? 'Active' : 'Inactive'}</p>
         `;
+
+        const editRestaurantNameInput = document.getElementById('editRestaurantName');
+        const editRestaurantEmailInput = document.getElementById('editRestaurantEmail');
+        const editRestaurantPhoneNumberInput = document.getElementById('editRestaurantPhoneNumber');
+        const editRestaurantAddressInput = document.getElementById('editRestaurantAddress');
+        const editRestaurantCuisineTypeInput = document.getElementById('editRestaurantCuisineType');
+        const editRestaurantOperatingHoursInput = document.getElementById('editRestaurantOperatingHours');
+        const editRestaurantStatusInput = document.getElementById('editRestaurantStatus');
+
+        editRestaurantNameInput.value = restaurantProfile[0].name;
+        editRestaurantEmailInput.value = restaurantProfile[0].email;
+        editRestaurantPhoneNumberInput.value = restaurantProfile[0].phone_number;
+        editRestaurantAddressInput.value = restaurantProfile[0].address;
+        editRestaurantCuisineTypeInput.value = restaurantProfile[0].cuisine_type;
+        editRestaurantOperatingHoursInput.value = restaurantProfile[0].operating_hours;
+        editRestaurantStatusInput.value = restaurantProfile[0].is_active;
+
     }
 
 
@@ -213,12 +246,59 @@
     }
 
     // Function to save edited data (you can implement this as needed)
-    function saveEditedData() {
-        // You can implement logic here to send the edited data to the server
-        // and update the restaurant profile on the page
-        // After saving, you may want to close the modal
-        $('#editRestaurantModal').modal('hide');
+    // Function to save edited data
+    async function saveEditedData() {
+        const editedName = document.getElementById('editRestaurantName').value;
+        const editedEmail = document.getElementById('editRestaurantEmail').value;
+        const editedPhoneNumber = document.getElementById('editRestaurantPhoneNumber').value;
+        const editedAddress = document.getElementById('editRestaurantAddress').value;
+        const editedCuisineType = document.getElementById('editRestaurantCuisineType').value;
+        const editedOperatingHours = document.getElementById('editRestaurantOperatingHours').value;
+        const editedStatus = document.getElementById('editRestaurantStatus').value;
+
+        // Prepare the data object for the PUT request
+        const requestData = {
+            "name": editedName,
+            "email": editedEmail,
+            "phone_number": editedPhoneNumber,
+            "address": editedAddress,
+            "cuisine_type": editedCuisineType,
+            "operating_hours": editedOperatingHours,
+            "is_active": editedStatus
+            // Add other fields as needed
+        };
+
+        // Extract restaurant ID from the URL
+        const restaurantId = window.location.pathname.split('/').pop();
+
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTmFydXRvIFV6dW1ha2lpIiwidXNlcl9pZCI6MTEsImlhdCI6MTcwMTkwODM1NCwiZXhwIjoxNzAxOTExOTU0fQ.TjER-UwvtbA10rjP6S_ombK87_VUgRmzu1USB65J06I"; // Replace with the actual token
+
+        try {
+            const response = await fetch(`http://localhost:3000/restaurants/${restaurantId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+
+            // Optionally, you can handle the success scenario here
+            console.log('Restaurant details updated successfully');
+
+            // Close the modal
+            $('#editRestaurantModal').modal('hide');
+            location.reload();
+        } catch (error) {
+            console.error('Error:', error);
+            // Handle the error scenario here, e.g., display an error message to the user
+        }
     }
+
 
     function getTokenFromLocalStorage() {
         // Implement logic to get the token from local storage or cookies

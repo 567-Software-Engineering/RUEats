@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <!-- Include necessary CSS and JavaScript libraries -->
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Bootstrap JavaScript dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        .navbar {
+            background-color: #dc3545;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff;
+        }
+
+        .nav-link {
+            color: #fff;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        #user-profile {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #btn-group {
+            text-align: center
+        }
+
+        #privacy-policy {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #access-denied {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        strong {
+            color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">
+            RUEats
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="loadUserProfile()">Account</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div id="user-profile" style="display: none;">
+                    <!-- User Profile content will be displayed here -->
+                </div>
+                <br>
+                <div id="image-uploader">
+                    <h1>Select an Image</h1>
+
+                    <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+
+                    <div id="imageContainer"></div>
+
+                </div>
+                <br>
+                <div id="btn-group">
+                    <button class="btn btn-danger btn-cancel" onclick="cancelOrder()">Cancel Order</button>
+                    <button class="btn btn-success btn-validate" onclick="completeOrder(); validateOrder(); ">Validate
+                        Order</button>
+                    <!-- User Profile content will be displayed here -->
+                </div>
+                <br>
+                <div id="privacy-policy" style="display: none;">
+                    <!-- User Profile content will be displayed here -->
+                </div>
+                <div id="access-denied" style="display: none;">
+                    <h3>Access Denied</h3>
+                    <p>Please log in to view your profile.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQUQgUlMiLCJ1c2VyX2lkIjo4MCwiaWF0IjoxNzAxODgzNzI0LCJleHAiOjE3MDE4ODczMjR9.jHtW1G-dEwJEC95VaREMNtVLbqQKzzY8AjFeKLDTXy8"
+        let fileName = "";
+        let orderID = "";
+
+        async function getData(serverURL, token) {
+            try {
+                const response = await fetch(serverURL, {
+                    headers: {
+                        'Authorization': `${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                return { error: error.message };
+            }
+        }
+
+        async function loadCurrentOrder() {
+            event.preventDefault();
+            // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
+            if (!token) {
+                // No token found, show access denied message
+                document.getElementById('access-denied').style.display = 'block';
+                return;
+            }
+
+            // const userID = '11'; // Replace '123' with the actual user ID
+            const associateURL = `http://localhost:3000/get-delivery-assignment/{{associateID}}`;
+            console.log("Hello", associateURL)
+
+            const currentOrder = await getData(associateURL, token);
+            orderID = currentOrder.order.order_id;
+            console.log("Current order_names is", currentOrder);
+            if (currentOrder.error) {
+                // Handle error fetching user profile or invalid token
+                console.error('Error fetching user profile:', userProfile.error);
+                document.getElementById('access-denied').style.display = 'block';
+                return;
+            }
+
+            // Display user profile data
+            const orderDetailsDiv = document.getElementById('user-profile');
+            orderDetailsDiv.style.display = 'block';
+            orderDetailsDiv.innerHTML = `
+                <h3>Current Order Details</h3>
+                <p><strong>Name:</strong> ${currentOrder.user.name}</p>
+                <p><strong>Address:</strong> ${currentOrder.order.delivery_address}</p>
+                <p><strong>Special Instructions:</strong> ${currentOrder.order.special_instructions}</p>
+                <p><strong>Status:</strong> ${currentOrder.order.status}</p>
+            `;
+            let container = document.getElementById('order-container');
+
+            let row = document.createElement('list');
+            row.className = 'row-cols-1 row-cols-md-3 g-4';
+            const orderItems = currentOrder.order_item_names
+
+
+
+
+            orderItems.forEach(orderItem => {
+                let card = document.createElement('item');
+                card.className = 'row-md-4 mb-4';
+                card.innerHTML = `
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">${orderItem.item_name}</h5>
+                            <p class="card-text">$${orderItem.price}</p>
+                            <p class="card-text">${orderItem.quantity}</p>
+                        </div>
+                    </div>
+                `;
+
+                row.appendChild(card);
+            });
+
+            orderDetailsDiv.appendChild(row);
+
+            // const privacyPolicy = document.getElementById('privacy-policy');
+            // privacyPolicy.style.display = 'block';
+            // privacyPolicy.innerHTML = `
+            //         <h3>Privacy</h3>
+            //         <p>RUEats protects your privacy and personal information. You can choose to share your information with businesses so they can send you promotions and emails.</p>
+            // `;
+        }
+
+        function handleFileSelect(event) {
+            const fileInput = event.target;
+            const file = fileInput.files[0];
+
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const imageContainer = document.getElementById('imageContainer');
+                    const imgElement = document.createElement('img');
+                    imgElement.src = e.target.result;
+                    imgElement.alt = 'Selected Image';
+                    imageContainer.innerHTML = ''; // Clear previous content
+                    imageContainer.appendChild(imgElement);
+
+                    // Log the file name
+                    console.log('Selected File:', file.name);
+                    fileName = file.name;
+                    return file.name;
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a valid image file.');
+            }
+        }
+
+        async function validateOrder() {
+            event.preventDefault()
+            serverURL2 = `http://localhost:3000/validate-delivery/${orderID}`;
+            console.log("URL2", serverURL2, fileName);
+
+            console.log("here");
+
+            try {
+                const response = await fetch(serverURL2, {
+
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': "application/json",
+                        'Authorization': `${token}`
+                    },
+                    body: JSON.stringify({ "imageURL": `${fileName}` })
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                };
+                alert('Order Validated!');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                return { error: error.message };
+            }
+
+
+        }
+
+        async function completeOrder() {
+
+            serverURL1 = `http://localhost:3000/update-delivery-status/{{associateID}}`;
+            try {
+                const response = await fetch(serverURL1, {
+
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': "application/json",
+                        'Authorization': `${token}`
+                    },
+                    body: JSON.stringify({ "status": 3 })
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                window.location.reload();
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                return { error: error.message };
+            };
+
+
+
+        };
+
+        async function cancelOrder() {
+            serverURL = `http://localhost:3000/update-delivery-status/{{associateID}}`;
+            console.log("hello again")
+            try {
+                const response = await fetch(serverURL, {
+
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': "application/json",
+                        'Authorization': `${token}`
+                    },
+                    body: JSON.stringify({ "status": 6 })
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                alert('Order Cancelled!');
+                window.location.reload();
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                return { error: error.message };
+            }
+
+
+        };
+
+
+        // function getTokenFromLocalStorage() {
+        //     // Implement logic to get the token from local storage or cookies
+        //     // For example:
+        //     // return localStorage.getItem('token');
+        //     // or retrieve token from cookies
+        // }
+
+        window.onload = loadCurrentOrder;
+    </script>
+
+    <div class="container">
+        <div id="order-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+
+    </div>
+
+</body>
+
+</html>

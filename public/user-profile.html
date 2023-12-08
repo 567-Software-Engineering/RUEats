@@ -168,6 +168,9 @@
                 <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Order History</a>
             </li>
             <li class="nav-item">
+                <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Order History</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadUserProfile()">Account</a>
             </li>
         </ul>
@@ -231,7 +234,7 @@
     async function loadUserProfile() {
         event.preventDefault();
         // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMTkyMTI2MywiZXhwIjoxNzAxOTI0ODYzfQ.oDrKgPZI_O2usJVXNEjldc2dZHcgcNOcPbVn4KZGi08"
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMjAwNzQ3MSwiZXhwIjoxNzAyMDExMDcxfQ.uw35n4YyD4bXW1yfhsWFdP-Xnh0Qezlm0tPXaCEhWQg"
         if (!token) {
             // No token found, show access denied message
             document.getElementById('access-denied').style.display = 'block';
@@ -293,7 +296,7 @@
 
     async function updateUserProfile(userData) {
     const apiUrl = `http://localhost:3000/users/{{userID}}`;
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTgxOTU2OSwiZXhwIjoxNzAxODIzMTY5fQ.JWri3ua5Hil5nOsbcuvHd6AEpX5-4mF3pUifpGCb8D8"
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTg5MjczMywiZXhwIjoxNzAxODk2MzMzfQ.sLq32YTH-tF-a6g2LOif7ooucHK8s6yoKRKT3AARx38"
         
     try {
         const response = await fetch(apiUrl, {

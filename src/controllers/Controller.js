@@ -191,6 +191,50 @@ module.exports = class Controller {
     }
   }
 
+  async updateRestaurantProfile(req, res) {
+    try {
+      const token = req.headers.authorization;
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: "Unauthorized" } });
+        } else {
+          const { restaurant_id } = req.params;
+          const { name, email, phone_number, address, cuisine_type, operating_hours,is_active } = req.body;
+
+          // Check if the email field is provided in the request
+
+          const updatedProfile = {
+            restaurant_id,
+            name,
+            email,
+            phone_number,
+            address,
+            cuisine_type,
+            operating_hours,
+            is_active
+          };
+
+          // Hash the password using bcrypt
+          // if (password) {
+          //   const saltRounds = 10; // You can adjust this according to your needs
+          //   const hashedPassword = await bcrypt.hash(password, saltRounds);
+          //   updatedProfile.password = hashedPassword;
+          // }
+
+          const updated = await dbRepo.updateRestaurantProfileInDB(restaurant_id, updatedProfile);
+
+          if (updated) {
+            response(res, { data: { message: "Restaurant profile updated successfully" } });
+          } else {
+            response(res, { status: 400, data: { message: "No valid updates provided" } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+  }
+
   async getRestaurantMenu(req, res) {
     try {
       const { restaurantID } = req.params;
@@ -637,7 +681,6 @@ module.exports = class Controller {
 
   async postRestaurantReview(req, res) {
     try {
-      console.log(req);
       const { restaurantID } = req.params;
       const token = req.headers.authorization;
       jwt.verify(token, secretKey, async (err, decoded) => {
@@ -817,6 +860,11 @@ module.exports = class Controller {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
+
+          if (decoded.restaurant_id !== parseInt(restaurant_id)) {
+            response(res, { status: 403, data: { message: 'Forbidden: Cannot view notifications for other restaurants.' } });
+            return;
+          }
           const orders = await dbRepo.getActiveOrdersByRestaurantID(restaurant_id);
           const data = orders.length ? orders : `No orders found for RestaurantID: ${restaurant_id}`;
           response(res, { data });
@@ -977,7 +1025,7 @@ module.exports = class Controller {
 
       await stripe.charges
         .create({
-          amount: 10000, // Amount in cents
+          amount: requestBody.amount * 100, // Amount in cents
           currency: 'usd',
           description: 'Example Charge',
           source: requestBody.token,
@@ -1004,9 +1052,14 @@ module.exports = class Controller {
         if (err) {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
+          const data_interim = {}
           const orders = await dbRepo.getDeliveryAssociateOrder(associateID);
-          if (orders != null) {
-          const data = orders;
+          data_interim.order = orders
+          data_interim.user = await dbRepo.getUserByIdDB(orders.user_id);
+          data_interim.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(orders.order_id);
+          
+          if (data_interim != null) {
+          const data = data_interim;
           response(res, { data });
           } else {
             response(res, { data: 'No orders found for the given user' });
@@ -1031,7 +1084,7 @@ module.exports = class Controller {
         if (err) { 
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
-          if (![1, 2, 3].includes(status)) {
+          if (![0, 1, 2, 3, 4, 5, 6].includes(status)) {
             response(res, { status: 400, data: { message: "Invalid status value." } });
             return;
           }
@@ -1157,6 +1210,57 @@ module.exports = class Controller {
           }
           else {
             response(res, { data: {message: 'Error getting cart' } });
+          }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async addOrder(req, res) {
+    try {
+      const token = req.headers.authorization;
+      console.log(token);
+      const { userID, orderAmount } = req.body;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, {status: 401, data: {message: 'Unauthorized'} });
+        }
+        else {
+          const userDetails = await dbRepo.getUserByIdDB(userID);
+          const cart = await dbRepo.getCart(userID);
+          const restaurantID = await dbRepo.getRestaurantIDByItemID(cart[0].item_id);
+
+          const results = await dbRepo.addOrder(restaurantID, cart, userDetails, orderAmount);          
+
+          if (results.affectedRows > 0) {
+
+            let values = [];
+            for (let index = 0; index < cart.length; index++) {
+              const element = cart[index];
+              values.push([element.quantity, results.insertId, element.item_id,]);
+            }
+            let resultsOrderItems = [];
+            console.log(values);
+            for (let index = 0; index < values.length; index++) {
+              const element = values[index];
+              // console.log(element);
+              resultsOrderItems.push(await dbRepo.addOrderItems(element));
+            }
+            
+            if (resultsOrderItems[0].affectedRows > 0) {
+              response(res, { data: {message: "Order and order items added!"} });
+            }
+            else {
+              response(res, { data: {message: 'Error adding order' } });
+            }
+
+            // response(res, { data: {message: "Order added!"} });
+          }
+          else {
+            response(res, { data: {message: 'Error adding order' } });
           }
         }
       });
@@ -1630,7 +1734,31 @@ module.exports = class Controller {
     }
   }
 
- 
-  
+  async getOrderDetailsById(req, res) {
+    try {
+        const { order_id } = req.params;
+        const token = req.headers.authorization;
+
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+                return;
+            }
+
+            const orderDetails = await dbRepo.getOrderDetailsByIdDB(order_id);
+            if (orderDetails && orderDetails.length > 0) {
+                if (decoded.restaurant_id === orderDetails[0].restaurant_id || decoded.user_id === orderDetails[0].user_id) {
+                    response(res, { data: orderDetails });
+                } else {
+                    response(res, { status: 403, data: { message: 'Forbidden: You do not have permission to view these order details.' } });
+                }
+            } else {
+                response(res, { status: 404, data: { message: "Order not found" } });
+            }
+        });
+    } catch (error) {
+        response(res, { status: 500, data: { message: "Internal Server Error" } });
+    }
+}  
 
 }
