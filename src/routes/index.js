@@ -295,6 +295,13 @@ const routes = {
         validatePostRequests(req, res, controller.changePassword);
       },
     },
+    "/orders/:orderID/tracking" :{
+      GET : controller.getOrderTracking
+    },
+
+    "/orders/:orderID/associate-tracking" :{
+      GET : controller.getOrderTracking
+    },
 
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });

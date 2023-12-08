@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        /* Set the map container size */
+        /* #map {
+            height: 400px;
+            width: 100%;
+        } */
+        /* Add this CSS to maintain a consistent theme */
+
+body {
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+.navbar {
+    background-color: #dc3545 ;
+}
+
+.navbar-brand {
+    color: #fff;
+    font-weight: bold;
+}
+
+.container {
+    margin-top: 20px; /* Adjust margin as needed */
+}
+
+#restaurant-container {
+    margin-top: 20px; /* Adjust margin as needed */
+}
+
+#map {
+    height: 400px;
+    width: 100%;
+    margin-top: 20px; /* Adjust margin as needed */
+}
+
+#eta-info,
+#associate-name,
+#associate-contact {
+    margin-top: 20px; /* Adjust margin as needed */
+}
+
+/* You can keep the existing styles for other elements, such as buttons and modals */
+
+
+    </style>
+
+    <meta charset="UTF-8">
+    <title>RUEats</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="#">
+        RUEats
+    </a>
+</nav>
+
+<div class="container">
+    <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+</div>
+<div id="map"></div>
+<div id="eta-info"></div>
+<div id="associate-name"></div>
+<div id="associate-contact"></div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA10Tvyj3vQYU9_deaVStxntMz_YXRPRwo"></script>
+<script>
+
+    async function postData(serverURL, body, jwtToken) {
+        return new Promise((resolve, reject) => {
+            const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');            
+            if (!urlFormat.test(serverURL))
+            reject(`Invalid URL: ${serverURL}`);
+
+            fetch(serverURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': jwtToken
+            },
+            body: JSON.stringify(body), // Convert the body to JSON string
+            })
+            .then(response => response.text())
+            .then(data => resolve({ response: data }))
+            .catch(error => resolve({ response: error }));
+        });
+    }
+
+
+    async function getData(serverURL, body, jwtToken) {
+        return new Promise((resolve, reject) => {
+            const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
+            if (!urlFormat.test(serverURL))
+                reject(`Invalid URL: ${serverURL}`);
+            // console.log(jwtToken)
+            fetch(serverURL, {
+                method: 'GET',
+                headers: {
+                'Content-Type': 'application/json',
+                'Authorization': jwtToken
+            },
+            })
+                .then(response => response.text())
+                .then(data => resolve({ response: data }))
+                .catch(error => resolve({ response: error }));
+        });
+    }
+
+    (async () => {
+        jwtToken = localStorage.getItem('jwtToken') || '';
+        userEmail = localStorage.getItem('email') || '';
+        userName = localStorage.getItem('name') || '';
+        user_id = localStorage.getItem('user_id') || '';
+        let result = await getData('http://localhost:3000/orders/{{orderID}}/tracking', {}, jwtToken);
+        parsed_result = JSON.parse(result['response'])
+        restaurant_address = parsed_result['restaurant_address']
+        let delivery_associate = parsed_result['delivery_associate']
+        var associate_name = document.getElementById('associate-name');
+        associate_name.innerHTML = 'Delivery Associate Name: ' + delivery_associate['name'];
+        var associate_contact = document.getElementById('associate-contact');
+        associate_contact.innerHTML = delivery_associate['name']+'\'s Contact: ' + delivery_associate['contact'];
+
+        console.log(delivery_associate)
+        let request_body1 = {
+            'address': restaurant_address
+        }
+        let restaurant_coordinates = await postData('http://localhost:3000/get-location', request_body1, jwtToken);
+        restaurant_coordinates = JSON.parse(restaurant_coordinates['response'])
+        let restaurant_lat = restaurant_coordinates['lat']
+        let restaurant_lng = restaurant_coordinates['lng']
+        delivery_address = parsed_result['delivery_address']
+        let request_body2 = {
+            'address': delivery_address
+        }
+        let delivery_coordinates = await postData('http://localhost:3000/get-location', request_body2, jwtToken);
+        delivery_coordinates = JSON.parse(delivery_coordinates['response'])
+        let delivery_lat = delivery_coordinates['lat']
+        let delivery_lng = delivery_coordinates['lng']
+        return {
+            restaurant_lat,
+            restaurant_lng,
+            delivery_lat,
+            delivery_lng
+        };
+
+    })()
+    .then((result) => {
+        
+    // console.log(result)
+    var origin = { lat: result.restaurant_lat, lng: result.restaurant_lng };
+        var destination = { lat: result.delivery_lat, lng: result.delivery_lng };
+        var map;
+        var marker;
+        var directionsService;
+        var directionsRenderer;
+        var stepIndex = 0;
+
+        function initializeMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: origin,
+                zoom: 6
+            });
+
+            marker = new google.maps.Marker({
+                position: origin,
+                map: map,
+                title: 'Marker'
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map
+            });
+
+            var request = {
+                origin: origin,
+                destination: destination,
+                travelMode: google.maps.TravelMode.DRIVING,
+                drivingOptions: {
+                    departureTime: new Date(), // Request traffic information for current time
+                    trafficModel: google.maps.TrafficModel.BEST_GUESS
+                }
+            };
+
+            directionsService.route(request, function (result, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsRenderer.setDirections(result);
+                    var route = result.routes[0];
+                    // console.log(route)
+                    calculateAndDisplayETA(route);
+                }
+            });
+        }
+
+        function calculateAndDisplayETA(route) {
+            var totalDurationInSeconds = 0;
+
+            for (var i = 0; i < route.legs[0].steps.length; i++) {
+                totalDurationInSeconds += route.legs[0].steps[i].duration.value;
+            }
+
+            var totalDurationInMinutes = Math.round(totalDurationInSeconds / 60);
+
+            updateEtaInfo(totalDurationInMinutes);
+            animateNextStep(route, totalDurationInSeconds);
+        }
+
+        function updateEtaInfo(totalDurationInMinutes) {
+            var etaInfoElement = document.getElementById('eta-info');
+            etaInfoElement.innerHTML = 'Total ETA: ' + totalDurationInMinutes + ' mins';
+        }
+
+        function animateNextStep(route, totalDurationInSeconds) {
+            if (stepIndex < route.legs[0].steps.length) {
+                var step = route.legs[0].steps[stepIndex];
+                var nextLocation = step.end_location;
+                var durationInSeconds = step.duration.value;
+
+                moveMarkerSmoothly(marker, nextLocation, durationInSeconds, totalDurationInSeconds, function () {
+                    stepIndex++;
+                    animateNextStep(route, totalDurationInSeconds);
+                });
+            }
+        }
+
+        function moveMarkerSmoothly(marker, nextLocation, durationInSeconds, totalDurationInSeconds, callback) {
+            var start = marker.getPosition();
+            var startTime = performance.now();
+            var duration = durationInSeconds * 1000; // Convert seconds to milliseconds
+
+            function animate(currentTime) {
+                var elapsedTime = currentTime - startTime;
+                var percentComplete = elapsedTime / duration;
+                if (percentComplete >= 1) {
+                    marker.setPosition(nextLocation);
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
+                    return;
+                }
+                // console.log(nextLocation)
+                var etaInfoElement = document.getElementById('eta-info');
+                etaInfoElement.innerHTML = 'Total ETA: ' + Math.floor((totalDurationInSeconds - elapsedTime/1000)/60) + ' mins';
+                // console.log('totalDurationInSeconds',(totalDurationInSeconds - elapsedTime/1000)/60)
+                // console.log('elapsedTime',elapsedTime)
+                // console.log('percent complete',percentComplete)
+                // console.log('elapsed time',elapsedTime/(60*60))
+                var newPosition = google.maps.geometry.spherical.interpolate(start, nextLocation, percentComplete);
+                marker.setPosition(newPosition);
+
+                requestAnimationFrame(animate);
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        initializeMap();
+
+    })
+
+
+   
+
+</script>
+
+</body>
+</html>

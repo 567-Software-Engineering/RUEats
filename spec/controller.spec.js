@@ -52,7 +52,8 @@ describe('Controller Tests', function () {
                 "home_address": "1 Richmond Street",
                 "zip_code": "08901",
                 "city": "New Brunswick",
-                "state": "NJ"
+                "state": "NJ",
+                "contact": "8484332447"
             });
 
 
@@ -338,7 +339,8 @@ describe('Controller Tests', function () {
                 "latitude": 37.7749,
                 "longitude": -122.4194,
                 "delivery_in_progress": false,
-                "password": "securePassword123"
+                "password": "securePassword123",
+                "contact": "8484332447"
             });
 
 
