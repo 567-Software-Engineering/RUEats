@@ -76,7 +76,16 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadRestaurantProfile()">Restaurant</a>
+                <a class="nav-link" href="#" onclick="redirectRestaurant()">Restaurant</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="redirectMenu()">Menu</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="redirectOrders()">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
             </li>
         </ul>
     </div>
@@ -159,11 +168,45 @@
 </div>
 
 <script>
-    async function getRestaurantData(serverURL, token, restaurantId) {
+    var jwtToken = '';
+    var restaurant_id = '';
+    let userName = '';
+    let userEmail = '';
+
+    function loadToken() {
+        jwtToken = localStorage.getItem('jwtToken') || '';
+        userEmail = localStorage.getItem('email') || '';
+        userName = localStorage.getItem('name') || '';
+        restaurant_id = localStorage.getItem('restaurant_id') || '';
+        console.log('Token loaded:', jwtToken);
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('email');
+        localStorage.removeItem('name');
+        localStorage.removeItem('user_id');
+        event.preventDefault();
+        window.location.href = '/home';
+    }
+
+    function redirectRestaurant() {
+        window.location.href = `http://localhost:3000/app/restaurants/${restaurant_id}`;
+    }
+
+    function redirectMenu() {
+        window.location.href = `http://localhost:3000/app/restaurant-owner-menu/${restaurant_id}`;
+    }
+
+    function redirectOrders() {
+        window.location.href = `http://localhost:3000/app/restaurants-orders/${restaurant_id}`;
+    }
+
+    async function getRestaurantData(serverURL, jwtToken, restaurantId) {
         try {
             const response = await fetch(`${serverURL}/${restaurantId}`, {
                 headers: {
-                    'Authorization': `${token}`
+                    'Authorization': `${jwtToken}`
                 }
             });
             if (!response.ok) {
@@ -178,21 +221,21 @@
 
     async function loadRestaurantProfile() {
         event.preventDefault();
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTmFydXRvIFV6dW1ha2lpIiwidXNlcl9pZCI6MTEsImlhdCI6MTcwMTkwODM1NCwiZXhwIjoxNzAxOTExOTU0fQ.TjER-UwvtbA10rjP6S_ombK87_VUgRmzu1USB65J06I"; // Replace with the actual token
-        if (!token) {
-            // No token found, show access denied message
+        if (!jwtToken) {
+            // No jwtToken found, show access denied message
             document.getElementById('access-denied').style.display = 'block';
             return;
         }
 
         // Extract restaurant ID from the URL
-        const restaurantId = window.location.pathname.split('/').pop();
+        const restaurantId = restaurant_id;
+        // const restaurantId = window.location.pathname.split('/').pop();
 
         const restaurantProfileURL = 'http://localhost:3000/restaurants'; // Modify this URL as needed
 
-        const restaurantProfile = await getRestaurantData(restaurantProfileURL, token, restaurantId);
+        const restaurantProfile = await getRestaurantData(restaurantProfileURL, jwtToken, restaurantId);
         if (restaurantProfile.error) {
-            // Handle error fetching restaurant profile or invalid token
+            // Handle error fetching restaurant profile or invalid jwtToken
             console.error('Error fetching restaurant profile:', restaurantProfile.error);
             document.getElementById('access-denied').style.display = 'block';
             return;
@@ -269,16 +312,15 @@
         };
 
         // Extract restaurant ID from the URL
-        const restaurantId = window.location.pathname.split('/').pop();
-
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTmFydXRvIFV6dW1ha2lpIiwidXNlcl9pZCI6MTEsImlhdCI6MTcwMTkwODM1NCwiZXhwIjoxNzAxOTExOTU0fQ.TjER-UwvtbA10rjP6S_ombK87_VUgRmzu1USB65J06I"; // Replace with the actual token
+        // const restaurantId = window.location.pathname.split('/').pop();
+        const restaurantId = restaurant_id;
 
         try {
             const response = await fetch(`http://localhost:3000/restaurants/${restaurantId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': token
+                    'Authorization': jwtToken
                 },
                 body: JSON.stringify(requestData)
             });
@@ -298,16 +340,13 @@
             // Handle the error scenario here, e.g., display an error message to the user
         }
     }
-
-
-    function getTokenFromLocalStorage() {
-        // Implement logic to get the token from local storage or cookies
-        // For example:
-        // return localStorage.getItem('token');
-        // or retrieve token from cookies
-    }
     
-    window.onload = loadRestaurantProfile;
+    window.onload = function() {
+       loadToken();// Load token first// Then load user profile
+       loadRestaurantProfile(); 
+   };
+
+    // window.onload = loadRestaurantProfile;
 </script>
 
 
