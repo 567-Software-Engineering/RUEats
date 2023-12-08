@@ -102,7 +102,11 @@
             const data = await response.json();
             if (data.token) {
                 localStorage.setItem('jwtToken', data.token);
-                console.log('Delivery Associate login successful:', data);
+                localStorage.setItem('name', data.name);
+                localStorage.setItem('email', data.email);
+                localStorage.setItem('associate_id', data.associate_id);
+                console.log(localStorage.getItem("associate_id"));
+                //console.log('Delivery Associate login successful:', data);
                 window.alert('Login successful!');
                 window.location.href = '/app/restaurants'; // Redirect to the delivery dashboard
             } else {

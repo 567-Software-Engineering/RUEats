@@ -335,7 +335,15 @@ module.exports = class Controller {
         const token = jwt.sign({ name: restaurant.name, restaurant_id: restaurant.restaurant_id }, secretKey, {
           expiresIn: '1h',
         });
-        response(res, { status: 200, data: { token } });
+
+        const responseData = {
+          restaurant_id: restaurant.restaurant_id,
+          email: restaurant.email,
+          name: restaurant.name,
+          token: token,
+        };
+      
+        response(res, { status: 200, data: responseData });
       } else {
         response(res, { status: 401, data: { message: 'Authentication failed' } });
       }
@@ -516,10 +524,19 @@ module.exports = class Controller {
       const result = bcrypt.compareSync(body.password, user.password);
 
       if (result) {
-        const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
+        const token = jwt.sign({ name: user.name, associate_id: user.associate_id }, secretKey, {
           expiresIn: '1h',
         });
-        response(res, { status: 200, data: { token } });
+
+        const responseData = {
+          associate_id: user.associate_id,
+          email: user.email,
+          name: user.name,
+          token: token,
+        };
+  
+
+        response(res, { status: 200, data:  responseData  });
       } else {
         response(res, { status: 401, data: { message: 'Authentication failed' } });
       }
