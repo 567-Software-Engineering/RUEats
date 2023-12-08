@@ -3,60 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <!-- Include the necessary CSS and JavaScript libraries, similar to the registration page -->
-    <!-- Include Bootstrap CSS, Font Awesome, and other dependencies as in the registration page -->
+
     <style>
-        /* Styles similar to the registration page for consistency */
-        .container {
-            margin-top: 50px;
-        }
 
-        #login-form {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-        }
 
-        h3 {
-            color: #dc3545;
-            margin-bottom: 20px;
-        }
+    body {
+        background-image: url('https://drive.google.com/uc?export=view&id=1surw0MT8bflsTGGEWUgnmXogZfUB9m-t');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        font-family: 'Arial', sans-serif;
+    }
 
-        button[type="submit"] {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #dc3545;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    .container {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center; /* Center the form on the page */
+    }
 
-        button[type="submit"]:hover {
-            background-color: #c82333;
-        }
+    #login-form {
+        
+        background-color: rgba(255, 255, 255, 0.75);
+        border-radius: 15px; /* Slightly more rounded corners */
+        padding: 40px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Deeper shadow for more depth */
+        width: 100%;
+        max-width: 400px; /* Set max width for larger screens */
+    }
 
-        input[type='text'],
-        input[type="email"],
-        input[type="password"] {
-            width: calc(100% - 12px);
-            padding: 6px;
-            margin-bottom: 15px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-        }
-        /* Add more styles as needed */
+    h2 {
+        color: #e74c3c; /* Slightly brighter red for the header */
+        text-align: center; /* Center-align the title */
+        margin-bottom: 30px;
+        font-size: 24px; /* Larger font size for the title */
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 5px; /* More rounded button corners */
+        background-color: #e74c3c; /* Brighter button color */
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 16px; /* Larger font size for button text */
+        transition: background-color 0.3s; /* Smooth transition for hover effect */
+    }
+
+    button[type="submit"]:hover {
+        background-color: #d62c1a; /* Darker shade on hover */
+    }
+
+    input[type='text'],
+    input[type="email"],
+    input[type="password"] {
+        width: calc(100% - 20px); /* Adjust width for padding */
+        padding: 10px; /* Increased padding for better visibility */
+        margin-bottom: 20px;
+        border: 2px solid #e0e0e0; /* Thicker border */
+        border-radius: 5px; /* More rounded corners for inputs */
+        font-size: 14px; /* Larger font size for readability */
+    }
+
+    input[type='text']:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+        border-color: #e74c3c; /* Highlight color on focus */
+        outline: none; /* Remove default focus outline */
+    }
+
+    label {
+        display: block; /* Make labels block elements to ensure proper spacing */
+        margin-bottom: .5rem;
+        font-weight: bold;
+        color: #333; /* Dark grey for better readability */
+    }
+
+    input[type='text'],
+    input[type="email"],
+    input[type="password"] {
+        background-color: #f9f9f9; /* Light grey background for the input fields */
+        transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transitions for focus and hover effects */
+    }
+
+    input[type='text']:hover,
+    input[type="email"]:hover,
+    input[type="password"]:hover {
+        border-color: #e74c3c; /* Slightly darker border on hover */
+    }
+
+    /* Footer styles */
+    .footer {
+        text-align: center;
+        padding: 20px 0;
+        font-size: 0.9rem;
+        color: #777;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: #fff;
+        border-top: 1px solid #e0e0e0;
+    }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-6 mx-auto">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-8 mx-auto">
             <div id="login-form">
-                <h3>Login</h3>
+                <div class="brand-logo" style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo" style="max-height: 100px;">
+                </div>
+                <h2 style="text-align: center">User Login</h2>
                 <form id="loginForm">
 
                     <label for="name">Name:</label>
@@ -124,5 +184,11 @@
     }
 </script>
 
+<div class="footer">
+    &copy; 2023 RUEats. All rights reserved.
+</div>
+
 </body>
 </html>
+
+
