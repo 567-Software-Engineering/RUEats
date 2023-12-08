@@ -122,31 +122,39 @@ module.exports = class Controller {
     try {
       const body = req.body;
       const users = await dbRepo.getAllUsers();
-
+  
       const user = users.find((user) => user.name === body.name || user.email === body.email);
-
+  
       if (!user) {
         return response(res, {
           data: { message: 'User not found' },
           status: 404,
         });
       }
-
+  
       if (user.verified === 'false') {
         return response(res, {
           data: { message: 'Email not verified. Please check your email for a verification link.' },
           status: 401,
         });
       }
-
-
+  
       const result = bcrypt.compareSync(body.password, user.password);
-
+  
       if (result) {
         const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
           expiresIn: '1h',
         });
-        response(res, { status: 200, data: { token } });
+  
+        // Prepare response with userID, email, name, and token
+        const responseData = {
+          user_id: user.user_id,
+          email: user.email,
+          name: user.name,
+          token: token,
+        };
+  
+        response(res, { status: 200, data: responseData });
       } else {
         response(res, { status: 401, data: { message: 'Authentication failed' } });
       }
@@ -162,6 +170,20 @@ module.exports = class Controller {
         restaurants && restaurants.length > 0
           ? restaurants
           : "No active restaurants found";
+      response(res, { data });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async getRestaurantReviews(req, res) {
+    try {
+      const {restaurantID} = req.params;
+      const restaurants = await dbRepo.getRestaurantReviews(restaurantID);
+      const data =
+          restaurants && restaurants.length > 0
+              ? restaurants
+              : "No reviews found for restaurant";
       response(res, { data });
     } catch (error) {
       response(res, { status: 400, data: error.message });
@@ -313,7 +335,15 @@ module.exports = class Controller {
         const token = jwt.sign({ name: restaurant.name, restaurant_id: restaurant.restaurant_id }, secretKey, {
           expiresIn: '1h',
         });
-        response(res, { status: 200, data: { token } });
+
+        const responseData = {
+          restaurant_id: restaurant.restaurant_id,
+          email: restaurant.email,
+          name: restaurant.name,
+          token: token,
+        };
+      
+        response(res, { status: 200, data: responseData });
       } else {
         response(res, { status: 401, data: { message: 'Authentication failed' } });
       }
@@ -494,10 +524,19 @@ module.exports = class Controller {
       const result = bcrypt.compareSync(body.password, user.password);
 
       if (result) {
-        const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
+        const token = jwt.sign({ name: user.name, associate_id: user.associate_id }, secretKey, {
           expiresIn: '1h',
         });
-        response(res, { status: 200, data: { token } });
+
+        const responseData = {
+          associate_id: user.associate_id,
+          email: user.email,
+          name: user.name,
+          token: token,
+        };
+  
+
+        response(res, { status: 200, data:  responseData  });
       } else {
         response(res, { status: 401, data: { message: 'Authentication failed' } });
       }
@@ -677,6 +716,8 @@ module.exports = class Controller {
       response(res, { status: 400, data: { message: error.message } });
     }
   }
+
+
 
 
   async postRestaurantReview(req, res) {
@@ -1764,6 +1805,33 @@ module.exports = class Controller {
     }
 }
 
-  
+async changePassword(req, res) {
+  try {
+    const { userId, oldPassword, newPassword } = req.body; // Assuming the request body contains userID, oldPassword, and newPassword
+
+    const user = await dbRepo.getUserByIdDB(userId); // Fetch user data based on user ID
+
+    if (!user) {
+      return response(res, {
+        data: { message: 'User not found' },
+        status: 404,
+      });
+    }
+
+    const result = bcrypt.compareSync(oldPassword, user.password); // Compare old password with stored password
+
+    if (result) {
+      const hashedPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password
+      await dbRepo.updateUserPasswordDB(userId, hashedPassword); // Update user's password in the database
+
+      response(res, { status: 200, data: { message: 'Password updated successfully' } });
+    } else {
+      response(res, { status: 401, data: { message: 'Invalid old password' } });
+    }
+  } catch (error) {
+    response(res, { status: 400, data: { message: error.message } });
+  }
+}
+
 
 }

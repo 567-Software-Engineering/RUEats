@@ -14,6 +14,24 @@
             position: relative;
             height: 100vh; /* Ensure full viewport height */
         }
+        /* Additional styling for the dropdown menu */
+        /* Additional styling for the dropdown menu */
+        .dropdown-menu {
+            background-color: #fff;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+            color: #333;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #dc3545;
+        }
+
+
 
         header {
             background-color: #dc3545; /* Scarlet color theme */
@@ -124,15 +142,28 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown"> <!-- Adding dropdown class -->
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        More Logins
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="" onclick="redirectToRestaurantLogin()">Restaurant Login</a>
+                        <a class="dropdown-item" href="" onclick="redirectToRestaurantRegisteration()">Restaurant Registration</a>
+                        <a class="dropdown-item" href="" onclick="redirectToDeliveryAssociateLogin()">Delivery Associate Login</a>
+                        <a class="dropdown-item" href="" onclick="redirectToDeliveryAssociateRegisteration()">Delivery Associate Registration</a>
+                    </div>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="" onclick="redirectToRegister()">Sign Up</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="" onclick="redirectToLogin()">Login In</a>
+                    <a class="nav-link" href="" onclick="redirectToLogin()">Login</a>
                 </li>
+                
             </ul>
         </div>
     </nav>
+    
     
     <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
         <ol class="carousel-indicators">
@@ -201,10 +232,30 @@
             window.location.href = '/app/register';
         }
 
+        function redirectToRestaurantLogin() {
+            event.preventDefault();
+            window.location.href = '/app/restaurantlogin';
+        }
+
+        function redirectToRestaurantRegisteration() {
+            event.preventDefault();
+            window.location.href = '/app/restaurantregistration';
+        }
+
+        function redirectToDeliveryAssociateLogin() {
+            event.preventDefault();
+            window.location.href = '/app/deliveryassociatelogin';
+        }
+
+        function redirectToDeliveryAssociateRegisteration() {
+            event.preventDefault();
+            window.location.href = '/app/deliveryassociateregistration';
+        }
+
         function redirectToRestaurants() {
             event.preventDefault();
             window.location.href = '/app/restaurants';
-        }
+        }    
     </script>
 </body>
 </html>
