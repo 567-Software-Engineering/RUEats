@@ -76,7 +76,16 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadRestaurantProfile()">Restaurant</a>
+                <a class="nav-link" href="#" onclick="redirectRestaurant()">Restaurant</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="redirectMenu()">Menu</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="redirectOrders()">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
             </li>
         </ul>
     </div>
@@ -85,6 +94,10 @@
 
 <div class="container">
     <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+    <div id="access-denied" style="display: none;">
+                <h3>Access Denied</h3>
+                <p>Please log in to view the restaurant profile.</p>
+    </div>
 </div>
 
 
@@ -210,11 +223,45 @@
 
 <script>
     let menuItems; 
+    var jwtToken = '';
+    var restaurant_id = '';
+    let userName = '';
+    let userEmail = '';
+
+    function loadToken() {
+        jwtToken = localStorage.getItem('jwtToken') || '';
+        userEmail = localStorage.getItem('email') || '';
+        userName = localStorage.getItem('name') || '';
+        restaurant_id = localStorage.getItem('restaurant_id') || '';
+        console.log('Token loaded:', jwtToken);
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('email');
+        localStorage.removeItem('name');
+        localStorage.removeItem('user_id');
+        event.preventDefault();
+        window.location.href = '/home';
+    }
+
+    function redirectRestaurant() {
+        window.location.href = `http://localhost:3000/app/restaurants/${restaurant_id}`;
+    }
+
+    function redirectMenu() {
+        window.location.href = `http://localhost:3000/app/restaurant-owner-menu/${restaurant_id}`;
+    }
+
+    function redirectOrders() {
+        window.location.href = `http://localhost:3000/app/restaurants-orders/${restaurant_id}`;
+    }
+
 
     async function getData(serverURL, body) {
         return new Promise((resolve, reject) => {
             const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
-
+            console.log(serverURL);
             if (!urlFormat.test(serverURL))
                 reject(`Invalid URL: ${serverURL}`);
 
@@ -227,8 +274,17 @@
         });
     }
     
-    (async () => {
-        let result = await getData('http://localhost:3000/get-menu/{{restaurantID}}', {});
+    async function loadRestaurantMenu() {
+        event.preventDefault();
+        if (!jwtToken) {
+            // No jwtToken found, show access denied message
+            document.getElementById('access-denied').style.display = 'block';
+            return;
+        }
+
+        const restaurantId = restaurant_id;
+        const URL = 'http://localhost:3000/get-menu/'+restaurantId;
+        let result = await getData(URL, {});
         menuItems = JSON.parse(result.response);
         let container = document.getElementById('restaurant-container');
 
@@ -279,7 +335,7 @@
             </div>
         `;
         row.appendChild(emptyCard);
-    })();
+    }
 
     function addNewItem() {
         // Implement logic to add a new item, e.g., open a modal or redirect to a form page
@@ -295,15 +351,14 @@
         if (isConfirmed) {
            
             // Extract restaurant ID from the URL (replace with your actual logic)
-            const restaurantId = window.location.pathname.split('/').pop();
-
-            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdHdhIiwicmVzdGF1cmFudF9pZCI6ODQsImlhdCI6MTcwMTk5MDY2NSwiZXhwIjoxNzAxOTk0MjY1fQ.xcKME5razi3MbCV5ou-GzDJorVu2YQ2oiimDoGndDlU"; // Replace with the actual token
+            const restaurantId = restaurant_id;
+            // const restaurantId = window.location.pathname.split('/').pop();
 
             try {
                 const response = await fetch(`http://localhost:3000/delete-item/${restaurantId}/${itemId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': token
+                        'Authorization': jwtToken
                     }
                 });
 
@@ -373,16 +428,15 @@
         };
 
         // Extract restaurant ID from the URL (replace with your actual logic)
-        const restaurantId = window.location.pathname.split('/').pop();
-
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdHdhIiwicmVzdGF1cmFudF9pZCI6ODQsImlhdCI6MTcwMTk5MDY2NSwiZXhwIjoxNzAxOTk0MjY1fQ.xcKME5razi3MbCV5ou-GzDJorVu2YQ2oiimDoGndDlU"; // Replace with the actual token
+        const restaurantId = restaurant_id;
+        // const restaurantId = window.location.pathname.split('/').pop();
 
         try {
             const response = await fetch(`http://localhost:3000/modify-menu/${restaurantId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': token
+                    'Authorization': jwtToken
                 },
                 body: JSON.stringify(requestData)
             });
@@ -428,16 +482,15 @@
         };
 
         // Extract restaurant ID from the URL (replace with your actual logic)
-        const restaurantId = window.location.pathname.split('/').pop();
-
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdHdhIiwicmVzdGF1cmFudF9pZCI6ODQsImlhdCI6MTcwMTk5MDY2NSwiZXhwIjoxNzAxOTk0MjY1fQ.xcKME5razi3MbCV5ou-GzDJorVu2YQ2oiimDoGndDlU"; // Replace with the actual token
+        const restaurantId = restaurant_id;
+        // const restaurantId = window.location.pathname.split('/').pop();
 
         try {
             const response = await fetch(`http://localhost:3000/add-menu/${restaurantId}/menu`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': token
+                    'Authorization': jwtToken
                 },
                 body: JSON.stringify(requestData)
             });
@@ -459,21 +512,10 @@
     }
 
 
-    function getUserIDFromLocalStorage() { //wip
-        // Implement logic to get the userID from local storage or cookies
-        // For example:
-        // return localStorage.getItem('userID');
-        // or retrieve token from cookies
-    }
-
-    function getTokenFromLocalStorage() { //wip
-        // Implement logic to get the token from local storage or cookies
-        // For example:
-        // return localStorage.getItem('token');
-        // or retrieve token from cookies
-    }
-
-
+    window.onload = function() {
+       loadToken();// Load token first// Then load user profile
+       loadRestaurantMenu();
+   };
 </script>
 
 </body>
