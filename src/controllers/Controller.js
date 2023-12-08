@@ -176,6 +176,20 @@ module.exports = class Controller {
     }
   }
 
+  async getRestaurantReviews(req, res) {
+    try {
+      const {restaurantID} = req.params;
+      const restaurants = await dbRepo.getRestaurantReviews(restaurantID);
+      const data =
+          restaurants && restaurants.length > 0
+              ? restaurants
+              : "No reviews found for restaurant";
+      response(res, { data });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
   async getRestaurant(req, res) {
     try {
       const { restaurant_id} = req.params;
@@ -685,6 +699,8 @@ module.exports = class Controller {
       response(res, { status: 400, data: { message: error.message } });
     }
   }
+
+
 
 
   async postRestaurantReview(req, res) {

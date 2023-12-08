@@ -145,6 +145,13 @@ const routes = {
       POST : (req, res) => {
           validatePostRequests(req, res, controller.postRestaurantReview);
         },
+
+    },
+
+    "/restaurants-reviews/:restaurantID" : {
+
+        GET : (req, res) => {controller.getRestaurantReviews(req,res)},
+
     },
 
     "/view-insights/:restaurantID/insights": {
