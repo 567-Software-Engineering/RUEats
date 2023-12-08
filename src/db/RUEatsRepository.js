@@ -1234,6 +1234,5 @@ module.exports = class RUEatsRepository {
         reject(error);
       }
     });
-  }
-  
+  }  
 }

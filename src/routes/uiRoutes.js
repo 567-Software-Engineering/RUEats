@@ -45,6 +45,20 @@ const uiRoutes = {
         }
     },
 
+    "/app/restaurant-owner-menu/:restaurantID" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/restaurant-owner-menu.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { restaurantID } = _req.params;
+                    data = data.replace(/{{restaurantID}}/g, restaurantID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
     "/app/users/:userID" : {
         GET:(_req, res) =>{
             fs.readFile('./public/user-profile.html', 'utf8', function (error, data) {
