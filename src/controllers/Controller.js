@@ -1262,7 +1262,6 @@ module.exports = class Controller {
   async addOrder(req, res) {
     try {
       const token = req.headers.authorization;
-      console.log(token);
       const { userID, orderAmount } = req.body;
 
       jwt.verify(token, secretKey, async (err, decoded) => {
@@ -1284,10 +1283,8 @@ module.exports = class Controller {
               values.push([element.quantity, results.insertId, element.item_id,]);
             }
             let resultsOrderItems = [];
-            console.log(values);
             for (let index = 0; index < values.length; index++) {
               const element = values[index];
-              // console.log(element);
               resultsOrderItems.push(await dbRepo.addOrderItems(element));
             }
             
@@ -1297,8 +1294,6 @@ module.exports = class Controller {
             else {
               response(res, { data: {message: 'Error adding order' } });
             }
-
-            // response(res, { data: {message: "Order added!"} });
           }
           else {
             response(res, { data: {message: 'Error adding order' } });

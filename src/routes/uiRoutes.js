@@ -133,8 +133,6 @@ const uiRoutes = {
                 if (error) {
                     response(res, {data: "Page not Found!", status : 404})
                 } else {
-                    // const { userID } = _req.params;
-                    // data = data.replace(/{{userID}}/g, userID);
                     response(res,{data : data, contentType:'text/html'});
                 }
             });
