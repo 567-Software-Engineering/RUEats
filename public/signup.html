@@ -118,7 +118,7 @@
 
             const data = await response.json();
             console.log('Registration successful:', data);
-            window.alert('Registration successful!');
+            window.alert('Registration successful! Please verify you email to proceed.');
             window.location.href = '/app/login'
             // Redirect user to login page or home page after successful registration
         } catch (error) {
