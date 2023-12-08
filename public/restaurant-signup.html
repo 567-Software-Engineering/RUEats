@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Registration</title>
+    <!-- Include CSS and JavaScript libraries as in the user registration page -->
+    <style>
+        /* Updated styles for a more modern and appealing look */
+        body {
+            background-image: url('https://drive.google.com/uc?export=view&id=15r-CvSUnp95aO2-vtIY5_vtMLBsawQWy'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            align-items: center;
+        }
+
+        #registration-form {
+            background-color: rgba(255, 255, 255, 0.75);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e74c3c;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #d62c1a;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="checkbox"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        input[type="text"]:hover,
+        input[type="email"]:hover,
+        input[type="password"]:hover,
+        input[type="checkbox"]:hover {
+            border-color: #e74c3c;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: .5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Footer styles */
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.9rem;
+            color: #777;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #fff;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div id="registration-form">
+                <div class="brand-logo" style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo" style="max-height: 100px;">
+                </div>
+                <h2>Restaurant Registration</h2>
+                <form id="restaurantRegForm">
+                    <label for="name">Restaurant Name:</label>
+                    <input type="text" id="name" name="name" required><br>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required><br>
+
+                    <label for="phone_number">Phone Number:</label>
+                    <input type="text" id="phone_number" name="phone_number" required><br>
+
+                    <label for="address">Address:</label>
+                    <input type="text" id="address" name="address" required><br>
+
+                    <label for="cuisine_type">Cuisine Type:</label>
+                    <input type="text" id="cuisine_type" name="cuisine_type" required><br>
+
+                    <label for="rating">Rating:</label>
+                    <input type="text" id="rating" name="rating" required><br>
+
+                    <label for="operating_hours">Operating Hours:</label>
+                    <input type="text" id="operating_hours" name="operating_hours" required><br>
+
+                    <label for="is_active">Is Active:</label>
+                    <input type="checkbox" id="is_active" name="is_active"><br>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required><br>
+
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('restaurantRegForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        registerRestaurant();
+    });
+
+    async function registerRestaurant() {
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone_number: document.getElementById('phone_number').value,
+            address: document.getElementById('address').value,
+            cuisine_type: document.getElementById('cuisine_type').value,
+            rating: document.getElementById('rating').value,
+            operating_hours: document.getElementById('operating_hours').value,
+            is_active: document.getElementById('is_active').checked,
+            password: document.getElementById('password').value
+        };
+
+        try {
+            const response = await fetch('http://localhost:3000/restaurants/register', { // Update the endpoint if needed
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+
+            const data = await response.json();
+            console.log('Restaurant registration successful:', data);
+            window.alert('Registration successful!');
+            window.location.href = '/app/restaurantlogin'; // Redirect to the restaurant login page
+        } catch (error) {
+            console.error('Error during restaurant registration:', error.message);
+            window.alert('Error during registration. Please try again.');
+        }
+    }
+</script>
+
+<div class="footer">
+    &copy; 2023 YourRestaurantApp. All rights reserved.
+</div>
+
+</body>
+</html>

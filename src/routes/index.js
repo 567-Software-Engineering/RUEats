@@ -145,6 +145,13 @@ const routes = {
       POST : (req, res) => {
           validatePostRequests(req, res, controller.postRestaurantReview);
         },
+
+    },
+
+    "/restaurants-reviews/:restaurantID" : {
+
+        GET : (req, res) => {controller.getRestaurantReviews(req,res)},
+
     },
 
     "/view-insights/:restaurantID/insights": {
@@ -275,6 +282,12 @@ const routes = {
 
     "/verifyRestaurant/:restaurant_id": {
       GET: controller.updateRestaurantVerification,
+    },
+
+    "/users/updatePassword": {
+      PUT: (req, res) => {
+        validatePostRequests(req, res, controller.changePassword);
+      },
     },
 
     notFound: (_req, res) => {

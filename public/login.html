@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <style>
+
+
+    body {
+        background-image: url('https://drive.google.com/uc?export=view&id=1surw0MT8bflsTGGEWUgnmXogZfUB9m-t');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center; /* Center the form on the page */
+    }
+
+    #login-form {
+        
+        background-color: rgba(255, 255, 255, 0.75);
+        border-radius: 15px; /* Slightly more rounded corners */
+        padding: 40px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Deeper shadow for more depth */
+        width: 100%;
+        max-width: 400px; /* Set max width for larger screens */
+    }
+
+    h2 {
+        color: #e74c3c; /* Slightly brighter red for the header */
+        text-align: center; /* Center-align the title */
+        margin-bottom: 30px;
+        font-size: 24px; /* Larger font size for the title */
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 5px; /* More rounded button corners */
+        background-color: #e74c3c; /* Brighter button color */
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 16px; /* Larger font size for button text */
+        transition: background-color 0.3s; /* Smooth transition for hover effect */
+    }
+
+    button[type="submit"]:hover {
+        background-color: #d62c1a; /* Darker shade on hover */
+    }
+
+    input[type='text'],
+    input[type="email"],
+    input[type="password"] {
+        width: calc(100% - 20px); /* Adjust width for padding */
+        padding: 10px; /* Increased padding for better visibility */
+        margin-bottom: 20px;
+        border: 2px solid #e0e0e0; /* Thicker border */
+        border-radius: 5px; /* More rounded corners for inputs */
+        font-size: 14px; /* Larger font size for readability */
+    }
+
+    input[type='text']:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+        border-color: #e74c3c; /* Highlight color on focus */
+        outline: none; /* Remove default focus outline */
+    }
+
+    label {
+        display: block; /* Make labels block elements to ensure proper spacing */
+        margin-bottom: .5rem;
+        font-weight: bold;
+        color: #333; /* Dark grey for better readability */
+    }
+
+    input[type='text'],
+    input[type="email"],
+    input[type="password"] {
+        background-color: #f9f9f9; /* Light grey background for the input fields */
+        transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transitions for focus and hover effects */
+    }
+
+    input[type='text']:hover,
+    input[type="email"]:hover,
+    input[type="password"]:hover {
+        border-color: #e74c3c; /* Slightly darker border on hover */
+    }
+
+    /* Footer styles */
+    .footer {
+        text-align: center;
+        padding: 20px 0;
+        font-size: 0.9rem;
+        color: #777;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: #fff;
+        border-top: 1px solid #e0e0e0;
+    }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-8 mx-auto">
+            <div id="login-form">
+                <div class="brand-logo" style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo" style="max-height: 100px;">
+                </div>
+                <h2 style="text-align: center">User Login</h2>
+                <form id="loginForm">
+
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required><br>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required><br>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required><br>
+
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        loginUser();
+    });
+
+    async function loginUser() {
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        };
+
+        try {
+            const response = await fetch('http://localhost:3000/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+
+            const data = await response.json();
+            if (data.token) {
+                // Store the token in local storage
+                localStorage.setItem('jwtToken', data.token);
+                localStorage.setItem('name', data.name);
+                localStorage.setItem('email', data.email);
+                localStorage.setItem('user_id', data.user_id);
+                console.log(localStorage.getItem("user_id"));
+                //console.log('Login successful:', data);
+                window.alert('Login successful!');
+                window.location.href = '/app/restaurants';
+                // Redirect user to home page or dashboard after successful login
+            } else {
+                throw new Error('Token not received');
+            }
+
+        } catch (error) {
+            console.error('Error during login:', error.message);
+            window.alert('Error during login. Please try again.');
+        }
+    }
+</script>
+
+<div class="footer">
+    &copy; 2023 RUEats. All rights reserved.
+</div>
+
+</body>
+</html>
+
+

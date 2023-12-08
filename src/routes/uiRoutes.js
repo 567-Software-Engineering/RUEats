@@ -1,6 +1,7 @@
 const response = require("../utils/response");
 let fs = require('fs');
-
+const Controller = require('../controllers/Controller');
+const controller = new Controller();
 
 const uiRoutes = {
     "/app/restaurants" : {
@@ -33,6 +34,20 @@ const uiRoutes = {
     "/app/restaurant-menu/:restaurantID" : {
         GET:(_req, res) =>{
             fs.readFile('./public/restaurant-menu.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { restaurantID } = _req.params;
+                    data = data.replace(/{{restaurantID}}/g, restaurantID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
+    "/app/restaurant-owner-menu/:restaurantID" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/restaurant-owner-menu.html', 'utf8', function (error, data) {
                 if (error) {
                     response(res, {data: "Page not Found!", status : 404})
                 } else {
@@ -118,8 +133,6 @@ const uiRoutes = {
                 if (error) {
                     response(res, {data: "Page not Found!", status : 404})
                 } else {
-                    // const { userID } = _req.params;
-                    // data = data.replace(/{{userID}}/g, userID);
                     response(res,{data : data, contentType:'text/html'});
                 }
             });
@@ -138,6 +151,90 @@ const uiRoutes = {
                     response(res,{data : data, contentType:'text/html'});
                 }
             });
+        }
+    },
+
+    "/app/login" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/login.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Login page not found!", status : 404})
+                } else {
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+
+    "/app/register": {
+        GET:(_req, res) =>{
+            fs.readFile('./public/signup.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Signup page not found!", status : 404})
+                } else {
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        },
+        POST: (req, res) => {
+            // Delegate to controller.createUser method for registration logic
+            controller.createUser(req, res);
+        }
+    },
+
+    "/app/restaurantlogin": {
+        GET: (_req, res) => {
+            fs.readFile('./public/restaurant-login.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Restaurant Login page not found!", status: 404});
+                } else {
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        }
+    },
+
+    "/app/restaurantregistration": {
+        GET: (_req, res) => {
+            fs.readFile('./public/restaurant-signup.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Restaurant Signup page not found!", status: 404});
+                } else {
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        },
+        POST: (req, res) => {
+            // Delegate to a suitable method in the controller for restaurant registration
+            controller.createRestaurant(req, res);
+        }
+    },
+
+    "/app/deliveryassociatelogin": {
+        GET: (_req, res) => {
+            fs.readFile('./public/delivery-associate-login.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Delivery Associate Login page not found!", status: 404});
+                } else {
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        }
+    },
+
+    "/app/deliveryassociateregistration": {
+        GET: (_req, res) => {
+            fs.readFile('./public/delivery-associate-signup.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Delivery Associate Signup page not found!", status: 404});
+                } else {
+                    response(res, {data: data, contentType: 'text/html'});
+                }
+            });
+        },
+        POST: (req, res) => {
+            // Delegate to a suitable method in the controller for delivery associate registration
+            controller.createDeliveryAssociate(req, res);
         }
     },
 

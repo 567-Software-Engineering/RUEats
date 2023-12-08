@@ -82,7 +82,6 @@
 </head>
 
 <body>
-
     <nav class="navbar navbar-expand-lg navbar-light">
         <a class="navbar-brand" href="#">
             RUEats
@@ -135,7 +134,8 @@
     </div>
 
     <script>
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQUQgUlMiLCJ1c2VyX2lkIjo4MCwiaWF0IjoxNzAxODgzNzI0LCJleHAiOjE3MDE4ODczMjR9.jHtW1G-dEwJEC95VaREMNtVLbqQKzzY8AjFeKLDTXy8"
+        let token = localStorage.getItem('token') || '';
+
         let fileName = "";
         let orderID = "";
 
@@ -158,14 +158,12 @@
 
         async function loadCurrentOrder() {
             event.preventDefault();
-            // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
             if (!token) {
                 // No token found, show access denied message
                 document.getElementById('access-denied').style.display = 'block';
                 return;
             }
 
-            // const userID = '11'; // Replace '123' with the actual user ID
             const associateURL = `http://localhost:3000/get-delivery-assignment/{{associateID}}`;
             console.log("Hello", associateURL)
 
@@ -195,9 +193,6 @@
             row.className = 'row-cols-1 row-cols-md-3 g-4';
             const orderItems = currentOrder.order_item_names
 
-
-
-
             orderItems.forEach(orderItem => {
                 let card = document.createElement('item');
                 card.className = 'row-md-4 mb-4';
@@ -215,13 +210,6 @@
             });
 
             orderDetailsDiv.appendChild(row);
-
-            // const privacyPolicy = document.getElementById('privacy-policy');
-            // privacyPolicy.style.display = 'block';
-            // privacyPolicy.innerHTML = `
-            //         <h3>Privacy</h3>
-            //         <p>RUEats protects your privacy and personal information. You can choose to share your information with businesses so they can send you promotions and emails.</p>
-            // `;
         }
 
         function handleFileSelect(event) {
@@ -277,12 +265,9 @@
                 console.error('Error:', error);
                 return { error: error.message };
             }
-
-
         }
 
         async function completeOrder() {
-
             serverURL1 = `http://localhost:3000/update-delivery-status/{{associateID}}`;
             try {
                 const response = await fetch(serverURL1, {
@@ -303,9 +288,6 @@
                 console.error('Error:', error);
                 return { error: error.message };
             };
-
-
-
         };
 
         async function cancelOrder() {
@@ -335,22 +317,11 @@
 
         };
 
-
-        // function getTokenFromLocalStorage() {
-        //     // Implement logic to get the token from local storage or cookies
-        //     // For example:
-        //     // return localStorage.getItem('token');
-        //     // or retrieve token from cookies
-        // }
-
         window.onload = loadCurrentOrder;
     </script>
 
     <div class="container">
         <div id="order-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
-
     </div>
-
 </body>
-
 </html>
