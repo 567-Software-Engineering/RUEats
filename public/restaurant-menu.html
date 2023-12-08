@@ -216,6 +216,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 <script>
+    const token = localStorage.getItem('jwtToken') || '';
+    const userID = localStorage.getItem('user_id') || '';
+
     async function getData(serverURL, body) {
         return new Promise((resolve, reject) => {
             const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
@@ -330,8 +333,8 @@
     async function addToCart(button, itemId, itemName, price) {
         let card = button.closest('.card-body');
         let quantity = parseInt(card.querySelector('input').value);
-        let userID = 79;
-        let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiU3dhcG5pbCBWIiwidXNlcl9pZCI6NzksImlhdCI6MTcwMTgxOTIzMywiZXhwIjoxNzAxODIyODMzfQ.9WdgFbc79sf2WfNwp1FfRVzUBU_PxnNwdtlbA5RgGIM';
+        // let userID = localStorage.getItem('user_id') || '';
+        // let token = localStorage.getItem('jwtToken') || '';
 
         if (!isNaN(price) && !isNaN(quantity)) {
             let totalPrice = price * quantity;

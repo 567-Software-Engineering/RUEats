@@ -90,12 +90,13 @@
 
 
   <script>
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQUQgUlMiLCJ1c2VyX2lkIjo4MCwiaWF0IjoxNzAxOTY5NTgzLCJleHAiOjE3MDE5NzMxODN9.yQqDywOt1v1bQHHraBBUJFdbbaDCqOdk1tErfHso9uo';
+    const authToken = localStorage.getItem('jwtToken') || '';
+    const userID = localStorage.getItem('user_id') || '';
+    
     document.addEventListener('DOMContentLoaded', function () {
       const stripe = Stripe(
         'pk_test_51O7NOrDtd64NB5jL3sQrmsGQOSdMvTUpds9N0P7nfmT4697waURCZAmGs6vrIQjALewIeBpMJlDScO2NBr7h9ifN00J94KcMEj'
       ); // Publishable key
-
 
       // get subTotalValue from local storage
       const subTotalValue = localStorage.getItem('subTotalValue');
@@ -138,7 +139,7 @@
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `${token}`
+                  'Authorization': `${authToken}`
                 },
                 body: JSON.stringify({
                   token: token.id,
@@ -151,7 +152,6 @@
 
               document.getElementById("paymentStatus").innerHTML = "Payment Successful!";
 
-              const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE5MDQ0ODcsImV4cCI6MTcwMTkwODA4N30.LwCDKlO5ZVLcSONlhMsdeH19HT8-R4bg0WnrFzwkbY4';
               const response2 = await fetch('http://localhost:3000/add-order', {
                 method: 'POST',
                 headers: {
@@ -159,12 +159,39 @@
                   'Authorization': `${authToken}`
                 },
                 body: JSON.stringify({
-                  userID: 83,
+                  userID: userID,
                   orderAmount: subTotalValue,
                 })
               }
               );
 
+              if (response2.status == 200) {
+                console.log("Order added successfully");
+              }
+              else {
+                console.log("Order not added");
+              }
+
+              const response3 = await fetch(`http://localhost:3000/clear-cart/${userID}`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `${authToken}`
+                },
+              }
+              );
+
+              
+              if (response3.status == 200) {
+                console.log("Cart cleared successfully");
+              }
+              else {
+                console.log("Cart not cleared");
+              }
+                            
+              setTimeout(function () {
+                window.location.href = `http://localhost:3000/app/users/${userID}/orders`;
+              }, 5000);
 
             } catch (err) {
               document.getElementById("paymentStatus").innerHTML = "Payment Unsuccessful!";
