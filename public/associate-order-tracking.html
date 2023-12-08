@@ -32,20 +32,163 @@ body {
 }
 
 #map {
-    height: 400px;
+    height: 600px;
     width: 100%;
-    margin-top: 20px; /* Adjust margin as needed */
 }
 
 #eta-info,
-#associate-name,
-#associate-contact {
-    margin-top: 20px; /* Adjust margin as needed */
+#user-name,
+#user-contact {
 }
 
 /* You can keep the existing styles for other elements, such as buttons and modals */
 
 
+    </style>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            height: 100vh; /* Ensure full viewport height */
+        }
+        /* Additional styling for the dropdown menu */
+        /* Additional styling for the dropdown menu */
+        .dropdown-menu {
+            background-color: #fff;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+            color: #333;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #dc3545;
+        }
+
+
+
+        header {
+            background-color: #dc3545; /* Scarlet color theme */
+            color: white;
+            padding: 20px;
+        }
+
+        .carousel {
+            position: relative;
+            height: 100vh; /* Adjust based on your requirement */
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .navbar {
+            background-color: #dc3545;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff;
+        }
+
+        .nav-link {
+            /* Adjusting the link style to button */
+            padding: 5px 20px;
+            border: 2px solid #f8bdc5;
+            border-radius: 15px;
+            color: #d0c3c4;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .nav-link:hover {
+            background-color: #eea5aa;
+            color: #fff;
+            text-decoration: none; /* Remove underline on hover */
+        }
+
+        /* Centered button */
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            padding: 10px 40px; /* Adjust button padding */
+            font-size: 24px; /* Adjust button font size */
+            border-radius: 20px; /* Rounded edges */
+            background-color: #dc3545; /* Scarlet color */
+            color: white; /* Text color */
+            border: none; /* No border */
+            cursor: pointer;
+            transition: all 0.3s ease; /* Smooth transition */
+        }
+
+        .carousel-button:hover {
+            background-color: #c82333; /* Darker shade on hover */
+        }
+        .navbar-brand img {
+            max-width: 50px; /* Maximum width of the logo */
+            height: auto; /* Maintain aspect ratio */
+            /* You can add more styling if required */
+        }
+
+        .over-carousel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            font-size: 40px;
+            color: #fff; /* Change text color to white for better contrast */
+            font-weight: bold; /* Make the text more prominent */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a subtle shadow effect */
+            background-color: rgba(235, 227, 227, 0.7); /* Semi-transparent background */
+            padding: 5px 20px; /* Increase padding for better readability */
+            border-radius: 10px; /* Add rounded corners */
+            transition: color 0.3s ease;
+        }
+        .over-carousel:hover {
+            color: #dc3545; /* Change text color on hover to a scarlet-related color */
+        }
+
+        #eta-info, #user-name, #user-contact {
+            display: inline-block;
+            margin-left: 10px; /* Optional: Add some margin between the div elements */
+            
+        }
+
+        #eta-wrapper, #user-name-wrapper, #user-contact-wrapper {
+            display: flex;
+        }
+
+        #eta-label, #user-name-label, #user-contact-label {
+            color: #dc3545; /* Change text color on hover to a scarlet-related color */     
+        }
+
+        #tracking-info {
+            margin-left: 150px;
+            margin-right: 150px;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px
+        }
     </style>
 
     <meta charset="UTF-8">
@@ -62,17 +205,54 @@ body {
 
 <nav class="navbar navbar-expand-lg navbar-light">
     <a class="navbar-brand" href="#">
+        <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo">
         RUEats
     </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown"> <!-- Adding dropdown class -->
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More Logins
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="" onclick="redirectToRestaurantLogin()">Restaurant Login</a>
+                    <a class="dropdown-item" href="" onclick="redirectToRestaurantRegisteration()">Restaurant Registration</a>
+                    <a class="dropdown-item" href="" onclick="redirectToDeliveryAssociateLogin()">Delivery Associate Login</a>
+                    <a class="dropdown-item" href="" onclick="redirectToDeliveryAssociateRegisteration()">Delivery Associate Registration</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="" onclick="redirectToRegister()">Sign Up</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="" onclick="redirectToLogin()">Login</a>
+            </li>
+
+        </ul>
+    </div>
 </nav>
 
 <div class="container">
     <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
 </div>
 <div id="map"></div>
-<div id="eta-info"></div>
-<div id="user-name"></div>
-<div id="user-contact"></div>
+<div id="tracking-info">
+    <div id="eta-wrapper">
+        <div id="eta-label">ETA: </div>
+        <div id="eta-info"></div>
+    </div>
+    <div id="user-name-wrapper">
+        <div id="user-name-label">Delivery Associate Name:</div>
+        <div id="user-name"></div>
+    </div>
+    <div id="user-contact-wrapper">
+        <div id="user-contact-label">Delivery Associate Contact: </div>
+        <div id="user-contact"></div>
+    </div>
+</div>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA10Tvyj3vQYU9_deaVStxntMz_YXRPRwo"></script>
 <script>
     
@@ -134,9 +314,9 @@ body {
         let user = parsed_result['user']
         var user_name = document.getElementById('user-name');
 
-        user_name.innerHTML = 'Customer Name: ' + user['name'];
+        user_name.innerHTML = user['name'];
         var user_contact = document.getElementById('user-contact');
-        user_contact.innerHTML = user['name']+'\'s Contact: ' + user['contact'];
+        user_contact.innerHTML = user['contact'];
         
         // console.log(delivery_associate)
         let request_body1 = {
@@ -237,7 +417,7 @@ body {
 
         function updateEtaInfo(totalDurationInMinutes) {
             var etaInfoElement = document.getElementById('eta-info');
-            etaInfoElement.innerHTML = 'Total ETA: ' + totalDurationInMinutes + ' mins';
+            etaInfoElement.innerHTML = totalDurationInMinutes + ' mins';
         }
 
         function animateNextStep(route, totalDurationInSeconds) {
@@ -269,7 +449,7 @@ body {
                 }
                 // console.log(nextLocation)
                 var etaInfoElement = document.getElementById('eta-info');
-                etaInfoElement.innerHTML = 'Total ETA: ' + Math.floor((totalDurationInSeconds - elapsedTime/1000)/60) + ' mins';
+                etaInfoElement.innerHTML = Math.floor((totalDurationInSeconds - elapsedTime/1000)/60) + ' mins';
                 // console.log('totalDurationInSeconds',(totalDurationInSeconds - elapsedTime/1000)/60)
                 // console.log('elapsedTime',elapsedTime)
                 // console.log('percent complete',percentComplete)
