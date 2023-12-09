@@ -634,6 +634,24 @@
         jwtToken = localStorage.getItem('jwtToken') || '';
         console.log('Token loaded:', jwtToken);
     }
+    function redirectToRestaurants() {
+        event.preventDefault()
+        window.location.href = `/app/restaurants`;
+    }
+
+    function viewOrderHistory() {
+        const userID = '{{userID}}';
+        window.location.href = `/app/users/${userID}/orders`;
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('email');
+        localStorage.removeItem('name');
+        localStorage.removeItem('user_id');
+        event.preventDefault();
+        window.location.href = '/home';
+    }
 
     window.onload = () => {
         loadToken();
