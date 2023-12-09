@@ -5,49 +5,102 @@
     <title>Delivery Associate Login</title>
     <!-- Include CSS and JavaScript libraries as in the restaurant login page -->
     <style>
-        /* Similar styles as in the restaurant login page */
+        /* Updated styles for a more modern and appealing look */
+        body {
+            background-image: url('https://drive.google.com/uc?export=view&id=1aeEuwDrshpyJUdJprhmpDjQJbzsPO2m1'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Arial', sans-serif;
+        }
+
         .container {
-            margin-top: 50px;
+            display: flex;
+            justify-content: center; /* Center the form on the page */
+            min-height: 100vh; /* Full height of the viewport */
+            align-items: center; /* Align vertically */
+            padding-bottom: 100px; /* Adjust as needed to prevent the form from sticking to the footer */
         }
 
         #login-form {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            background-color: rgba(255, 255, 255, 0.75); /* Semi-transparent background */
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px; /* Consistent width with the User Login form */
         }
 
-        h3 {
-            color: #dc3545;
-            margin-bottom: 20px;
+        h2 {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
         }
 
         button[type="submit"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
-            border-radius: 4px;
-            background-color: #dc3545;
+            border-radius: 5px;
+            background-color: #e74c3c;
             color: white;
             font-weight: bold;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
 
         button[type="submit"]:hover {
-            background-color: #c82333;
+            background-color: #d62c1a;
         }
 
         input[type='text'],
         input[type="email"],
         input[type="password"] {
-            width: calc(100% - 12px);
-            padding: 6px;
-            margin-bottom: 15px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #f9f9f9;
         }
-        /* ... */
+
+        input[type='text']:hover,
+        input[type="email"]:hover,
+        input[type="password"]:hover {
+            border-color: #e74c3c;
+        }
+
+        input[type='text']:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-bottom: .5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Footer styles */
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.9rem;
+            color: #777;
+            position: fixed; /* Fixed to the bottom */
+            bottom: 0;
+            width: 100%;
+            background-color: #fff;
+            border-top: 1px solid #e0e0e0;
+        }
     </style>
+    
 </head>
 <body>
 
@@ -55,7 +108,10 @@
     <div class="row">
         <div class="col-md-6 mx-auto">
             <div id="login-form">
-                <h3>Delivery Associate Login</h3>
+                <div class="brand-logo" style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo" style="max-height: 100px;">
+                </div>
+                <h2>Delivery Associate Login</h2>
                 <form id="deliveryAssociateLoginForm">
                     <label for="name">Name:</label>
                     <input type="text" id="name" name="name" required><br>
@@ -102,7 +158,11 @@
             const data = await response.json();
             if (data.token) {
                 localStorage.setItem('jwtToken', data.token);
-                console.log('Delivery Associate login successful:', data);
+                localStorage.setItem('name', data.name);
+                localStorage.setItem('email', data.email);
+                localStorage.setItem('associate_id', data.associate_id);
+                console.log(localStorage.getItem("associate_id"));
+                //console.log('Delivery Associate login successful:', data);
                 window.alert('Login successful!');
                 window.location.href = '/app/restaurants'; // Redirect to the delivery dashboard
             } else {
@@ -114,6 +174,10 @@
         }
     }
 </script>
+
+<div class="footer">
+    &copy; 2023 RUEats. All rights reserved.
+</div>
 
 </body>
 </html>

@@ -335,7 +335,15 @@ module.exports = class Controller {
         const token = jwt.sign({ name: restaurant.name, restaurant_id: restaurant.restaurant_id }, secretKey, {
           expiresIn: '1h',
         });
-        response(res, { status: 200, data: { token } });
+
+        const responseData = {
+          restaurant_id: restaurant.restaurant_id,
+          email: restaurant.email,
+          name: restaurant.name,
+          token: token,
+        };
+      
+        response(res, { status: 200, data: responseData });
       } else {
         response(res, { status: 401, data: { message: 'Authentication failed' } });
       }
@@ -516,10 +524,19 @@ module.exports = class Controller {
       const result = bcrypt.compareSync(body.password, user.password);
 
       if (result) {
-        const token = jwt.sign({ name: user.name, user_id: user.user_id }, secretKey, {
+        const token = jwt.sign({ name: user.name, associate_id: user.associate_id }, secretKey, {
           expiresIn: '1h',
         });
-        response(res, { status: 200, data: { token } });
+
+        const responseData = {
+          associate_id: user.associate_id,
+          email: user.email,
+          name: user.name,
+          token: token,
+        };
+  
+
+        response(res, { status: 200, data:  responseData  });
       } else {
         response(res, { status: 401, data: { message: 'Authentication failed' } });
       }
@@ -1078,9 +1095,12 @@ module.exports = class Controller {
         } else {
           const data_interim = {}
           const orders = await dbRepo.getDeliveryAssociateOrder(associateID);
-          data_interim.order = orders
-          data_interim.user = await dbRepo.getUserByIdDB(orders.user_id);
-          data_interim.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(orders.order_id);
+          if(orders){
+            data_interim.order = orders
+            data_interim.user = await dbRepo.getUserByIdDB(orders.user_id);
+            data_interim.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(orders.order_id);
+            
+          }
           
           if (data_interim != null) {
           const data = data_interim;
@@ -1245,7 +1265,6 @@ module.exports = class Controller {
   async addOrder(req, res) {
     try {
       const token = req.headers.authorization;
-      console.log(token);
       const { userID, orderAmount } = req.body;
 
       jwt.verify(token, secretKey, async (err, decoded) => {
@@ -1267,10 +1286,8 @@ module.exports = class Controller {
               values.push([element.quantity, results.insertId, element.item_id,]);
             }
             let resultsOrderItems = [];
-            console.log(values);
             for (let index = 0; index < values.length; index++) {
               const element = values[index];
-              // console.log(element);
               resultsOrderItems.push(await dbRepo.addOrderItems(element));
             }
             
@@ -1280,8 +1297,6 @@ module.exports = class Controller {
             else {
               response(res, { data: {message: 'Error adding order' } });
             }
-
-            // response(res, { data: {message: "Order added!"} });
           }
           else {
             response(res, { data: {message: 'Error adding order' } });
@@ -1816,5 +1831,40 @@ async changePassword(req, res) {
   }
 }
 
+async getPreviousDeliveryAssignments(req, res) {
+  try {
+    // console.log(req.params);
+    const { associateID } = req.params;
+    // console.log(`associateID: ${associateID}`);
+    const token = req.headers.authorization;
+
+    jwt.verify(token, secretKey, async (err, decoded) => {
+      if (err) {
+        response(res, { status: 401, data: { message: 'Unauthorized' } });
+      } else {
+        const data_interim = []
+        const previousOrders = await dbRepo.getDeliveryAssociatePreviousOrders(associateID);
+        for(let i=0; i<previousOrders.length; i++){
+          let temp_data = {}
+          temp_data.order = previousOrders[i]
+          temp_data.user = await dbRepo.getUserByIdDB(previousOrders[i].user_id);
+          temp_data.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(previousOrders[i].order_id);
+          data_interim.push(temp_data);
+        }
+        console.log(data_interim);
+        
+        if (data_interim != null) {
+        const data = data_interim;
+        response(res, { data });
+        } else {
+          response(res, { data: 'No orders found for the given user' });
+        }
+      }
+    });
+
+  } catch (error) {
+    response(res, { status: 400, data: error.message });
+  }
+}
 
 }

@@ -133,8 +133,6 @@ const uiRoutes = {
                 if (error) {
                     response(res, {data: "Page not Found!", status : 404})
                 } else {
-                    // const { userID } = _req.params;
-                    // data = data.replace(/{{userID}}/g, userID);
                     response(res,{data : data, contentType:'text/html'});
                 }
             });
@@ -237,6 +235,21 @@ const uiRoutes = {
         POST: (req, res) => {
             // Delegate to a suitable method in the controller for delivery associate registration
             controller.createDeliveryAssociate(req, res);
+        }
+    },
+
+    "/app/delivery-associate-past-orders/:associateID" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/delivery-associate-past-orders.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    console.log(data);
+                    const { associateID } = _req.params;
+                    data = data.replace(/{{associateID}}/g, associateID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
         }
     },
 

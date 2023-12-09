@@ -12,24 +12,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     <style>
-        /* Basic Styling */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             position: relative;
-            height: 100vh; /* Ensure full viewport height */
+            height: 100vh;
         }
 
         header {
-            background-color: #dc3545; /* Scarlet color theme */
+            background-color: #dc3545;
             color: white;
             padding: 20px;
         }
 
         .carousel {
             position: relative;
-            height: 100vh; /* Adjust based on your requirement */
+            height: 100vh;
         }
 
         .carousel-item img {
@@ -53,7 +52,6 @@
         }
 
         .nav-link {
-            /* Adjusting the link style to button */
             padding: 5px 20px;
             border: 2px solid #f8bdc5;
             border-radius: 15px;
@@ -67,33 +65,31 @@
         .nav-link:hover {
             background-color: #eea5aa;
             color: #fff;
-            text-decoration: none; /* Remove underline on hover */
+            text-decoration: none;
         }
 
-        /* Centered button */
         .carousel-button {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 1;
-            padding: 10px 40px; /* Adjust button padding */
-            font-size: 24px; /* Adjust button font size */
-            border-radius: 20px; /* Rounded edges */
-            background-color: #dc3545; /* Scarlet color */
-            color: white; /* Text color */
-            border: none; /* No border */
+            padding: 10px 40px;
+            font-size: 24px;
+            border-radius: 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
             cursor: pointer;
-            transition: all 0.3s ease; /* Smooth transition */
+            transition: all 0.3s ease;
         }
 
         .carousel-button:hover {
-            background-color: #c82333; /* Darker shade on hover */
+            background-color: #c82333;
         }
         .navbar-brand img {
-            max-width: 50px; /* Maximum width of the logo */
-            height: auto; /* Maintain aspect ratio */
-            /* You can add more styling if required */
+            max-width: 50px;
+            height: auto;
         }
 
         .over-carousel {
@@ -104,30 +100,21 @@
             z-index: 2;
             text-align: center;
             font-size: 40px;
-            color: #fff; /* Change text color to white for better contrast */
-            font-weight: bold; /* Make the text more prominent */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a subtle shadow effect */
-            background-color: rgba(235, 227, 227, 0.7); /* Semi-transparent background */
-            padding: 5px 20px; /* Increase padding for better readability */
-            border-radius: 10px; /* Add rounded corners */
+            color: #fff;
+            font-weight: bold; 
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
+            background-color: rgba(235, 227, 227, 0.7);
+            padding: 5px 20px;
+            border-radius: 10px;
             transition: color 0.3s ease;
         }
         .over-carousel:hover {
-    color: #dc3545; /* Change text color on hover to a scarlet-related color */
+    color: #dc3545;
 }
 
     </style>
 </head>
 <body>
-
-    <!-- <nav class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="#">
-            RUEats
-        </a>
-    </nav> -->
-
-
-
     <nav class="navbar navbar-expand-lg navbar-light">
         <a class="navbar-brand" href="#">
             <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo">
@@ -136,28 +123,18 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <!-- <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="" onclick="redirectToRegister()">Sign Up</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="" onclick="redirectToLogin()">Login In</a>
-                </li>
-            </ul>
-        </div> -->
     </nav>
     
     <div class="container">
         <div id="cart-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
-        <!-- <div id="cart-container" class="row"></div> -->
     </div>
     
 
 <script>
+    const token = localStorage.getItem('jwtToken') || '';
+    const userID = localStorage.getItem('user_id') || '';
 
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE5NzUwODQsImV4cCI6MTcwMTk3ODY4NH0.K5CpUf1bkbPo0SpFPDuL9phlpeft4-RHs0vkDT2HPNs';
-async function getData(serverURL, token) {
+    async function getData(serverURL, token) {
         try {
             const response = await fetch(serverURL, {
                 headers: {
@@ -176,11 +153,9 @@ async function getData(serverURL, token) {
 
     async function loadCart() {
         event.preventDefault();
-        // const token = getTokenFromLocalStorage(); // Function to get token from local storage or cookies
-        // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo";
-        if (!token) {
-            // No token found, show access denied message
-            // document.getElementById('access-denied').style.display = 'block';
+        // token = localStorage.getItem('jwtToken') || '';
+
+        if (token === '') {
             alert("No token found");
             return;
         }
@@ -195,17 +170,14 @@ async function getData(serverURL, token) {
         if (cart.error) {
             // Handle error fetching cart or invalid token
             console.error('Error fetching cart:', cart.error);
-            // document.getElementById('access-denied').style.display = 'block';
             alert("Error fetching cart");
             return;
         }
         let subTotalValue = 0;
-        // const cartDetails = await getData(`http://localhost:3000/get-cart-details/{{userID}}`, token);
 
         let container = document.getElementById('cart-container');
 
         let cartItemDiv = document.createElement('div');
-        // cartItemDiv.className = 'col-md-4 mb-4';
         cartItemDiv.className = 'row';
 
         cart.forEach(cartItem => {
@@ -241,11 +213,10 @@ async function getData(serverURL, token) {
         let subTotalDiv = document.createElement('div');
         subTotalDiv.className = 'col-md-4 mb-4';
         subTotalDiv.innerHTML = `
-        <h3>Order Total: $${subTotalValue}</h3>
+        <h3>Order Total: $${subTotalValue.toFixed(2)}</h3>
         
         <input type="button" value="Checkout" class="btn btn-primary" onclick = "checkoutCart(this, '${subTotalValue}')">
         `
-        // <input type="button" value="Checkout" class="btn btn-primary" onclick = "checkoutCart(this, '${JSON.stringify(cart)}', '${subTotalValue}')">
 
         container.appendChild(cartItemDiv);
         container.appendChild(subTotalDiv);
@@ -254,8 +225,7 @@ async function getData(serverURL, token) {
 
     async function checkoutCart(button, subTotalValue)
     {
-        //store cart in local storage
-        // localStorage.setItem('cart', JSON.stringify(cart));
+        //store subtotal in local storage
         localStorage.setItem('subTotalValue', subTotalValue);
 
         window.location.href = "http://localhost:3000/app/payment-form";
@@ -267,17 +237,9 @@ async function getData(serverURL, token) {
         let input = button.parentElement.parentElement.querySelector('input');
         let quantity = parseInt(input.value);
         input.value = quantity + 1;
-        // updateButton(button,price);
-
-        // let userID = getUserIDFromLocalStorage(); //wip
-        let userID = 83;
-        // let token = getTokenFromLocalStorage(); //wip
-        // let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo';
 
         if (!isNaN(price) && !isNaN(input.value)) {
             let totalPrice = price * input.value;
-
-            // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
 
             const response = await fetch('http://localhost:3000/update-cart', {
                 method: 'PATCH',
@@ -286,7 +248,7 @@ async function getData(serverURL, token) {
                     'Authorization': `${token}`
                 },
                 body: JSON.stringify({
-                    userID: userID, //wip
+                    userID: userID,
                     itemID: itemID,
                     quantity: input.value
                 })
@@ -297,7 +259,6 @@ async function getData(serverURL, token) {
             } else {
                 alert(`Error: ${response.status}`);
             }
-            // alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
         }
 
         location.reload();
@@ -310,16 +271,10 @@ async function getData(serverURL, token) {
         let quantity = parseInt(input.value);
         if (quantity > 0) {
             input.value = quantity - 1;
-            // updateButton(button,price);
-            // let userID = getUserIDFromLocalStorage(); //wip
-        let userID = 83;
-        // let token = getTokenFromLocalStorage(); //wip
-        // let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRGhhbnVyIFNoYXJtYSIsInVzZXJfaWQiOjgzLCJpYXQiOjE3MDE4OTEyODQsImV4cCI6MTcwMTg5NDg4NH0.b06FXZbKzPabNA36UZ63xmVFA_CurENPeRBRIs2owvo';
+            // userID = localStorage.getItem('user_id') || '';
 
         if (!isNaN(price) && !isNaN(input.value)) {
             let totalPrice = price * input.value;
-
-            // DEFINE THE LOGIC TO ADD ITEM TO CART HERE
 
             const response = await fetch('http://localhost:3000/update-cart', {
                 method: 'PATCH',
@@ -328,7 +283,7 @@ async function getData(serverURL, token) {
                     'Authorization': `${token}`
                 },
                 body: JSON.stringify({
-                    userID: userID, //wip
+                    userID: userID,
                     itemID: itemID,
                     quantity: input.value
                 })
@@ -339,18 +294,10 @@ async function getData(serverURL, token) {
             } else {
                 alert(`Error: ${response.status}`);
             }
-            // alert(`Added to cart: Item - ${itemName}, Quantity - ${quantity}, Total Price - $${totalPrice.toFixed(2)}`);
         }
 
         location.reload();
         }
-    }
-
-    function getTokenFromLocalStorage() {
-        // Implement logic to get the token from local storage or cookies
-        // For example:
-        // return localStorage.getItem('token');
-        // or retrieve token from cookies
     }
 
     window.onload = loadCart;
