@@ -1375,7 +1375,7 @@ module.exports = class Controller {
             return;
           }
 
-          const orders = await dbRepo.getOrdersByRestaurantID(restaurant_id);
+          const orders = await dbRepo.getActiveOrdersByRestaurantID(restaurant_id);
           const order = orders.find(o => o.order_id == order_id);
 
           if (!order) {
