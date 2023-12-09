@@ -1097,7 +1097,7 @@ module.exports = class Controller {
           const orders = await dbRepo.getDeliveryAssociateOrder(associateID);
           if(orders){
             data_interim.order = orders
-            data_interim.user = await dbRepo.getUserByIdDB(orders.user_id);
+            data_interim.user = await dbRepo.getDeliveryAssociateByID(associateID);
             data_interim.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(orders.order_id);
             
           }
