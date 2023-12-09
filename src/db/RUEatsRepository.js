@@ -999,8 +999,8 @@ module.exports = class RUEatsRepository {
   async getDeliveryAssociateOrder(associateID) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'SELECT * FROM orders WHERE associate_id = ?';
-        this.connection.query(query, [associateID], (error, results) => {
+        const query = 'SELECT * FROM orders WHERE associate_id = ? and status in (?, ?)';
+        this.connection.query(query, [associateID, '3', '4'], (error, results) => {
           if (error) {
             console.error('Database error:', error);
             reject(error);
@@ -1251,5 +1251,29 @@ module.exports = class RUEatsRepository {
         reject(error);
       }
     });
-  }  
+  }
+  
+  async getDeliveryAssociatePreviousOrders(associateID) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'SELECT * FROM orders WHERE associate_id = ? and status in (?, ?)';
+        this.connection.query(query, [associateID, '5', '6'], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results);
+            } else {
+              resolve(null);
+              // console.log("No orders found");
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getDeliveryAssociateOrder:', error);
+        reject(error);
+      }
+    });
+  }
 }
