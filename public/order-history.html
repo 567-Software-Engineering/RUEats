@@ -12,51 +12,84 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <style>
-        body {
+       body {
             background-color: #f8f9fa;
             color: #343a40;
+            font-family: 'Arial', sans-serif;
         }
 
-        .navbar {
-            background-color: #dc3545;
-        }
-
-        .navbar-brand {
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .navbar-toggler-icon {
-            background-color: #fff;
-        }
-
-        .nav-link {
-            color: #fff;
-        }
-
+        
         .container {
             margin-top: 50px;
         }
 
+        /* Navbar Styling */
+        .navbar {
+            background-color: #dc3545; /* Background color for the navbar */
+        }
+
+        .navbar-brand {
+            color: #fff; /* Color for the brand text */
+            font-weight: bold; /* Bold font weight */
+            font-size: 1.5rem; /* Font size for the brand */
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff; /* Background color for the toggler icon */
+        }
+
+        .nav-link {
+            padding: 5px 20px; /* Padding for the links */
+            border: 2px solid #f8bdc5; /* Border style for the links */
+            border-radius: 15px; /* Border radius for the links */
+            color: #d0c3c4; /* Text color for the links */
+            font-weight: bold; /* Bold font weight */
+            text-align: center; /* Center align the text */
+            transition: all 0.3s ease; /* Transition effect on hover */
+            margin-right: 10px; /* Margin between links */
+        }
+
+        .nav-link:hover {
+            background-color: #eea5aa; /* Background color on hover */
+            color: #fff; /* Text color on hover */
+            text-decoration: none; /* Remove underline on hover */
+        }
+
+        .navbar-brand img {
+            max-width: 50px; /* Maximum width of the logo */
+            height: auto; /* Maintain aspect ratio */
+            /* Additional styling for the brand image if required */
+        }
+
+
         #user-profile {
             background-color: #fff;
             border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        #update-password {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
 
         #privacy-policy {
             background-color: #fff;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
         }
 
         #access-denied {
             background-color: #fff;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
         }
 
         h3 {
@@ -66,6 +99,81 @@
 
         strong {
             color: #dc3545;
+        }
+
+        .access-btns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .access-btns button {
+            width: 48%;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: calc(100% - 12px);
+            padding: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #dc3545;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #c82333;
+        }
+            input[type="text"],
+            input[type="password"] {
+        width: calc(100% - 12px);
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background-color: #f8f9fa; /* Light grey background color */
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #495057;
+            background-color: #fff; /* Change background color on focus */
+        }
+        .password-input {
+        display: flex;
+        align-items: center;
+            }
+
+        .password-input input[type="password"] {
+            /* width: calc(100% - 32px); Adjust width to accommodate the eye icon */
+            padding-right: 28px; /* Add padding on the right to prevent text overlapping with the icon */
+            border-radius: 4px 0 0 4px; /* Rounded corners only on the left side of the input */
+        }
+
+        .password-input i {
+            margin-left: -28px; /* Adjust the icon position to overlay the input field */
+            cursor: pointer;
+            z-index: 1; /* Ensure the icon stays above the input field */
+            color: #ced4da; /* Change icon color */
+            transition: color 0.3s ease; /* Smooth color transition */
+        }
+
+        .password-input i:hover {
+            color: #495057; /* Change icon color on hover */
         }
         .star {
             color: gray;
@@ -80,24 +188,28 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light">
-    <a class="navbar-brand" href="#">
-        RUEats
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Order History</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadUserProfile()">Account</a>
-            </li>
-        </ul>
-    </div>
-</nav>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="/home">
+            <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo">
+            RUEats
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="redirectToRestaurants()">Restaurants</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="handleLogout()">Log out</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
 <div class="container mt-4">
     <div class="row">
@@ -118,10 +230,11 @@
 </div>
 
 <script>
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMjAwNzQ3MSwiZXhwIjoxNzAyMDExMDcxfQ.uw35n4YyD4bXW1yfhsWFdP-Xnh0Qezlm0tPXaCEhWQg";
+    let token = localStorage.getItem('jwtToken') || '';
+    let reviewID = '';
     async function loadOrderHistory() {
         const userID = '{{userID}}';
-        const orderHistoryURL = `http://localhost:3000/users/{{userID}}/orders`;
+        const orderHistoryURL = `http://localhost:3000/users/${userID}/orders`;
         const userDetailsURL = `http://localhost:3000/users/${userID}`;
 
         async function getData(serverURL, token) {
@@ -148,7 +261,7 @@
             }
             const orderHistory = await getData(orderHistoryURL, token);
             if (orderHistory.length) {
-                displayOrderHistory(orderHistory);
+                displayOrderHistory(orderHistory, userID);
             } else {
                 document.getElementById('no-orders').style.display = 'block';
             }
@@ -158,17 +271,28 @@
         }
     }
 
-    function displayOrderHistory(orders) {
+    async function displayOrderHistory(orders, userID) {
         const orderHistoryDiv = document.getElementById('order-history');
-        orderHistoryDiv.innerHTML = '<h4>Your Orders</h4>';
+        let orderHistoryHTML = '<h4>Your Orders</h4>';
 
-        orders.forEach(order => {
-            let reviewButtonHTML = order.status === 3 
-                ? `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`
-                : '';
+        for (const order of orders) {
+            const review = await checkIfReviewExists(userID, order.restaurant_id);
+            // use this for testing temporarily
+            // const reviewButtonHTML = review
+            //     ? `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id})">View Written Review</button>`
+            //     : `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
+            let reviewButtonHTML;
+            if (review) {
+                reviewButtonHTML = `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id})">View Written Review</button>`;
+            } else if (order.status < 5) {
+                reviewButtonHTML = `<button disabled style="color: grey; cursor: not-allowed;">Add Review</button>`;
+            } else {
+                reviewButtonHTML = `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
+            }
+
             let orderStatusText = getCondensedOrderStatus(order.status);
 
-            orderHistoryDiv.innerHTML += `
+            orderHistoryHTML += `
                 <div class="order">
                     <p>Restaurant: ${order.restaurant_name}</p>
                     <p>Order Date: ${new Date(order.order_date).toLocaleDateString()}</p>
@@ -179,9 +303,59 @@
                     <div id="order-details-${order.order_id}" class="order-details" style="display: none;"></div>
                 </div>
                 <hr>`;
-        });
+        }
 
+        orderHistoryDiv.innerHTML = orderHistoryHTML;
         orderHistoryDiv.style.display = 'block';
+    }
+
+    async function checkIfReviewExists(userID, restaurantID) {
+        try {
+            const response = await fetch(`http://localhost:3000/users/${userID}/review?restaurantID=${restaurantID}`, {
+                headers: {
+                    'Authorization': token
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const reviewData = await response.json();
+            return reviewData;
+        } catch (error) {
+            console.error('Error:', error);
+            return false;
+        }
+    }
+
+    function viewReview(userID, orderID, restaurantID, review_id) {
+        fetch(`http://localhost:3000/users/${userID}/review?restaurantID=${restaurantID}`, {
+            headers: {
+                'Authorization': token
+            }
+        })
+        .then(response => response.json())
+        .then(review => {
+            document.getElementById('view-review-title').textContent = review.review_title;
+            document.getElementById('view-review-description').textContent = review.description;
+            document.getElementById('view-review-stars').innerHTML = getStarsHTML(parseInt(review.stars));
+            reviewID = review_id;
+            const mediaLink = document.getElementById('view-review-media');
+            if (review.media) {
+                mediaLink.href = review.media;
+                mediaLink.textContent = 'View Media';
+            } else {
+                mediaLink.href = '';
+                mediaLink.textContent = 'No Media';
+            }
+            // Show view section, hide edit form
+            document.getElementById('view-review-section').style.display = 'block';
+            document.getElementById('edit-review-form').style.display = 'none';
+            $('#viewEditReviewModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle error
+        });
     }
 
     function getCondensedOrderStatus(statusCode) {
@@ -228,6 +402,9 @@
                 buttonElement.textContent = 'Hide Details';
             } catch (error) {
                 console.error('Error:', error);
+                detailsDiv.innerHTML = '<p class="text-danger">Error retrieving order details, try again later.</p>';
+                detailsDiv.style.display = 'block';
+                buttonElement.textContent = 'Hide Details';
             }
         } else {
             detailsDiv.style.display = 'none';
@@ -277,6 +454,7 @@
                 document.getElementById('review-form').reset();
                 $('#reviewModal').modal('hide');
                 resetStarRating();
+                window.location.reload();
             }
         } catch (error) {
             console.error('Error:', error);
@@ -284,20 +462,37 @@
         }
     }
 
-    function setupStarRating() {
-        document.querySelectorAll('.star').forEach(star => {
-            star.onclick = function() {
-                let rating = this.getAttribute('data-value');
-                document.getElementById('review-stars').value = rating;
-                updateStarDisplay(rating);
+    function initializeStarRating() {
+        // For 'Add Review' Modal
+        document.querySelectorAll('#star-rating .star').forEach((star, index) => {
+            star.onclick = () => {
+                updateStarDisplay(index + 1, '#star-rating');
+                document.getElementById('review-stars').value = index + 1;
+            };
+        });
+
+        // For 'Edit Review' Modal
+        document.querySelectorAll('#edit-star-rating .star').forEach((star, index) => {
+            star.onclick = () => {
+                updateStarDisplay(index + 1, '#edit-star-rating');
+                document.getElementById('edit-review-stars').value = index + 1;
             };
         });
     }
 
-    function updateStarDisplay(rating) {
-        document.querySelectorAll('.star').forEach(star => {
-            let starValue = star.getAttribute('data-value');
-            if (starValue <= rating) {
+    function getStarsHTML(stars) {
+        let starsHTML = '';
+        for (let i = 0; i < stars; i++) {
+            starsHTML += '&#9733;'; // Star character
+        }
+        return starsHTML;
+    }
+
+    function updateStarDisplay(rating, starContainerId) {
+        console.log(`Updating stars in container: ${starContainerId}, Rating: ${rating}`);
+        const starElements = document.querySelectorAll(`${starContainerId} .star`);
+        starElements.forEach((star, index) => {
+            if (index < rating) {
                 star.classList.add('selected');
             } else {
                 star.classList.remove('selected');
@@ -312,10 +507,138 @@
         document.getElementById('review-stars').value = '';
     }
 
+    function toggleEditReview() {
+        const viewSection = document.getElementById('view-review-section');
+        const editForm = document.getElementById('edit-review-form');
+        const editButton = document.getElementById('edit-button');
+        const saveEditButton = document.getElementById('save-edit-button');
+
+        if (viewSection.style.display === 'none') {
+            viewSection.style.display = 'block';
+            editForm.style.display = 'none';
+            editButton.style.display = 'block';
+            saveEditButton.style.display = 'none';
+        } else {
+            document.getElementById('edit-review-title').value = document.getElementById('view-review-title').textContent;
+            document.getElementById('edit-review-description').value = document.getElementById('view-review-description').textContent;
+            setEditStarRating(document.getElementById('view-review-stars').textContent.length); // Function to set stars
+            document.getElementById('edit-review-media-url').value = document.getElementById('view-review-media').href;
+
+            // Switch to edit mode
+            viewSection.style.display = 'none';
+            editForm.style.display = 'block';
+            editButton.style.display = 'none';
+            saveEditButton.style.display = 'block';
+        }
+    }
+
+    async function submitEditedReview() {
+        event.preventDefault();
+        if (!reviewID) {
+            alert('No review selected for editing.');
+            return;
+        }
+
+        const title = document.getElementById('edit-review-title').value.trim();
+        const description = document.getElementById('edit-review-description').value.trim();
+        const stars = document.getElementById('edit-review-stars').value.trim();
+        const mediaURL = document.getElementById('edit-review-media-url').value.trim();
+
+        if (!title || !stars) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        const reviewData = {
+            review_title: title,
+            description: description,
+            stars: stars,
+            media: mediaURL
+        };
+        
+        const reviewURL = `http://localhost:3000/edit-review/${reviewID}`;
+        try {
+            const response = await fetch(reviewURL, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reviewData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.error) {
+                console.error('Error:', result.error);
+            } else {
+                alert('Review updated successfully!');
+                $('#viewEditReviewModal').modal('hide');
+                resetStarRating();
+                reviewID = ''; 
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to update review.');
+        }
+    }
+
+
+    function setEditStarRating(rating) {
+        const starElements = document.querySelectorAll('#edit-star-rating .star');
+        starElements.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('selected');
+            } else {
+                star.classList.remove('selected');
+            }
+            star.addEventListener('click', () => {
+                updateStarDisplay(index + 1);
+                document.getElementById('edit-review-stars').value = index + 1;
+            });
+        });
+    }
+
+    function deleteReview(restaurantID, userID) {
+        if (confirm('Are you sure you want to delete this review?')) {
+            fetch(`http://localhost:3000/delete-review/${reviewID}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(() => {
+                alert('Review deleted successfully');
+                $('#viewEditReviewModal').modal('hide');
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete review.');
+            });
+        }
+    }
+
+    function loadToken() {
+        jwtToken = localStorage.getItem('jwtToken') || '';
+        console.log('Token loaded:', jwtToken);
+    }
 
     window.onload = () => {
+        loadToken();
         loadOrderHistory();
-        setupStarRating();
+        initializeStarRating();
     };
 
 </script>
@@ -364,5 +687,61 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="viewEditReviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Review Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- View Review Section -->
+                <div id="view-review-section">
+                    <h6>Title: <span id="view-review-title"></span></h6>
+                    <p>Description: <span id="view-review-description"></span></p>
+                    <p>Rating: <span id="view-review-stars"></span></p>
+                    <p>Media: <a id="view-review-media" href="" target="_blank"></a></p>
+                </div>
+
+                <form id="edit-review-form" style="display: none;">
+                    <input type="hidden" id="edit-review-restaurant-id" name="restaurant_id">
+                    <div class="form-group">
+                        <label for="edit-review-title">Title:</label>
+                        <input type="text" class="form-control" id="edit-review-title" name="review_title">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-review-description">Description:</label>
+                        <textarea class="form-control" id="edit-review-description" name="description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Rating:</label>
+                        <div id="edit-star-rating" class="star-rating">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <input type="hidden" id="edit-review-stars" name="stars">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-review-media-url">Media URL:</label>
+                        <input type="text" class="form-control" id="edit-review-media-url" name="media_url">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info" id="edit-button" onclick="toggleEditReview()">Edit</button>
+                <button type="button" class="btn btn-danger" onclick="deleteReview()">Delete</button>
+                <button type="button" class="btn btn-primary" style="display: none;" id="save-edit-button" onclick="submitEditedReview()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

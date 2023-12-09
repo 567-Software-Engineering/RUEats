@@ -1248,5 +1248,44 @@ module.exports = class RUEatsRepository {
         reject(error);
       }
     });
-  }  
+  } 
+
+  getReviewByUserIDRestaurantID(userID, restaurantID) {
+    return new Promise((resolve, reject) => {
+        this.connection.query('SELECT * FROM reviews WHERE restaurant_id = ? AND author_id = ?', [restaurantID, userID], function (error, results) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results.length > 0 ? results[0] : null);
+            }
+        });
+    });
+  }
+
+  editReviewdb(reviewID, review_title, description, stars, media) {
+    return new Promise((resolve, reject) => {
+        const query = 'UPDATE reviews SET review_title = ?, description = ?, stars = ?, media = ? WHERE review_id = ?';
+        this.connection.query(query, [review_title, description, stars, media, reviewID], function (error, results) {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results.affectedRows > 0);
+            }
+        });
+    });
+  }
+
+  deleteReviewdb(reviewID) {
+      return new Promise((resolve, reject) => {
+          const query = 'DELETE FROM reviews WHERE review_id = ?';
+          this.connection.query(query, [reviewID], function (error, results) {
+              if (error) {
+                  reject(error);
+              } else {
+                  resolve(results.affectedRows > 0);
+              }
+          });
+      });
+  }
+
 }

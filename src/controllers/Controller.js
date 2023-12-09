@@ -1799,31 +1799,70 @@ module.exports = class Controller {
 
 async changePassword(req, res) {
   try {
-    const { userId, oldPassword, newPassword } = req.body; // Assuming the request body contains userID, oldPassword, and newPassword
+      const { userId, oldPassword, newPassword } = req.body; // Assuming the request body contains userID, oldPassword, and newPassword
 
-    const user = await dbRepo.getUserByIdDB(userId); // Fetch user data based on user ID
+      const user = await dbRepo.getUserByIdDB(userId); // Fetch user data based on user ID
 
-    if (!user) {
-      return response(res, {
-        data: { message: 'User not found' },
-        status: 404,
-      });
+      if (!user) {
+        return response(res, {
+          data: { message: 'User not found' },
+          status: 404,
+        });
+      }
+
+      const result = bcrypt.compareSync(oldPassword, user.password); // Compare old password with stored password
+
+      if (result) {
+        const hashedPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password
+        await dbRepo.updateUserPasswordDB(userId, hashedPassword); // Update user's password in the database
+
+        response(res, { status: 200, data: { message: 'Password updated successfully' } });
+      } else {
+        response(res, { status: 401, data: { message: 'Invalid old password' } });
+      }
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
     }
-
-    const result = bcrypt.compareSync(oldPassword, user.password); // Compare old password with stored password
-
-    if (result) {
-      const hashedPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password
-      await dbRepo.updateUserPasswordDB(userId, hashedPassword); // Update user's password in the database
-
-      response(res, { status: 200, data: { message: 'Password updated successfully' } });
-    } else {
-      response(res, { status: 401, data: { message: 'Invalid old password' } });
-    }
-  } catch (error) {
-    response(res, { status: 400, data: { message: error.message } });
   }
+
+  async checkUserOrderReview(req, res) {
+    try {
+        const { userID } = req.params;
+        const { restaurantID } = req.query;
+        const review = await dbRepo.getReviewByUserIDRestaurantID(userID, restaurantID);
+        response(res, { data: review ? review : false });
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async editReview(req, res) {
+    try {
+        const { reviewID } = req.params;
+        const { review_title, description, stars, media } = req.body;
+        const result = await dbRepo.editReviewdb(reviewID, review_title, description, stars, media);
+        if (result) {
+            response(res, { data: "Review updated successfully!" });
+        } else {
+            throw new Error("Failed to update review.");
+        }
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
 }
 
+async deleteReview(req, res) {
+    try {
+        const { reviewID } = req.params;
+        const result = await dbRepo.deleteReviewdb(reviewID);
+        if (result) {
+            response(res, { data: "Review deleted successfully!" });
+        } else {
+            throw new Error("Failed to delete review.");
+        }
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
+}
 
 }

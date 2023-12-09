@@ -145,7 +145,20 @@ const routes = {
       POST : (req, res) => {
           validatePostRequests(req, res, controller.postRestaurantReview);
         },
+    },
 
+    "/users/:userID/review": {
+      GET: controller.checkUserOrderReview
+    },
+
+    "/edit-review/:reviewID": {
+      PUT : (req, res) => {
+        validatePostRequests(req, res, controller.editReview);
+      }, 
+    },
+
+    "/delete-review/:reviewID": {
+      DELETE: controller.deleteReview
     },
 
     "/restaurants-reviews/:restaurantID" : {
@@ -186,7 +199,7 @@ const routes = {
       PUT : (req, res) => {
           validatePostRequests(req, res, controller.updateRestaurantDetails);
       },
-  },
+    },
 
     "/payment-form": {
       GET: controller.servePaymentForm,
