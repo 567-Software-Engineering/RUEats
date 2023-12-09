@@ -101,12 +101,8 @@
     <div class="container mt-4">
             <div class="col-md-10 mx-auto">
                 <div id="restaurant-order" style="display: none;">
-                    <!-- Restaurant Profile content will be displayed here -->
-                    <div id="restaurant-order-content" class="row">
-                        <div class="col-md-4">Item 1</div>
-                        <div class="col-md-4">Item 2</div>
-                        <div class="col-md-4">Item 3</div>
-                    </div>
+                    <!-- Restaurant order content will be displayed here -->
+                    <div id="restaurant-order-content" class="row"> </div>
                     <div id="restaurant-actions"></div>
                 </div>
                 <div id="order-access-denied" style="display: none;">
@@ -115,7 +111,17 @@
                 </div>
             </div>
     </div>
+
+    <hr class="my-4">
+
     
+    <div class="container">
+        <div id="restaurant-history" class="row row-cols-1 row-cols-md-3 g-4" style="display: none;"></div>
+        <div id="history-access-denied" style="display: none;">
+            <!-- <h3>Access Denied</h3> -->
+            <p>Error Fetching Order History</p>
+        </div>
+    </div>
 
 
 
@@ -137,7 +143,7 @@
             }
         }
 
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdHdhIiwicmVzdGF1cmFudF9pZCI6ODQsImlhdCI6MTcwMTkxNjEwOSwiZXhwIjoxNzAxOTE5NzA5fQ.-eZh2ezB7XkGAS8Vyz3aYR-yperX7ZdyLrjE8VahQIY"; // Replace with the actual token
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdHdhIiwicmVzdGF1cmFudF9pZCI6ODQsImlhdCI6MTcwMjEwMzE3NCwiZXhwIjoxNzAyMTA2Nzc0fQ.fd6DU4qwnw9M-Cv02RPSJcjLn35ger-VXcE_9uf_MpY"; // Replace with the actual token
         const serverPath = 'http://localhost:3000';
         async function loadRestaurantOrders() {
             
@@ -226,8 +232,108 @@
 
                 row.appendChild(card);
             });
-
+            let heading = document.createElement('h2');
+            heading.innerHTML = 'Active Orders'
+            container.appendChild(heading);
             container.appendChild(row);
+
+            await loadOrderHistory(restaurantId);
+        }
+
+        async function getOrderHistory(serverURL, token, restaurantId) {
+            try {
+                const response = await fetch(`${serverURL}/${restaurantId}/orders`, {
+                    headers: {
+                        'Authorization': `${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                return { error: error.message };
+            }
+        }
+
+        async function loadOrderHistory(restaurantId){
+            const orderHistoryURL = `${serverPath}/order-history`
+
+            const restaurantOrders = await getRestaurantOrders(orderHistoryURL, token, restaurantId);
+            if (restaurantOrders.error) {
+                // Handle error fetching restaurant profile or invalid token
+                console.error('Error fetching restaurant order history:', restaurantOrders.error);
+                document.getElementById('order-access-denied').style.display = 'block';
+                return;
+            }
+
+            const restaurantProfileDiv = document.getElementById('restaurant-history');
+
+            restaurantProfileDiv.style.display = 'block';
+            restaurantProfileDiv.innerHTML= '';
+
+            if (typeof restaurantOrders == 'string') {
+                let container = document.getElementById('restaurant-history');
+                let row = document.createElement('div');
+                row.className = 'row row-cols-1 row-cols-md-3 g-4 text-center justify-content-center';
+                let card = document.createElement('div');
+                card.className = 'col-md-4 mb-4';
+
+                card.innerHTML = restaurantOrders;
+                row.appendChild(card);
+                container.appendChild(row);
+                return
+            }
+            // let orderItems = JSON.parse(restaurantOrders);
+            let container = document.getElementById('restaurant-history');
+
+            let row = document.createElement('div');
+            row.className = 'row row-cols-1 row-cols-md-3 g-4';
+
+            restaurantOrders.sort((a, b) => {
+                // Convert the order dates to Date objects
+                let dateA = new Date(a.order_date);
+                let dateB = new Date(b.order_date);
+
+                // Compare the dates to sort
+                return dateA - dateB;
+            });
+
+            restaurantOrders.forEach(orderItem => {
+                let card = document.createElement('div');
+                card.className = 'col-md-4 mb-4';
+
+                // Convert order_date to a more readable format
+                let orderDate = new Date(orderItem.order_date);
+                let formattedDate = orderDate.toLocaleDateString("en-US", {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+
+                card.innerHTML = `
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Order id: ${orderItem.order_id}</h5>
+                                <p class="card-text">Date: ${formattedDate}</p>
+                                <p class="card-text">Price: $${orderItem.total_amount}</p>
+                                <p class="card-text">User id: ${orderItem.user_id}</p>
+                                <button class="btn btn-primary" onclick="(async function() {await viewOrder(${orderItem.status}, ${orderItem.order_id}, ${true}); })()">See order</button>
+                                </div>
+                        </div>
+                    `;
+
+                row.appendChild(card);
+            }); 
+            let heading = document.createElement('h2');
+            heading.innerHTML = 'Order History'
+            container.appendChild(heading);
+            container.appendChild(row);
+
         }
 
         async function getRestaurantOrder(serverURL, token, restaurantId, orderID) {
@@ -247,8 +353,13 @@
             }
         }
 
-        async function viewOrder(status, order_id) {
+        async function viewOrder(status, order_id, history = false) {
+
+            window.history.pushState({ view: 'order', orderId: order_id }, 'Order View', '?view=order&orderId=' + order_id);
             document.getElementById('restaurant-container').style.display = 'none';
+            document.getElementById('restaurant-history').style.display = 'none';
+            document.getElementById('access-denied').style.display = 'none';
+            document.getElementById('history-access-denied').style.display = 'none';
             const orderContainer = document.getElementById('restaurant-order');
             const orderContentDiv = document.getElementById('restaurant-order-content');
             const actionsDiv = document.getElementById('restaurant-actions');
@@ -290,14 +401,68 @@
                 orderContentDiv.appendChild(colDiv);
             });
 
-            // Add buttons based on order status
-            if (status === 0) {
-                actionsDiv.innerHTML = `
-                    <button class="btn btn-success" onclick="updateOrderStatus(1, '${restaurantId}', '${order_id}')">Accept Order</button>
-                    <button class="btn btn-danger" onclick="confirmRejectOrder('${restaurantId}', '${order_id}')">Reject Order</button>
-                `;
-            } else if (status === 1) {
-                actionsDiv.innerHTML = `<button class="btn btn-primary" onclick="updateOrderStatus(3, '${restaurantId}', '${order_id}')">Ready for Delivery</button>`;
+
+            if (!history){
+                // Add buttons based on order status
+                if (status === 0) {
+                    actionsDiv.innerHTML = `
+                        <button class="btn btn-success" onclick="updateOrderStatus(1, '${restaurantId}', '${order_id}')">Accept Order</button>
+                        <button class="btn btn-danger" onclick="confirmRejectOrder('${restaurantId}', '${order_id}')">Reject Order</button>
+                    `;
+                } else if (status === 1) {
+                    actionsDiv.innerHTML = `<button class="btn btn-primary" onclick="updateOrderStatus(3, '${restaurantId}', '${order_id}')">Ready for Delivery</button>`;
+                }
+            }
+            else{
+                let statusdiv = document.createElement('div');
+                statusdiv.className = 'card mt-3';
+
+                switch (status) {
+                    case 2:
+                        statusdiv.innerHTML = `
+                            <div class="card-body bg-danger text-white">
+                                <h5 class="card-title">Status: Order Declined</h5>
+                                <p class="card-text">The restaurant has declined the order.</p>
+                            </div>`;
+                        break;
+                    case 3:
+                        statusdiv.innerHTML = `
+                            <div class="card-body bg-primary text-white">
+                                <h5 class="card-title">Status: Order Prepared</h5>
+                                <p class="card-text">The order is prepared and waiting for a delivery associate to collect it.</p>
+                            </div>`;
+                        break;
+                    case 4:
+                        statusdiv.innerHTML = `
+                            <div class="card-body bg-secondary text-white">
+                                <h5 class="card-title">Status: Delivery in Progress</h5>
+                                <p class="card-text">A delivery associate has picked up the order. Delivery is in progress.</p>
+                            </div>`;
+                        break;
+                    case 5:
+                        statusdiv.innerHTML = `
+                            <div class="card-body bg-success text-white">
+                                <h5 class="card-title">Status: Delivery Successful</h5>
+                                <p class="card-text">The delivery has been completed successfully and validated.</p>
+                            </div>`;
+                        break;
+                    case 6:
+                        statusdiv.innerHTML = `
+                            <div class="card-body bg-dark text-white">
+                                <h5 class="card-title">Status: Delivery Failed</h5>
+                                <p class="card-text">The delivery attempt has failed.</p>
+                            </div>`;
+                        break;
+                    default:
+                        statusdiv.innerHTML = `
+                            <div class="card-body">
+                                <h5 class="card-title">Status: Unknown</h5>
+                                <p class="card-text">The current status of the order is unknown.</p>
+                            </div>`;
+                        break;
+                }
+
+                orderContentDiv.appendChild(statusdiv);
             }
 
             console.log(restaurantOrder);
@@ -350,6 +515,16 @@
         }
 
         window.onload = loadRestaurantOrders;
+        window.onpopstate = function(event) {
+            if (event.state && event.state.view === 'order') {
+                // Logic to display the specific order
+                viewOrder(event.state.status, event.state.orderId, true);
+            } else {
+                // Logic to display the list of orders
+                loadRestaurantOrders();
+            }
+        };
+
     </script>
 
 
