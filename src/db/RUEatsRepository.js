@@ -1300,7 +1300,7 @@ module.exports = class RUEatsRepository {
       });
   }
 
-  }
+  
   
   async getDeliveryAssociatePreviousOrders(associateID) {
     return new Promise((resolve, reject) => {
