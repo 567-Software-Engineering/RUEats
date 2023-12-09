@@ -784,6 +784,29 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  async getDeliveryAssociateByID(associate_id) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'SELECT * FROM delivery_associates WHERE associate_id = ?';
+        this.connection.query(query, [associate_id], (error, results) => {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            if (results.length > 0) {
+              resolve(results[0]);
+            } else {
+              resolve(null);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error in getAssociateByIdDB:', error);
+        reject(error);
+      }
+    });
+  }
+
   async deleteUserById(user_id) {
     return new Promise((resolve, reject) => {
       try {
@@ -1117,7 +1140,8 @@ module.exports = class RUEatsRepository {
       const query = `SELECT c.item_id item_id, c.quantity quantity, m.item_name item_name, m.price price, m.image_url image_url
       FROM cart c INNER JOIN menu m
       ON c.item_id = m.item_id
-      WHERE c.user_id = ?`;
+      WHERE c.user_id = ?
+      AND c.quantity > 0`;
       this.connection.query(query, [userID], (error, results) => {
         if (error) {
           reject(error);
