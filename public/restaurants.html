@@ -225,6 +225,9 @@
             // User is logged in
             navBar.innerHTML = `
             <li class="nav-item">
+                <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Orders</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="/app/users/${userID}" >Profile</a>
             </li>
             <li class="nav-item">
@@ -247,7 +250,9 @@
     function handleLogout() {
         localStorage.clear();
     }
-
+    function viewOrderHistory() {
+        window.location.href = `/app/users/${userID}/orders`;
+    }
 
 
     async function getData(serverURL, body) {

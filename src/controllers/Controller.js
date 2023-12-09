@@ -1775,7 +1775,7 @@ module.exports = class Controller {
 
   async getOrderDetailsById(req, res) {
     try {
-        const { order_id, restaurant_id } = req.params;
+        const { order_id } = req.params;
         const token = req.headers.authorization;
 
         jwt.verify(token, secretKey, async (err, decoded) => {
@@ -1784,18 +1784,15 @@ module.exports = class Controller {
                 return;
             }
 
-            if (decoded.restaurant_id !== parseInt(restaurant_id)) {
-                response(res, { status: 403, data: { message: 'Forbidden: Cannot view orders for other restaurants.' } });
-                return;
-            }
-
-            // Fetch the order details and verify that the order belongs to the restaurant
-            const orderDetails = await dbRepo.getOrderDetailsByIdDB(order_id, restaurant_id);
-
+            const orderDetails = await dbRepo.getOrderDetailsByIdDB(order_id);
             if (orderDetails && orderDetails.length > 0) {
-                response(res, { data: orderDetails });
+                if (decoded.restaurant_id === orderDetails[0].restaurant_id || decoded.user_id === orderDetails[0].user_id) {
+                    response(res, { data: orderDetails });
+                } else {
+                    response(res, { status: 403, data: { message: 'Forbidden: You do not have permission to view these order details.' } });
+                }
             } else {
-                response(res, { status: 404, data: { message: "Order not found or does not belong to this restaurant" } });
+                response(res, { status: 404, data: { message: "Order not found" } });
             }
         });
     } catch (error) {
@@ -1805,31 +1802,70 @@ module.exports = class Controller {
 
 async changePassword(req, res) {
   try {
-    const { userId, oldPassword, newPassword } = req.body; // Assuming the request body contains userID, oldPassword, and newPassword
+      const { userId, oldPassword, newPassword } = req.body; // Assuming the request body contains userID, oldPassword, and newPassword
 
-    const user = await dbRepo.getUserByIdDB(userId); // Fetch user data based on user ID
+      const user = await dbRepo.getUserByIdDB(userId); // Fetch user data based on user ID
 
-    if (!user) {
-      return response(res, {
-        data: { message: 'User not found' },
-        status: 404,
-      });
+      if (!user) {
+        return response(res, {
+          data: { message: 'User not found' },
+          status: 404,
+        });
+      }
+
+      const result = bcrypt.compareSync(oldPassword, user.password); // Compare old password with stored password
+
+      if (result) {
+        const hashedPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password
+        await dbRepo.updateUserPasswordDB(userId, hashedPassword); // Update user's password in the database
+
+        response(res, { status: 200, data: { message: 'Password updated successfully' } });
+      } else {
+        response(res, { status: 401, data: { message: 'Invalid old password' } });
+      }
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
     }
-
-    const result = bcrypt.compareSync(oldPassword, user.password); // Compare old password with stored password
-
-    if (result) {
-      const hashedPassword = bcrypt.hashSync(newPassword, 10); // Hash the new password
-      await dbRepo.updateUserPasswordDB(userId, hashedPassword); // Update user's password in the database
-
-      response(res, { status: 200, data: { message: 'Password updated successfully' } });
-    } else {
-      response(res, { status: 401, data: { message: 'Invalid old password' } });
-    }
-  } catch (error) {
-    response(res, { status: 400, data: { message: error.message } });
   }
+
+  async checkUserOrderReview(req, res) {
+    try {
+        const { userID } = req.params;
+        const { restaurantID } = req.query;
+        const review = await dbRepo.getReviewByUserIDRestaurantID(userID, restaurantID);
+        response(res, { data: review ? review : false });
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async editReview(req, res) {
+    try {
+        const { reviewID } = req.params;
+        const { review_title, description, stars, media } = req.body;
+        const result = await dbRepo.editReviewdb(reviewID, review_title, description, stars, media);
+        if (result) {
+            response(res, { data: "Review updated successfully!" });
+        } else {
+            throw new Error("Failed to update review.");
+        }
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
 }
+
+async deleteReview(req, res) {
+    try {
+        const { reviewID } = req.params;
+        const result = await dbRepo.deleteReviewdb(reviewID);
+        if (result) {
+            response(res, { data: "Review deleted successfully!" });
+        } else {
+            throw new Error("Failed to delete review.");
+        }
+    } catch (error) {
+        response(res, { status: 400, data: error.message });
+    }
 
 async getPreviousDeliveryAssignments(req, res) {
   try {
@@ -1865,6 +1901,7 @@ async getPreviousDeliveryAssignments(req, res) {
   } catch (error) {
     response(res, { status: 400, data: error.message });
   }
+
 }
 
 }
