@@ -45,13 +45,6 @@
             margin-top: 50px;
         }
 
-        #user-profile {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
         #btn-group {
             text-align: center
         }
@@ -106,32 +99,6 @@
                     <!-- User Profile content will be displayed here -->
                 </div>
                 <br>
-                <div id="begin-tracking" style="display: none">
-                    <button class="btn btn-success btn-cancel" onclick="redirectToTrackingPage()">Begin Tracking</button>
-                </div>
-                <br>
-                <div id="image-uploader">
-                    <h1>Select an Image</h1>
-
-                    <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
-
-                    <div id="imageContainer"></div>
-
-                </div>
-                <br>
-                <div id="btn-group">
-                    <button class="btn btn-danger btn-cancel" onclick="cancelOrder()">Cancel Order</button>
-                    <button class="btn btn-success btn-validate" onclick="completeOrder(); validateOrder(); ">Validate
-                        Order</button>
-                    <!-- User Profile content will be displayed here -->
-                </div>
-                <br>
-                <h1>View Past Orders</h1>
-                <br>
-                <div id="past-orders" style="display: flex; justify-content: center;">
-                    <button class="btn btn-danger btn-cancel" onclick="redirectToPastOrdersPage()">Past Orders</button>
-                </div>
-                <br>
                 <div id="privacy-policy" style="display: none;">
                     <!-- User Profile content will be displayed here -->
                 </div>
@@ -148,8 +115,7 @@
 
         let fileName = "";
         let orderID = "";
-        let associateID = "";
- 
+
         async function getData(serverURL, token) {
             try {
                 const response = await fetch(serverURL, {
@@ -167,7 +133,7 @@
             }
         }
 
-        async function loadCurrentOrder() {
+        async function loadPreviousOrders() {
             event.preventDefault();
             console.log(token)
             if (!token) {
@@ -176,25 +142,25 @@
                 return;
             }
 
-            const associateURL = `http://localhost:3000/get-delivery-assignment/{{associateID}}`;
+            const associateURL = `http://localhost:3000/get-previous-delivery-assignments/{{associateID}}`;
             console.log("Hello", associateURL)
 
-            const currentOrder = await getData(associateURL, token);
-            console.log("Current order_names is", currentOrder);
-            if (currentOrder.error) {
-                // Handle error fetching user profile or invalid token
-                console.error('Error fetching user profile:', userProfile.error);
-                document.getElementById('access-denied').style.display = 'block';
-                return;
-            }
-            if(currentOrder.order){
-                orderID = currentOrder.order.order_id;
-                const trackingBtn = document.getElementById('begin-tracking');
-                trackingBtn.style.display = 'flex';
-                trackingBtn.style.justifyContent = 'center';
+            let previousOrders = await getData(associateURL, token);
+            let orderDetailsDiv = document.getElementById('user-profile');
+            orderDetailsDiv.style.display = 'block';
+            for(let i=0; i<previousOrders.length; i++){
+                orderID = previousOrders[i].order.order_id;
+                if (previousOrders[i].error) {
+                    // Handle error fetching user profile or invalid token
+                    console.error('Error fetching user profile:', userProfile.error);
+                    document.getElementById('access-denied').style.display = 'block';
+                    return;
+                }
+
                 // Display user profile data
-                const orderDetailsDiv = document.getElementById('user-profile');
-                orderDetailsDiv.style.display = 'block';
+                let orderDetailsInnerDiv = document.createElement('order-details-inner-div')
+                orderDetailsInnerDiv.style.display = 'block';
+                
                 order_status_map = {
                     '0': 'Order Placed',
                     '1': 'Preparing Order',
@@ -204,37 +170,47 @@
                     '5': 'Delivered',
                     '6': 'Delivery Failed',
                 }
-                orderDetailsDiv.innerHTML = `
-                    <h3>Current Order Details</h3>
-                    <p><strong>Name:</strong> ${currentOrder.user.name}</p>
-                    <p><strong>Address:</strong> ${currentOrder.order.delivery_address}</p>
-                    <p><strong>Special Instructions:</strong> ${currentOrder.order.special_instructions}</p>
-                    <p><strong>Status:</strong> ${order_status_map[currentOrder.order.status]}</p>
+                orderDetailsInnerDiv.innerHTML = `
+                    <h3>Previous Order Details</h3>
+                    <p><strong>Name:</strong> ${previousOrders[i].user.name}</p>
+                    <p><strong>Address:</strong> ${previousOrders[i].order.delivery_address}</p>
+                    <p><strong>Special Instructions:</strong> ${previousOrders[i].order.special_instructions}</p>
+                    <p><strong>Status:</strong> ${order_status_map[previousOrders[i].order.status]}</p>
                 `;
+
                 let container = document.getElementById('order-container');
 
                 let row = document.createElement('list');
                 row.className = 'row-cols-1 row-cols-md-3 g-4';
-                const orderItems = currentOrder.order_item_names
+                let orderItems = previousOrders[i].order_item_names
 
-                orderItems.forEach(orderItem => {
-                    let card = document.createElement('item');
-                    card.className = 'row-md-4 mb-4';
-                    card.innerHTML = `
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">${orderItem.item_name}</h5>
-                                <p class="card-text">$${orderItem.price}</p>
-                                <p class="card-text">${orderItem.quantity}</p>
+                if(orderItems){
+                    orderItems.forEach(orderItem => {
+                        let card = document.createElement('item');
+                        card.className = 'row-md-4 mb-4';
+                        card.innerHTML = `
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">${orderItem.item_name}</h5>
+                                    <p class="card-text">$${orderItem.price}</p>
+                                    <p class="card-text">${orderItem.quantity}</p>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
 
-                    row.appendChild(card);
-                });
-
-                orderDetailsDiv.appendChild(row);
+                        row.appendChild(card);
+                    });
+                }
+                
+                orderDetailsInnerDiv.appendChild(row);
+                orderDetailsInnerDiv.style.backgroundColor = '#fff';
+                orderDetailsInnerDiv.style.borderRadius = '10px';
+                orderDetailsInnerDiv.style.padding = '20px';
+                orderDetailsInnerDiv.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+                orderDetailsInnerDiv.style.marginBottom = '20px';
+                orderDetailsDiv.appendChild(orderDetailsInnerDiv);
             }
+
         }
 
         function handleFileSelect(event) {
@@ -347,12 +323,7 @@
             window.location.href = "http://localhost:3000/app/orders/"+orderID+"/associate-tracking"; // Replace with your actual URL
         }
 
-        function redirectToPastOrdersPage() {
-            // Perform the redirection here
-            window.location.href = "http://localhost:3000/app/delivery-associate-past-orders/{{associateID}}"; // Replace with your actual URL
-        }
-
-        window.onload = loadCurrentOrder;
+        window.onload = loadPreviousOrders;
     </script>
 
     <div class="container">
