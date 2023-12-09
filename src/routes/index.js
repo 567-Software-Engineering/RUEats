@@ -219,6 +219,10 @@ const routes = {
       GET: controller.getDeliveryAssignment,
     },
     
+    "/get-previous-delivery-assignments/:associateID": {
+      GET: controller.getPreviousDeliveryAssignments,
+    },
+
     "/update-delivery-status/:associateID": {
       PATCH : (req, res) => {
         validatePostRequests(req, res, controller.updateDeliveryStatus);
