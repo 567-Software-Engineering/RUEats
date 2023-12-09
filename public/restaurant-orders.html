@@ -76,14 +76,22 @@
         <a class="navbar-brand" href="#">
             RUEats
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="loadRestaurantOrders()">Orders</a>
+                    <a class="nav-link" href="#" onclick="redirectRestaurant()">Restaurant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectMenu()">Menu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectOrders()">Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
                 </li>
             </ul>
         </div>
@@ -122,10 +130,23 @@
             <p>Error Fetching Order History</p>
         </div>
     </div>
-
-
-
+    
+    
+    
     <script>
+        var token = '';
+        var restaurant_id = '';
+        let userName = '';
+        let userEmail = '';
+        const serverPath = 'http://localhost:3000';
+
+        function loadToken() {
+            token = localStorage.getItem('jwtToken') || '';
+            userEmail = localStorage.getItem('email') || '';
+            userName = localStorage.getItem('name') || '';
+            restaurant_id = localStorage.getItem('restaurant_id') || '';
+            console.log('Token loaded:', token);
+        }
         async function getRestaurantOrders(serverURL, token, restaurantId) {
             try {
                 const response = await fetch(`${serverURL}/${restaurantId}/orders`, {
@@ -143,8 +164,7 @@
             }
         }
 
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdHdhIiwicmVzdGF1cmFudF9pZCI6ODQsImlhdCI6MTcwMjEwMzE3NCwiZXhwIjoxNzAyMTA2Nzc0fQ.fd6DU4qwnw9M-Cv02RPSJcjLn35ger-VXcE_9uf_MpY"; // Replace with the actual token
-        const serverPath = 'http://localhost:3000';
+        // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdHdhIiwicmVzdGF1cmFudF9pZCI6ODQsImlhdCI6MTcwMjEwMzE3NCwiZXhwIjoxNzAyMTA2Nzc0fQ.fd6DU4qwnw9M-Cv02RPSJcjLn35ger-VXcE_9uf_MpY"; // Replace with the actual token
         async function loadRestaurantOrders() {
             
             event.preventDefault();
@@ -507,14 +527,31 @@
             }
         }
 
-        function getTokenFromLocalStorage() {
-            // Implement logic to get the token from local storage or cookies
-            // For example:
-            // return localStorage.getItem('token');
-            // or retrieve token from cookies
+        function handleLogout() {
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('email');
+            localStorage.removeItem('name');
+            localStorage.removeItem('user_id');
+            event.preventDefault();
+            window.location.href = '/home';
         }
 
-        window.onload = loadRestaurantOrders;
+        function redirectRestaurant() {
+            window.location.href = `http://localhost:3000/app/restaurants/${restaurant_id}`;
+        }
+
+        function redirectMenu() {
+            window.location.href = `http://localhost:3000/app/restaurant-owner-menu/${restaurant_id}`;
+        }
+
+        function redirectOrders() {
+            window.location.href = `http://localhost:3000/app/restaurants-orders/${restaurant_id}`;
+        }
+
+        window.onload = function() {
+            loadToken();// Load token first// Then load user profile
+            loadRestaurantOrders(); 
+        };
         window.onpopstate = function(event) {
             if (event.state && event.state.view === 'order') {
                 // Logic to display the specific order
@@ -524,6 +561,8 @@
                 loadRestaurantOrders();
             }
         };
+
+
 
     </script>
 
