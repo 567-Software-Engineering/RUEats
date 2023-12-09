@@ -1866,6 +1866,7 @@ async deleteReview(req, res) {
     } catch (error) {
         response(res, { status: 400, data: error.message });
     }
+  }
 
 async getPreviousDeliveryAssignments(req, res) {
   try {
