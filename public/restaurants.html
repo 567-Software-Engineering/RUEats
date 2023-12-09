@@ -246,15 +246,13 @@
         `;
         }
     }
-    function viewOrderHistory() {
-        const userID = '{{userID}}';
-        window.location.href = `/app/users/${userID}/orders`;
-    }
 
     function handleLogout() {
         localStorage.clear();
     }
-
+    function viewOrderHistory() {
+        window.location.href = `/app/users/${userID}/orders`;
+    }
 
 
     async function getData(serverURL, body) {
