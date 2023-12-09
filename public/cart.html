@@ -11,7 +11,15 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <style>
+    <!-- <style>
+
+        .navbar {
+            background-color: #FF3008;
+        }
+        .navbar-brand {
+            color: #fff;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -112,10 +120,196 @@
     color: #dc3545;
 }
 
+    </style> -->
+
+
+    <style>
+        .navbar {
+            background-color: #FF3008;
+        }
+        .navbar-brand {
+            color: #fff;
+        }
+
+        .card {
+            border: none;
+            margin: 20px;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
+        }
+
+
+        .card-img-top {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .btn-primary {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-outline-success {
+            color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+        .input-group {
+            padding: 10px 0;
+        }
+        .card-body {
+            padding: 1rem; /* Adjust this value as needed */
+        }
+        .input-group-btn {
+            padding: 0 10px; /* Adjust this value as needed */
+        }
+
+
+    </style>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            height: 100vh; /* Ensure full viewport height */
+        }
+        /* Additional styling for the dropdown menu */
+        /* Additional styling for the dropdown menu */
+        .dropdown-menu {
+            background-color: #fff;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+            color: #333;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #dc3545;
+        }
+
+
+
+        header {
+            background-color: #dc3545; /* Scarlet color theme */
+            color: white;
+            padding: 20px;
+        }
+
+        .carousel {
+            position: relative;
+            height: 100vh; /* Adjust based on your requirement */
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .navbar {
+            background-color: #dc3545;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff;
+        }
+
+        .nav-link {
+            /* Adjusting the link style to button */
+            padding: 5px 20px;
+            border: 2px solid #f8bdc5;
+            border-radius: 15px;
+            color: #d0c3c4;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .nav-link:hover {
+            background-color: #eea5aa;
+            color: #fff;
+            text-decoration: none; /* Remove underline on hover */
+        }
+
+        /* Centered button */
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            padding: 10px 40px; /* Adjust button padding */
+            font-size: 24px; /* Adjust button font size */
+            border-radius: 20px; /* Rounded edges */
+            background-color: #dc3545; /* Scarlet color */
+            color: white; /* Text color */
+            border: none; /* No border */
+            cursor: pointer;
+            transition: all 0.3s ease; /* Smooth transition */
+        }
+
+        .carousel-button:hover {
+            background-color: #c82333; /* Darker shade on hover */
+        }
+        .navbar-brand img {
+            max-width: 50px; /* Maximum width of the logo */
+            height: auto; /* Maintain aspect ratio */
+            /* You can add more styling if required */
+        }
+
+        .over-carousel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            font-size: 40px;
+            color: #fff; /* Change text color to white for better contrast */
+            font-weight: bold; /* Make the text more prominent */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a subtle shadow effect */
+            background-color: rgba(235, 227, 227, 0.7); /* Semi-transparent background */
+            padding: 5px 20px; /* Increase padding for better readability */
+            border-radius: 10px; /* Add rounded corners */
+            transition: color 0.3s ease;
+        }
+        .over-carousel:hover {
+            color: #dc3545; /* Change text color on hover to a scarlet-related color */
+        }
+
     </style>
 </head>
 <body>
+
     <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="/home">
+            <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo">
+            RUEats
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+    
+            </ul>
+        </div>
+    </nav>
+
+    <!-- <nav class="navbar navbar-expand-lg navbar-light">
         <a class="navbar-brand" href="#">
             <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo">
             RUEats
@@ -123,7 +317,7 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-    </nav>
+    </nav> -->
     
     <div class="container">
         <div id="cart-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
@@ -133,6 +327,49 @@
 <script>
     const token = localStorage.getItem('jwtToken') || '';
     const userID = localStorage.getItem('user_id') || '';
+
+    // var token =  '';
+    // var userID = '';
+
+    window.onload = function() {
+         token = localStorage.getItem('jwtToken') || '';
+        userID = localStorage.getItem('user_id') || '';
+         navBar = document.querySelector('.navbar-nav');
+
+        if (token !== '') {
+            // User is logged in
+            navBar.innerHTML = `
+            <li class="nav-item">
+                <a class="nav-link" href="/app/cart/${userID}">Cart</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/app/users/${userID}" >Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/app/users/${userID}/orders" >Order History</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/home" onclick="handleLogout()">Logout</a>
+            </li>
+        `;
+        } else {
+            // User is not logged in
+            navBar.innerHTML = `
+            <li class="nav-item">
+                <a class="nav-link" href="/app/register">Sign Up</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/app/login">Login</a>
+            </li>
+        `;
+        }
+    }
+
+    function handleLogout() {
+        localStorage.clear();
+    }
+
+
 
     async function getData(serverURL, token) {
         try {
@@ -173,6 +410,25 @@
             alert("Error fetching cart");
             return;
         }
+
+        if (cart.length === 0) {
+            // Handle empty cart
+            console.log('Cart is empty');
+            // alert("Cart is empty, returning to menu...");
+            // window.location.back();
+
+            let container = document.getElementById('cart-container');
+            let emptyCartDiv = document.createElement('div');
+            emptyCartDiv.className = 'row';
+            emptyCartDiv.innerHTML = `
+            <h3>Cart is empty right now. The sooner you add items, the sooner there's food on your plate!</h3>
+            <center><a href="http://localhost:3000/app/restaurants" class="btn btn-primary">Return to Menu</a></center>
+            `
+            container.appendChild(emptyCartDiv);
+
+        }
+
+        else {
         let subTotalValue = 0;
 
         let container = document.getElementById('cart-container');
@@ -220,6 +476,7 @@
 
         container.appendChild(cartItemDiv);
         container.appendChild(subTotalDiv);
+    }
         
     }
 

@@ -222,6 +222,9 @@
                 <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Order History</a>
             </li>
             <li class="nav-item">
+                <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Order History</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#" onclick="loadUserProfile()">Account</a>
             </li>
         </ul>
@@ -470,8 +473,8 @@
 
 
     function viewOrderHistory() {
-        const userID = '{{userID}}'; // Replace with actual userID or retrieve from a secure source
-        window.location.href = `/app/users/${userID}/orders`; // Redirect to the order history page
+        const userID = '{{userID}}';
+        window.location.href = `/app/users/${userID}/orders`;
     }
 
     function loadToken() {

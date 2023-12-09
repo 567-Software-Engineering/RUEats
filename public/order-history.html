@@ -7,55 +7,89 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <!-- Bootstrap JavaScript dependencies -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <style>
-        body {
+       body {
             background-color: #f8f9fa;
             color: #343a40;
+            font-family: 'Arial', sans-serif;
         }
 
-        .navbar {
-            background-color: #dc3545;
-        }
-
-        .navbar-brand {
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .navbar-toggler-icon {
-            background-color: #fff;
-        }
-
-        .nav-link {
-            color: #fff;
-        }
-
+        
         .container {
             margin-top: 50px;
         }
 
+        /* Navbar Styling */
+        .navbar {
+            background-color: #dc3545; /* Background color for the navbar */
+        }
+
+        .navbar-brand {
+            color: #fff; /* Color for the brand text */
+            font-weight: bold; /* Bold font weight */
+            font-size: 1.5rem; /* Font size for the brand */
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff; /* Background color for the toggler icon */
+        }
+
+        .nav-link {
+            padding: 5px 20px; /* Padding for the links */
+            border: 2px solid #f8bdc5; /* Border style for the links */
+            border-radius: 15px; /* Border radius for the links */
+            color: #d0c3c4; /* Text color for the links */
+            font-weight: bold; /* Bold font weight */
+            text-align: center; /* Center align the text */
+            transition: all 0.3s ease; /* Transition effect on hover */
+            margin-right: 10px; /* Margin between links */
+        }
+
+        .nav-link:hover {
+            background-color: #eea5aa; /* Background color on hover */
+            color: #fff; /* Text color on hover */
+            text-decoration: none; /* Remove underline on hover */
+        }
+
+        .navbar-brand img {
+            max-width: 50px; /* Maximum width of the logo */
+            height: auto; /* Maintain aspect ratio */
+            /* Additional styling for the brand image if required */
+        }
+
+
         #user-profile {
             background-color: #fff;
             border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        #update-password {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
 
         #privacy-policy {
             background-color: #fff;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
         }
 
         #access-denied {
             background-color: #fff;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
         }
 
         h3 {
@@ -66,28 +100,116 @@
         strong {
             color: #dc3545;
         }
+
+        .access-btns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .access-btns button {
+            width: 48%;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: calc(100% - 12px);
+            padding: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #dc3545;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #c82333;
+        }
+            input[type="text"],
+            input[type="password"] {
+        width: calc(100% - 12px);
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background-color: #f8f9fa; /* Light grey background color */
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #495057;
+            background-color: #fff; /* Change background color on focus */
+        }
+        .password-input {
+        display: flex;
+        align-items: center;
+            }
+
+        .password-input input[type="password"] {
+            /* width: calc(100% - 32px); Adjust width to accommodate the eye icon */
+            padding-right: 28px; /* Add padding on the right to prevent text overlapping with the icon */
+            border-radius: 4px 0 0 4px; /* Rounded corners only on the left side of the input */
+        }
+
+        .password-input i {
+            margin-left: -28px; /* Adjust the icon position to overlay the input field */
+            cursor: pointer;
+            z-index: 1; /* Ensure the icon stays above the input field */
+            color: #ced4da; /* Change icon color */
+            transition: color 0.3s ease; /* Smooth color transition */
+        }
+
+        .password-input i:hover {
+            color: #495057; /* Change icon color on hover */
+        }
+        .star {
+            color: gray;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .star.selected {
+            color: gold;
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light">
-    <a class="navbar-brand" href="#">
-        RUEats
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Order History</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="loadUserProfile()">Account</a>
-            </li>
-        </ul>
-    </div>
-</nav>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="/home">
+            <img src="https://drive.google.com/uc?export=view&id=1WWs9TsUxoWpkyxB81GFIP5ZaGUnM1Lfr" alt="Logo">
+            RUEats
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a id="view-order-history" class="nav-link" onclick="viewOrderHistory()">View Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="redirectToRestaurants()">Restaurants</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="" onclick="handleLogout()">Log out</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
 <div class="container mt-4">
     <div class="row">
@@ -108,10 +230,11 @@
 </div>
 
 <script>
+    let token = localStorage.getItem('jwtToken') || '';
+    let reviewID = '';
     async function loadOrderHistory() {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2VzaGF2IiwidXNlcl9pZCI6ODEsImlhdCI6MTcwMTg4MjU5NCwiZXhwIjoxNzAxODg2MTk0fQ.HImWO3I4sreDybWn2ld5S35YXfLBVeY1oEOdmvHB8Sg"; // Ideally, this should come from a secure source like localStorage
-        const userID = '{{userID}}'; // Replace with actual userID or retrieve from a secure source
-        const orderHistoryURL = `http://localhost:3000/users/{{userID}}/orders`;
+        const userID = '{{userID}}';
+        const orderHistoryURL = `http://localhost:3000/users/${userID}/orders`;
         const userDetailsURL = `http://localhost:3000/users/${userID}`;
 
         async function getData(serverURL, token) {
@@ -138,7 +261,7 @@
             }
             const orderHistory = await getData(orderHistoryURL, token);
             if (orderHistory.length) {
-                displayOrderHistory(orderHistory);
+                displayOrderHistory(orderHistory, userID);
             } else {
                 document.getElementById('no-orders').style.display = 'block';
             }
@@ -148,37 +271,495 @@
         }
     }
 
-    function displayOrderHistory(orders) {
+    async function displayOrderHistory(orders, userID) {
         const orderHistoryDiv = document.getElementById('order-history');
-        orderHistoryDiv.style.display = 'block';
-        orderHistoryDiv.innerHTML = '<h4>Your Orders</h4>';
+        let orderHistoryHTML = '<h4>Your Orders</h4>';
 
-        orders.forEach(order => {
-            orderHistoryDiv.innerHTML += `
+        for (const order of orders) {
+            const review = await checkIfReviewExists(userID, order.restaurant_id);
+            // use this for testing temporarily
+            // const reviewButtonHTML = review
+            //     ? `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id})">View Written Review</button>`
+            //     : `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
+            let reviewButtonHTML;
+            if (review) {
+                reviewButtonHTML = `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id})">View Written Review</button>`;
+            } else if (order.status < 5) {
+                reviewButtonHTML = `<button disabled style="color: grey; cursor: not-allowed;">Add Review</button>`;
+            } else {
+                reviewButtonHTML = `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
+            }
+
+            let orderStatusText = getCondensedOrderStatus(order.status);
+
+            orderHistoryHTML += `
                 <div class="order">
-                    <p>Order ID: ${order.order_id}</p>
-                    <p>Order Date: ${order.order_date}</p>
-                    <p>Total Amount: ${order.total_amount}</p>
-                    <button onclick="addReview(${order.order_id})">Add Review</button>
-                    &nbsp;
-                    <button onclick="orderDetails(${order.order_id})">View Details</button>
+                    <p>Restaurant: ${order.restaurant_name}</p>
+                    <p>Order Date: ${new Date(order.order_date).toLocaleDateString()}</p>
+                    <p>Total Amount: $${order.total_amount.toFixed(2)}</p>
+                    ${reviewButtonHTML}
+                    <button onclick="orderDetails(${order.order_id}, ${order.restaurant_id}, this)">View Details</button>
+                    <span class="badge badge-info">${orderStatusText}</span>
+                    <div id="order-details-${order.order_id}" class="order-details" style="display: none;"></div>
                 </div>
                 <hr>`;
+        }
+
+        orderHistoryDiv.innerHTML = orderHistoryHTML;
+        orderHistoryDiv.style.display = 'block';
+    }
+
+    async function checkIfReviewExists(userID, restaurantID) {
+        try {
+            const response = await fetch(`http://localhost:3000/users/${userID}/review?restaurantID=${restaurantID}`, {
+                headers: {
+                    'Authorization': token
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const reviewData = await response.json();
+            return reviewData;
+        } catch (error) {
+            console.error('Error:', error);
+            return false;
+        }
+    }
+
+    function viewReview(userID, orderID, restaurantID, review_id) {
+        fetch(`http://localhost:3000/users/${userID}/review?restaurantID=${restaurantID}`, {
+            headers: {
+                'Authorization': token
+            }
+        })
+        .then(response => response.json())
+        .then(review => {
+            document.getElementById('view-review-title').textContent = review.review_title;
+            document.getElementById('view-review-description').textContent = review.description;
+            document.getElementById('view-review-stars').innerHTML = getStarsHTML(parseInt(review.stars));
+            reviewID = review_id;
+            const mediaLink = document.getElementById('view-review-media');
+            if (review.media) {
+                mediaLink.href = review.media;
+                mediaLink.textContent = 'View Media';
+            } else {
+                mediaLink.href = '';
+                mediaLink.textContent = 'No Media';
+            }
+            // Show view section, hide edit form
+            document.getElementById('view-review-section').style.display = 'block';
+            document.getElementById('edit-review-form').style.display = 'none';
+            $('#viewEditReviewModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle error
         });
     }
 
-    function addReview(orderID) {
-        // Logic to handle review addition
-        // This might involve redirecting to another page or opening a modal form
+    function getCondensedOrderStatus(statusCode) {
+        switch (statusCode) {
+            case 0: return 'Order Confirmed';
+            case 1: return 'Being Prepared';
+            case 2: return 'Declined';
+            case 3: return 'Ready for Pickup';
+            case 4: return 'In Delivery';
+            case 5: return 'Delivered and complete';
+            case 6: return 'Delivery Failed';
+            default: return 'Unknown';
+        }
     }
 
-    function viewDetails(orderID) {
-        // Logic to handle review addition
-        // This might involve redirecting to another page or opening a modal form
+
+    function addReview(restaurantID) {
+        document.getElementById('review-restaurant-id').value = restaurantID;
+        $('#reviewModal').modal('show');
     }
 
-    window.onload = loadOrderHistory;
+    async function orderDetails(orderID, restaurantID, buttonElement) {
+        const detailsDiv = document.getElementById(`order-details-${orderID}`);
+        if (detailsDiv.style.display === 'none') {
+            try {
+                const response = await fetch(`http://localhost:3000/get-active-orders/${restaurantID}/orders/${orderID}`, {
+                    headers: {
+                        'Authorization': token
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const orderItems = await response.json();
+
+                let detailsHTML = '<h5>Order Items:</h5>';
+                orderItems.forEach(item => {
+                    detailsHTML += `
+                        <p>${item.item_name} (x${item.quantity}) - $${(item.price * item.quantity).toFixed(2)}</p>`;
+                });
+
+                detailsDiv.innerHTML = detailsHTML;
+                detailsDiv.style.display = 'block';
+                buttonElement.textContent = 'Hide Details';
+            } catch (error) {
+                console.error('Error:', error);
+                detailsDiv.innerHTML = '<p class="text-danger">Error retrieving order details, try again later.</p>';
+                detailsDiv.style.display = 'block';
+                buttonElement.textContent = 'Hide Details';
+            }
+        } else {
+            detailsDiv.style.display = 'none';
+            buttonElement.textContent = 'View Details';
+        }
+    }
+
+    async function submitReview(event) {
+        event.preventDefault();
+        const title = document.getElementById('review-title').value.trim();
+        const stars = document.getElementById('review-stars').value.trim();
+        const mediaURL = document.getElementById('review-media-url').value.trim();
+
+        if (!title || !stars) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        const reviewData = {
+            restaurant_id: document.getElementById('review-restaurant-id').value,
+            review_title: title,
+            description: document.getElementById('review-description').value,
+            stars: stars,
+            media: mediaURL // Use the media URL
+        };
+
+        const reviewURL = `http://localhost:3000/restaurants/${reviewData.restaurant_id}/reviews`;
+        try {
+            const response = await fetch(reviewURL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reviewData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.error) {
+                console.error('Error:', result.error);
+            } else {
+                alert('Review submitted successfully!');
+                document.getElementById('review-form').reset();
+                $('#reviewModal').modal('hide');
+                resetStarRating();
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to submit review.');
+        }
+    }
+
+    function initializeStarRating() {
+        // For 'Add Review' Modal
+        document.querySelectorAll('#star-rating .star').forEach((star, index) => {
+            star.onclick = () => {
+                updateStarDisplay(index + 1, '#star-rating');
+                document.getElementById('review-stars').value = index + 1;
+            };
+        });
+
+        // For 'Edit Review' Modal
+        document.querySelectorAll('#edit-star-rating .star').forEach((star, index) => {
+            star.onclick = () => {
+                updateStarDisplay(index + 1, '#edit-star-rating');
+                document.getElementById('edit-review-stars').value = index + 1;
+            };
+        });
+    }
+
+    function getStarsHTML(stars) {
+        let starsHTML = '';
+        for (let i = 0; i < stars; i++) {
+            starsHTML += '&#9733;'; // Star character
+        }
+        return starsHTML;
+    }
+
+    function updateStarDisplay(rating, starContainerId) {
+        console.log(`Updating stars in container: ${starContainerId}, Rating: ${rating}`);
+        const starElements = document.querySelectorAll(`${starContainerId} .star`);
+        starElements.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('selected');
+            } else {
+                star.classList.remove('selected');
+            }
+        });
+    }
+
+    function resetStarRating() {
+        document.querySelectorAll('.star').forEach(star => {
+            star.classList.remove('selected');
+        });
+        document.getElementById('review-stars').value = '';
+    }
+
+    function toggleEditReview() {
+        const viewSection = document.getElementById('view-review-section');
+        const editForm = document.getElementById('edit-review-form');
+        const editButton = document.getElementById('edit-button');
+        const saveEditButton = document.getElementById('save-edit-button');
+
+        if (viewSection.style.display === 'none') {
+            viewSection.style.display = 'block';
+            editForm.style.display = 'none';
+            editButton.style.display = 'block';
+            saveEditButton.style.display = 'none';
+        } else {
+            document.getElementById('edit-review-title').value = document.getElementById('view-review-title').textContent;
+            document.getElementById('edit-review-description').value = document.getElementById('view-review-description').textContent;
+            setEditStarRating(document.getElementById('view-review-stars').textContent.length); // Function to set stars
+            document.getElementById('edit-review-media-url').value = document.getElementById('view-review-media').href;
+
+            // Switch to edit mode
+            viewSection.style.display = 'none';
+            editForm.style.display = 'block';
+            editButton.style.display = 'none';
+            saveEditButton.style.display = 'block';
+        }
+    }
+
+    async function submitEditedReview() {
+        event.preventDefault();
+        if (!reviewID) {
+            alert('No review selected for editing.');
+            return;
+        }
+
+        const title = document.getElementById('edit-review-title').value.trim();
+        const description = document.getElementById('edit-review-description').value.trim();
+        const stars = document.getElementById('edit-review-stars').value.trim();
+        const mediaURL = document.getElementById('edit-review-media-url').value.trim();
+
+        if (!title || !stars) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        const reviewData = {
+            review_title: title,
+            description: description,
+            stars: stars,
+            media: mediaURL
+        };
+        
+        const reviewURL = `http://localhost:3000/edit-review/${reviewID}`;
+        try {
+            const response = await fetch(reviewURL, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reviewData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.error) {
+                console.error('Error:', result.error);
+            } else {
+                alert('Review updated successfully!');
+                $('#viewEditReviewModal').modal('hide');
+                resetStarRating();
+                reviewID = ''; 
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to update review.');
+        }
+    }
+
+
+    function setEditStarRating(rating) {
+        const starElements = document.querySelectorAll('#edit-star-rating .star');
+        starElements.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('selected');
+            } else {
+                star.classList.remove('selected');
+            }
+            star.addEventListener('click', () => {
+                updateStarDisplay(index + 1);
+                document.getElementById('edit-review-stars').value = index + 1;
+            });
+        });
+    }
+
+    function deleteReview(restaurantID, userID) {
+        if (confirm('Are you sure you want to delete this review?')) {
+            fetch(`http://localhost:3000/delete-review/${reviewID}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(() => {
+                alert('Review deleted successfully');
+                $('#viewEditReviewModal').modal('hide');
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete review.');
+            });
+        }
+    }
+
+    function loadToken() {
+        jwtToken = localStorage.getItem('jwtToken') || '';
+        console.log('Token loaded:', jwtToken);
+    }
+    function redirectToRestaurants() {
+        event.preventDefault()
+        window.location.href = `/app/restaurants`;
+    }
+
+    function viewOrderHistory() {
+        const userID = '{{userID}}';
+        window.location.href = `/app/users/${userID}/orders`;
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('email');
+        localStorage.removeItem('name');
+        localStorage.removeItem('user_id');
+        event.preventDefault();
+        window.location.href = '/home';
+    }
+
+    window.onload = () => {
+        loadToken();
+        loadOrderHistory();
+        initializeStarRating();
+    };
+
 </script>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Add a Review</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="review-form">
+                    <input type="hidden" id="review-restaurant-id" name="restaurant_id">
+                    <div class="form-group">
+                        <label for="review-title">Title:<span style="color: red;">*</span></label>
+                        <input type="text" class="form-control" id="review-title" name="review_title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-description">Description:</label>
+                        <textarea class="form-control" id="review-description" name="description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Rating:<span style="color: red;">*</span></label>
+                        <div id="star-rating">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <input type="hidden" id="review-stars" name="stars">
+                    </div>
+                    <div class="form-group">
+                        <label for="review-media-url">Media URL:</label>
+                        <input type="text" class="form-control" id="review-media-url" name="media_url" placeholder="Enter media URL">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="resetStarRating();">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitReview(event)">Submit Review</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="viewEditReviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Review Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- View Review Section -->
+                <div id="view-review-section">
+                    <h6>Title: <span id="view-review-title"></span></h6>
+                    <p>Description: <span id="view-review-description"></span></p>
+                    <p>Rating: <span id="view-review-stars"></span></p>
+                    <p>Media: <a id="view-review-media" href="" target="_blank"></a></p>
+                </div>
+
+                <form id="edit-review-form" style="display: none;">
+                    <input type="hidden" id="edit-review-restaurant-id" name="restaurant_id">
+                    <div class="form-group">
+                        <label for="edit-review-title">Title:</label>
+                        <input type="text" class="form-control" id="edit-review-title" name="review_title">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-review-description">Description:</label>
+                        <textarea class="form-control" id="edit-review-description" name="description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Rating:</label>
+                        <div id="edit-star-rating" class="star-rating">
+                            <span class="star" data-value="1">&#9733;</span>
+                            <span class="star" data-value="2">&#9733;</span>
+                            <span class="star" data-value="3">&#9733;</span>
+                            <span class="star" data-value="4">&#9733;</span>
+                            <span class="star" data-value="5">&#9733;</span>
+                        </div>
+                        <input type="hidden" id="edit-review-stars" name="stars">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-review-media-url">Media URL:</label>
+                        <input type="text" class="form-control" id="edit-review-media-url" name="media_url">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info" id="edit-button" onclick="toggleEditReview()">Edit</button>
+                <button type="button" class="btn btn-danger" onclick="deleteReview()">Delete</button>
+                <button type="button" class="btn btn-primary" style="display: none;" id="save-edit-button" onclick="submitEditedReview()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

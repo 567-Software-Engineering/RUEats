@@ -211,13 +211,13 @@
             // User is logged in
             navBar.innerHTML = `
             <li class="nav-item">
-                <a class="nav-link" href="" onclick="">Cart</a>
+                <a class="nav-link" href="/app/cart/${userID}">Cart</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/app/users/${userID}/orders" >View Orders</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/app/users/${userID}" >Profile</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/app/users/${userID}/orders" >Order History</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/home" onclick="handleLogout()">Logout</a>
