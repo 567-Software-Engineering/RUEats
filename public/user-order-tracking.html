@@ -251,9 +251,59 @@ body {
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA10Tvyj3vQYU9_deaVStxntMz_YXRPRwo"></script>
 <script>
 
+    jwtToken = localStorage.getItem('jwtToken') || '';
+    userEmail = localStorage.getItem('email') || '';
+    userName = localStorage.getItem('name') || '';
+    user_id = localStorage.getItem('user_id') || '';
+        
+    count = 0
+    let previousValue = null;
+    let previousValue2
+    async function fetchData(associate_id) {
+    // Simulate an asynchronous API call
+    return new Promise(resolve => {
+        setTimeout(() => {
+            let associate_coordinates = getData('http://localhost:3000/get-associate-coordinates/' + associate_id, {}, jwtToken);
+            console.log("promise",associate_coordinates)
+            resolve(associate_coordinates);
+        }, 5); // Simulated delay of 1 second
+    });
+}
+
+async function myFunction(associate_id, orderID) {
+    try {
+        // Make an asynchronous API call
+        console.log(associate_id)
+        let newValue = await fetchData(associate_id);
+        console.log(newValue)
+        newValue = JSON.parse(newValue.response);
+        console.log('myfun',newValue);
+        newValue = newValue[0]['latitude'];
+        newValue2 = newValue[0]['longitude'];
+        console.log(newValue);
+        console.log(previousValue);
+        // Check if the new value is the same as the previously returned value
+        if (newValue === previousValue && newValue2 === previousValue2) {
+            window.location.href = `/app/user/delivery-failed/${orderID}`;
+        } else {
+            console.log('New value:', newValue);
+        }
+
+        // Update the previous value
+        previousValue = newValue;
+        previousValue2 = newValue2;
+
+        // Set a timeout to call the function again after a certain interval (e.g., 25 seconds)
+        setTimeout(() => myFunction(associate_id, orderID), 25000);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle errors if needed
+    }
+}
+
     async function postData(serverURL, body, jwtToken) {
         return new Promise((resolve, reject) => {
-            const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');            
+            const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
             if (!urlFormat.test(serverURL))
             reject(`Invalid URL: ${serverURL}`);
 
@@ -292,10 +342,6 @@ body {
     }
 
     (async () => {
-        jwtToken = localStorage.getItem('jwtToken') || '';
-        userEmail = localStorage.getItem('email') || '';
-        userName = localStorage.getItem('name') || '';
-        user_id = localStorage.getItem('user_id') || '';
         let result = await getData('http://localhost:3000/orders/{{orderID}}/tracking', {}, jwtToken);
         parsed_result = JSON.parse(result['response'])
         restaurant_address = parsed_result['restaurant_address']
@@ -304,6 +350,8 @@ body {
         associate_name.innerHTML = delivery_associate['name'];
         var associate_contact = document.getElementById('associate-contact');
         associate_contact.innerHTML = delivery_associate['contact'];
+        let associate_id = delivery_associate['associate_id']
+        let orderID = parsed_result['orderID']
 
         console.log(delivery_associate)
         let request_body1 = {
@@ -311,6 +359,10 @@ body {
         }
         let associate_lat = parseFloat(delivery_associate['latitude'])
         let associate_lng = parseFloat(delivery_associate['longitude'])
+        
+        coordinates = {latitude: associate_lat, longitude: associate_lng}
+        myFunction(associate_id, orderID)
+
         delivery_address = parsed_result['delivery_address']
         let request_body2 = {
             'address': delivery_address

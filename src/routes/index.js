@@ -303,6 +303,14 @@ const routes = {
       GET : controller.getOrderTracking
     },
 
+    "/get-associate-coordinates/:deliveryassociateID" :{
+      GET : controller.getAssociateCoordinates
+    },
+
+    "/orders/:orderID/failed" :{
+      POST : controller.failOrder
+    },
+    
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });
 

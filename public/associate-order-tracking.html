@@ -36,11 +36,6 @@ body {
     width: 100%;
 }
 
-#eta-info,
-#user-name,
-#user-contact {
-}
-
 /* You can keep the existing styles for other elements, such as buttons and modals */
 
 
@@ -256,6 +251,24 @@ body {
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA10Tvyj3vQYU9_deaVStxntMz_YXRPRwo"></script>
 <script>
     
+    jwtToken = localStorage.getItem('jwtToken') || '';
+    userEmail = localStorage.getItem('email') || '';
+    userName = localStorage.getItem('name') || '';
+    user_id = localStorage.getItem('user_id') || '';
+ 
+
+ 
+
+
+    async function checkStatus(associate_id)
+    {
+    
+        
+        
+    
+    }
+    // Call the function every 30 seconds (30 * 1000 milliseconds)
+    
 
     async function postData(serverURL, body, jwtToken) {
         return new Promise((resolve, reject) => {
@@ -299,16 +312,13 @@ body {
     }
 
     (async () => {
-        jwtToken = localStorage.getItem('jwtToken') || '';
-        userEmail = localStorage.getItem('email') || '';
-        userName = localStorage.getItem('name') || '';
-        user_id = localStorage.getItem('user_id') || '';
+        
         let result = await getData('http://localhost:3000/orders/{{orderID}}/associate-tracking', {}, jwtToken);
         
         parsed_result = JSON.parse(result['response'])
         restaurant_address = parsed_result['restaurant_address']
         let delivery_associate = parsed_result['delivery_associate']
-        let delivery_associate_id = delivery_associate['associate_id']
+        let delivery_associate_id = parseInt(delivery_associate['associate_id'])
         let delivery_associate_lat = parseFloat(delivery_associate['latitude'])
         let delivery_associate_lng = parseFloat(delivery_associate['longitude'])
         let user = parsed_result['user']
@@ -318,12 +328,18 @@ body {
         var user_contact = document.getElementById('user-contact');
         user_contact.innerHTML = user['contact'];
         
-        // console.log(delivery_associate)
+
+        // let associate_coordinates = getData('http://localhost:3000/get-associate-coordinates/'+delivery_associate_id, {}, jwtToken);
+        // associate_coordinates = JSON.parse(associate_coordinates['response'])
+        // myFunction(associate_coordinates)
+
+        // console.log(associate_coordinates)
         let request_body1 = {
             'address': restaurant_address
         }
         let restaurant_coordinates = await postData('http://localhost:3000/get-location', request_body1, jwtToken);
         restaurant_coordinates = JSON.parse(restaurant_coordinates['response'])
+        
         let restaurant_lat = restaurant_coordinates['lat']
         let restaurant_lng = restaurant_coordinates['lng']
         delivery_address = parsed_result['delivery_address']
@@ -465,7 +481,8 @@ body {
                         "longitude":newPosition.lng(),
                         "associate_id":associate_api_id,
                     }
-                    console.log(postData('http://localhost:3000/set-location', request_body3, jwtToken));
+                    postData('http://localhost:3000/set-location', request_body3, jwtToken);
+                    console.log('updated')
                 }
                 
                 requestAnimationFrame(animate);

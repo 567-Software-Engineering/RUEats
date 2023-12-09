@@ -1862,11 +1862,49 @@ async changePassword(req, res) {
 
           const user = await dbRepo.getUserByIdDB(user_id)
 
-          const data = {'restaurant_address': restaurant_address, 'delivery_address': delivery_address, 'delivery_associate': delivery_associate[0], 'user': user }
+          const data = {'restaurant_address': restaurant_address, 'delivery_address': delivery_address, 'delivery_associate': delivery_associate[0], 'user': user, 'orderID': orderID }
           res.setHeader('Content-Type', 'application/json');
 
           response(res, {data});
 
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  };
+  
+  async getAssociateCoordinates(req, res) {
+    try {
+      const associate_id = req.params.deliveryassociateID;
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const coordinates = await dbRepo.getAssociateCoordinates(associate_id);
+          const data = coordinates ? coordinates : `coordinates not found for OrderID: ${associate_id}`;
+          response(res, { data });
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: { message: error.message } });
+    }
+  };
+
+  async failOrder(req, res) {
+    try {
+      const orderID = req.params.orderID;
+      const token = req.headers.authorization;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, { status: 401, data: { message: 'Unauthorized' } });
+        } else {
+          const order = await dbRepo.failOrder(orderID);
+          const data = order ? order : `order not found for OrderID: ${orderID}`;
+          response(res, { data });
         }
       });
     } catch (error) {

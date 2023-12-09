@@ -266,5 +266,20 @@ const uiRoutes = {
         }
     },
 
+    "/app/user/delivery-failed/:orderID" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/delivery-failed.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { orderID } = _req.params;
+                    data = data.replace(/{{orderID}}/g, orderID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+    
+
 }
 module.exports = uiRoutes

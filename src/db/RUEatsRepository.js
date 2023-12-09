@@ -673,7 +673,6 @@ module.exports = class RUEatsRepository {
             console.log(error)
             reject(error);
           } else {
-            console.log(results)
             resolve(results);
           }
         }
@@ -1289,5 +1288,33 @@ module.exports = class RUEatsRepository {
         reject(error);
       }
     });
-  }  
+  }
+
+  async getAssociateCoordinates(associate_id) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT latitude, longitude FROM delivery_associates WHERE associate_id = ?`;
+      this.connection.query(query, associate_id, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+  }
+  
+  
+  async failOrder(orderID) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE orders SET status = 6 WHERE order_id = ?`;
+      this.connection.query(query, [orderID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+  
 }

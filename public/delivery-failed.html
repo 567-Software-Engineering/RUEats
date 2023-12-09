@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<head></head>
+<body>
+<script>
+    jwtToken = localStorage.getItem('jwtToken') || '';
+    userEmail = localStorage.getItem('email') || '';
+    userName = localStorage.getItem('name') || '';
+    user_id = localStorage.getItem('user_id') || '';
+    var user_id = `{{user_id}}`
+    console.log(user_id)
+    var order_id = `{{orderID}}`
+
+    
+
+    async function postData(serverURL, body, jwtToken) {
+        return new Promise((resolve, reject) => {
+            const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
+            if (!urlFormat.test(serverURL))
+            reject(`Invalid URL: ${serverURL}`);
+
+            fetch(serverURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': jwtToken
+            },
+            body: JSON.stringify(body), // Convert the body to JSON string
+            })
+            .then(response => response.text())
+            .then(data => resolve({ response: data }))
+            .catch(error => resolve({ response: error }));
+        });
+    }
+
+
+    async function getData(serverURL, body, jwtToken) {
+        return new Promise((resolve, reject) => {
+            const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
+            if (!urlFormat.test(serverURL))
+                reject(`Invalid URL: ${serverURL}`);
+            // console.log(jwtToken)
+            fetch(serverURL, {
+                method: 'GET',
+                headers: {
+                'Content-Type': 'application/json',
+                'Authorization': jwtToken
+            },
+            })
+                .then(response => response.text())
+                .then(data => resolve({ response: data }))
+                .catch(error => resolve({ response: error }));
+        });
+    }
+
+    (async () => {
+        let result = await postData('http://localhost:3000/orders/{{orderID}}/failed', {}, jwtToken);
+        console.log(result)
+    })()
+
+
+
+</script>
+
+<div>Order has been cancelled due to unforseen circumstances. Refund for this order would be processed within 3 business days.</div>
+</body>
