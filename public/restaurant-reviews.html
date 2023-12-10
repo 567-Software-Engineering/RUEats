@@ -67,8 +67,8 @@
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <a class="navbar-brand" href="#">
+    <nav class="navbar navbar-expand-lg navbar-light" style="background: linear-gradient(45deg, #d32f2f, #B71C1C); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <a class="navbar-brand" href="#" style="color: black; font-weight: bold;">
             RUEats
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,21 +77,26 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="redirectRestaurant()">Restaurant</a>
+                    <a class="nav-link" href="#" onclick="redirectRestaurant()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Restaurant <i class="fas fa-utensils"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="redirectMenu()">Menu</a>
+                    <a class="nav-link" href="#" onclick="redirectMenu()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Menu <i class="fas fa-concierge-bell"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="redirectOrders()">Orders</a>
+                    <a class="nav-link" href="#" onclick="redirectOrders()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Orders <i class="fas fa-receipt"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
+                    <a class="nav-link" href="#" onclick="redirectReviewsPage()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Reviews <i class="fas fa-star"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="handleLogout()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Logout <i class="fas fa-sign-out-alt"></i></a>
                 </li>
             </ul>
         </div>
     </nav>
-
+    
+    
+    
     <div class="container">
         <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
     </div>
@@ -155,31 +160,51 @@
     let reviewsResult = await getData('http://localhost:3000/restaurants-reviews/{{restaurantID}}', {});
     let reviews = JSON.parse(reviewsResult.response);
 
+    // Heading for reviews section
+    let reviewsHeading = document.createElement('h2');
+    reviewsHeading.className = 'text-center my-5 fw-bold'; // Added font-weight
+
+    if (!Array.isArray(reviews) || reviews.length === 0) {
+        console.log('No reviews found for this restaurant.');
+        reviewsHeading.textContent = 'No Reviews Available';
+        container.appendChild(reviewsHeading);
+        return;
+    }
+
+    reviewsHeading.textContent = `Customer Reviews (${reviews.length})`;
+    container.appendChild(reviewsHeading);
+
     reviews.forEach(review => {
         let columnDiv = document.createElement('div');
-        columnDiv.className = 'col mt-2'; // Bootstrap column class, adjust the class as per your grid requirement (e.g., col-md-4 for 3 columns)
+        columnDiv.className = 'col-lg-4 col-md-6 mb-4'; // Improved responsive layout
 
         let reviewCard = document.createElement('div');
-        reviewCard.className = 'card';
+        reviewCard.className = 'card h-100 shadow-sm'; // Added shadow
+        reviewCard.onmouseover = () => reviewCard.classList.add('shadow');
+        reviewCard.onmouseout = () => reviewCard.classList.remove('shadow');
+
+        let stars = '★'.repeat(parseInt(review.stars)) + '☆'.repeat(5 - parseInt(review.stars));
 
         let buttonHtml = review.response 
-            ? `<button class="btn btn-primary mt-2" onclick="toggleResponseForm(${review.review_id}, '${review.response}')">Edit Response</button>
-               <button class="btn btn-danger mt-2" onclick="deleteResponse(${review.review_id})">Delete Response</button>`
-            : `<button class="btn btn-primary mt-2" onclick="toggleResponseForm(${review.review_id}, '')">Respond</button>`;
+            ? `<button class="btn btn-outline-primary btn-sm mt-2" onclick="toggleResponseForm(${review.review_id}, '${review.response}')">Edit</button>
+               <button class="btn btn-outline-danger btn-sm mt-2" onclick="deleteResponse(${review.review_id})">Delete</button>`
+            : `<button class="btn btn-outline-primary btn-sm mt-2" onclick="toggleResponseForm(${review.review_id}, '')">Respond</button>`;
 
         reviewCard.innerHTML = `
             <div class="card-body">
                 <h5 class="card-title">${review.review_title}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Review by User ${review.author_id} on ${new Date(review.date_created).toLocaleDateString()}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Reviewed by User ${review.author_id} <span class="text-primary">•</span> ${new Date(review.date_created).toLocaleDateString()}</h6>
                 <p class="card-text">${review.description}</p>
-                <p class="card-text"><small class="text-muted">${'★'.repeat(parseInt(review.stars))}</small></p>
-                <div id="response-container-${review.review_id}">
+                <p class="card-text text-warning">${stars}</p>
+                <div id="response-container-${review.review_id}" class="mb-2">
                     ${review.response ? `<p class="card-text"><strong>Response:</strong> ${review.response}</p>` : ''}
                 </div>
-                <div id="buttons-container-${review.review_id}">${buttonHtml}</div>
-                <div class="response-form" id="response-form-${review.review_id}" style="display: none;">
+            </div>
+            <div class="card-footer bg-white">
+                <div id="buttons-container-${review.review_id}" class="text-center">${buttonHtml}</div>
+                <div class="response-form mt-2" id="response-form-${review.review_id}" style="display: none;">
                     <textarea class="form-control" id="response-${review.review_id}" rows="3" placeholder="Write your response...">${review.response ? review.response : ''}</textarea>
-                    <button class="btn btn-primary mt-2" onclick="respondToReview(${review.review_id})">Submit Response</button>
+                    <button class="btn btn-primary btn-sm mt-2" onclick="respondToReview(${review.review_id})">Submit</button>
                 </div>
             </div>
         `;
@@ -188,6 +213,8 @@
         container.appendChild(columnDiv);
     });
 })();
+
+
 
 
 async function respondToReview(reviewID) {
@@ -210,11 +237,11 @@ async function respondToReview(reviewID) {
         document.getElementById(`response-container-${reviewID}`).innerHTML = `<p class="card-text"><strong>Response:</strong> ${responseText}</p>`;
         document.getElementById(`response-form-${reviewID}`).style.display = 'none';
 
-        // Update only the buttons
+        // Update only the buttons with uniform style
         let buttonContainer = document.getElementById(`buttons-container-${reviewID}`);
         buttonContainer.innerHTML = `
-            <button class="btn btn-primary mt-2" onclick="toggleResponseForm(${reviewID}, '${responseText}')">Edit Response</button>
-            <button class="btn btn-danger mt-2" onclick="deleteResponse(${reviewID})">Delete Response</button>
+            <button class="btn btn-outline-primary btn-sm mt-2" onclick="toggleResponseForm(${reviewID}, '${responseText}')">Edit</button>
+            <button class="btn btn-outline-danger btn-sm mt-2" onclick="deleteResponse(${reviewID})">Delete</button>
         `;
 
         alert('Response submitted successfully');
@@ -222,6 +249,7 @@ async function respondToReview(reviewID) {
         console.error('Error submitting response:', error);
     }
 }
+
 
 async function deleteResponse(reviewID) {
     // Make sure restaurant_id and jwtToken are properly initialized and accessible here
@@ -241,10 +269,10 @@ async function deleteResponse(reviewID) {
 
         document.getElementById(`response-container-${reviewID}`).innerHTML = '';
 
-        // Update only the buttons
+        // Update only the buttons with uniform style
         let buttonContainer = document.getElementById(`buttons-container-${reviewID}`);
         buttonContainer.innerHTML = `
-            <button class="btn btn-primary mt-2" onclick="toggleResponseForm(${reviewID}, '')">Respond</button>
+            <button class="btn btn-outline-primary btn-sm mt-2" onclick="toggleResponseForm(${reviewID}, '')">Respond</button>
         `;
 
         document.getElementById(`response-form-${reviewID}`).style.display = 'none';
@@ -254,6 +282,7 @@ async function deleteResponse(reviewID) {
         console.error('Error deleting response:', error);
     }
 }
+
 async function postData(serverURL, data, jwtToken) {
     try {
         const response = await fetch(serverURL, {
