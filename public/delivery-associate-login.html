@@ -130,6 +130,10 @@
 </div>
 
 <script>
+    let jwtToken = ''
+    let name = ''
+    let email = ''
+    let associate_id = ''
     document.getElementById('deliveryAssociateLoginForm').addEventListener('submit', function(event) {
         event.preventDefault();
         loginDeliveryAssociate();
@@ -165,8 +169,14 @@
                 localStorage.setItem('associate_id', data.associate_id);
                 console.log(localStorage.getItem("associate_id"));
                 //console.log('Delivery Associate login successful:', data);
+                loadToken();
+                if (jwtToken && associate_id) {
                 window.alert('Login successful!');
-                window.location.href = '/app/restaurants'; // Redirect to the delivery dashboard
+                console.log(associate_id)
+                window.location.href = `/app/delivery-associate-home/${associate_id}`; // Redirect to the restaurant dashboard
+            } else {
+                throw new Error('Token or restaurant_id not received');
+            }
             } else {
                 throw new Error('Token not received');
             }
@@ -174,6 +184,14 @@
             console.error('Error during delivery associate login:', error.message);
             window.alert('Error during login. Please try again. '+ error.message);
         }
+    }
+
+    function loadToken() {
+    jwtToken = localStorage.getItem('jwtToken') || '';
+    userEmail = localStorage.getItem('email') || '';
+    userName = localStorage.getItem('name') || '';
+    associate_id = localStorage.getItem('associate_id') || '';
+    // console.log('Token loaded:', jwtToken);
     }
 </script>
 

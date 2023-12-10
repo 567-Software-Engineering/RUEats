@@ -130,6 +130,11 @@
 </div>
 
 <script>
+    var jwtToken = '';
+    var name = '';
+    var email = '';
+    var restaurant_id = '';
+
     document.getElementById('restaurantLoginForm').addEventListener('submit', function(event) {
         event.preventDefault();
         loginRestaurant();
@@ -163,10 +168,15 @@
                 localStorage.setItem('name', data.name);
                 localStorage.setItem('email', data.email);
                 localStorage.setItem('restaurant_id', data.restaurant_id);
-                console.log(localStorage.getItem("restaurant_id"));
+                restaurant_id = data.restaurant_id;
                 //console.log('Restaurant login successful:', data);
+                loadToken();
+                if (jwtToken && restaurant_id) {
                 window.alert('Login successful!');
-                window.location.href = `/app/restaurants/${data.restaurant_id}`;  // Temporarily redirecting to the restaurant dashboard
+                window.location.href = `/app/restaurant-owner-menu/${restaurant_id}`; // Redirect to the restaurant dashboard
+            } else {
+                throw new Error('Token or restaurant_id not received');
+            } // Temporarily redirecting to the restaurant dashboard
             } else {
                 throw new Error('Token not received');
             }
@@ -174,6 +184,18 @@
             console.error('Error during restaurant login:', error.message);
             window.alert('Error during login. Please try again. '+ error.message);
         }
+
+
+
+
+    }
+
+    function loadToken() {
+    jwtToken = localStorage.getItem('jwtToken') || '';
+    userEmail = localStorage.getItem('email') || '';
+    userName = localStorage.getItem('name') || '';
+    restaurant_id = localStorage.getItem('restaurant_id') || '';
+    console.log('Token loaded:', jwtToken);
     }
 </script>
 
