@@ -1097,9 +1097,10 @@ module.exports = class Controller {
           const orders = await dbRepo.getDeliveryAssociateOrder(associateID);
           if(orders){
             data_interim.order = orders
-            data_interim.user = await dbRepo.getDeliveryAssociateByID(associateID);
+            data_interim.user = await dbRepo.getUserByIdDB(orders.user_id);
             data_interim.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(orders.order_id);
-            
+            data_interim.restaurant_details = await dbRepo.getRestaurantById(orders.restaurant_id);
+            console.log(data_interim);
           }
           
           if (data_interim != null) {
@@ -1881,6 +1882,7 @@ async getPreviousDeliveryAssignments(req, res) {
       } else {
         const data_interim = []
         const previousOrders = await dbRepo.getDeliveryAssociatePreviousOrders(associateID);
+        if(previousOrders){
         for(let i=0; i<previousOrders.length; i++){
           let temp_data = {}
           temp_data.order = previousOrders[i]
@@ -1888,7 +1890,10 @@ async getPreviousDeliveryAssignments(req, res) {
           temp_data.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(previousOrders[i].order_id);
           data_interim.push(temp_data);
         }
-        console.log(data_interim);
+      }
+      // else{
+      //   response(res, { data: 'No orders found for the given user' });
+      // };
         
         if (data_interim != null) {
         const data = data_interim;
