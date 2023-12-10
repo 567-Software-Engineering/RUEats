@@ -7,7 +7,7 @@ module.exports = class RUEatsRepository {
   insertUser(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO users (name, email, password, home_address, zip_code, city, state, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO users (name, email, password, home_address, zip_code, city, state, verified, contact) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newUser.name,
           newUser.email,
@@ -16,7 +16,8 @@ module.exports = class RUEatsRepository {
           newUser.zip_code || null,
           newUser.city || null,
           newUser.state || null,
-          'false'
+          'false',
+          newUser.contact || null
         ];
   
         this.connection.query(query, values, (error, results) => {
@@ -228,7 +229,7 @@ module.exports = class RUEatsRepository {
   insertAssociate(newUser) {
     return new Promise((resolve, reject) => {
       try {
-        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        const query = 'INSERT INTO delivery_associates (name, email, home_address, zip_code, city, state, latitude, longitude, delivery_in_progress, password, verified, contact) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           newUser.name,
           newUser.email,
@@ -241,6 +242,7 @@ module.exports = class RUEatsRepository {
           newUser.delivery_in_progress || 0, // Assuming it's a boolean or integer field
           newUser.password,
           "false",
+          newUser.contact
         ];
 
         this.connection.query(query, values, (error, results) => {
@@ -661,6 +663,7 @@ module.exports = class RUEatsRepository {
         [latitude, longitude, associate_id],
         function (error, results, fields) {
           if (error) {
+            console.log(error)
             reject(error);
           } else {
             resolve(results);
@@ -1120,7 +1123,40 @@ module.exports = class RUEatsRepository {
             }
         });
     });
-}
+      
+      }
+  async getOrderByOrderID(orderID) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(
+        "SELECT * FROM orders WHERE order_id = ?",
+        [orderID],
+        function (error, results, fields) {
+          if (error) {
+            console.error('Database error:', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      });
+    }
+          
+      
+  async getDeliveryAssociateById(associate_id) {
+    return new Promise((resolve, reject) => {
+      this.connection.query(
+        "SELECT * FROM delivery_associates WHERE associate_id = ?",
+        [associate_id],
+        function (error, results, fields) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        }
+      );
+    });
+  }
 
   async getCart(userID) {
     return new Promise((resolve, reject) => {
@@ -1340,4 +1376,32 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  async getAssociateCoordinates(associate_id) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT latitude, longitude FROM delivery_associates WHERE associate_id = ?`;
+      this.connection.query(query, associate_id, (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+  }
+
+  
+  
+  async failOrder(orderID) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE orders SET status = 6 WHERE order_id = ?`;
+      this.connection.query(query, [orderID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results.affectedRows > 0);
+        }
+      });
+    });
+  }
+  
 }

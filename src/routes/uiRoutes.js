@@ -86,6 +86,19 @@ const uiRoutes = {
             });
         }
     },
+    "/app/orders/:orderID/user-tracking" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/user-order-tracking.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { orderID } = _req.params;
+                    data = data.replace(/{{orderID}}/g, orderID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
 
 
     "/home" : {
@@ -112,6 +125,19 @@ const uiRoutes = {
             });
         }
     },
+    "/app/orders/:orderID/associate-tracking" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/associate-order-tracking.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { orderID } = _req.params;
+                    data = data.replace(/{{orderID}}/g, orderID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
 
     "/app/users/:userID/orders" : {
         GET: (_req, res) => {
@@ -133,6 +159,8 @@ const uiRoutes = {
                 if (error) {
                     response(res, {data: "Page not Found!", status : 404})
                 } else {
+                    // const { userID } = _req.params;
+                    // data = data.replace(/{{userID}}/g, userID);
                     response(res,{data : data, contentType:'text/html'});
                 }
             });
@@ -247,6 +275,19 @@ const uiRoutes = {
                     console.log(data);
                     const { associateID } = _req.params;
                     data = data.replace(/{{associateID}}/g, associateID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
+    "/app/user/delivery-failed/:orderID" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/delivery-failed.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { orderID } = _req.params;
+                    data = data.replace(/{{orderID}}/g, orderID);
                     response(res,{data : data, contentType:'text/html'});
                 }
             });
