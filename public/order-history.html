@@ -272,42 +272,58 @@
     }
 
     async function displayOrderHistory(orders, userID) {
-        const orderHistoryDiv = document.getElementById('order-history');
-        let orderHistoryHTML = '<h4>Your Orders</h4>';
+    const orderHistoryDiv = document.getElementById('order-history');
+    let outForDeliveryHTML = '<h4>Out for Delivery</h4>';
+    let activeOrdersHTML = '<h4>Active Orders</h4>';
+    let completedOrdersHTML = '<h4>Completed Orders</h4>';
+    let failedOrdersHTML = '<h4>Failed Orders</h4>';
 
-        for (const order of orders) {
-            const review = await checkIfReviewExists(userID, order.restaurant_id);
-            // use this for testing temporarily
-            // const reviewButtonHTML = review
-            //     ? `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id})">View Written Review</button>`
-            //     : `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
-            let reviewButtonHTML;
-            if (review) {
-                reviewButtonHTML = `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id})">View Written Review</button>`;
-            } else if (order.status < 5) {
-                reviewButtonHTML = `<button disabled style="color: grey; cursor: not-allowed;">Add Review</button>`;
-            } else {
-                reviewButtonHTML = `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
-            }
+    for (const order of orders) {
+        const review = await checkIfReviewExists(userID, order.restaurant_id);
+        let reviewButtonHTML;
+        if (review) {
+            reviewButtonHTML = `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id}, ${order.status})">View Written Review</button>`;
+        } else if (order.status < 5) {
+            reviewButtonHTML = `<button disabled style="color: grey; cursor: not-allowed;">Add Review</button>`;
+        } else {
+            reviewButtonHTML = `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
+        }
 
-            let orderStatusText = getCondensedOrderStatus(order.status);
+        let orderStatusText = getCondensedOrderStatus(order.status);
+        let trackOrderButtonHTML = order.status === 4 ? `<button onclick="window.open('http://localhost:3000/app/orders/${order.order_id}/user-tracking', '_blank')">Track Order</button>` : '';
 
-            orderHistoryHTML += `
-                <div class="order">
+        let orderHTML = `
+            <div class="order d-flex justify-content-between align-items-center">
+                <div>
                     <p>Restaurant: ${order.restaurant_name}</p>
                     <p>Order Date: ${new Date(order.order_date).toLocaleDateString()}</p>
                     <p>Total Amount: $${order.total_amount.toFixed(2)}</p>
                     ${reviewButtonHTML}
                     <button onclick="orderDetails(${order.order_id}, ${order.restaurant_id}, this)">View Details</button>
-                    <span class="badge badge-info">${orderStatusText}</span>
                     <div id="order-details-${order.order_id}" class="order-details" style="display: none;"></div>
                 </div>
-                <hr>`;
-        }
+                <div>
+                    ${trackOrderButtonHTML && order.status === 4 ? `${trackOrderButtonHTML}<br>` : ''}
+                    <span class="badge badge-info">${orderStatusText}</span>
+                </div>
+            </div>
+            <hr>`;
 
-        orderHistoryDiv.innerHTML = orderHistoryHTML;
-        orderHistoryDiv.style.display = 'block';
+        if (order.status === 4) {
+            outForDeliveryHTML += orderHTML;
+        } else if (order.status < 4) {
+            activeOrdersHTML += orderHTML;
+        } else if (order.status === 5) {
+            completedOrdersHTML += orderHTML;
+        } else if (order.status === 6) {
+            failedOrdersHTML += orderHTML;
+        }
     }
+
+    orderHistoryDiv.innerHTML = `${outForDeliveryHTML}${activeOrdersHTML}${completedOrdersHTML}${failedOrdersHTML}`;
+    orderHistoryDiv.style.display = 'block';
+}
+
 
     async function checkIfReviewExists(userID, restaurantID) {
         try {
@@ -327,7 +343,7 @@
         }
     }
 
-    function viewReview(userID, orderID, restaurantID, review_id) {
+    function viewReview(userID, orderID, restaurantID, review_id, orderStatus) {
         fetch(`http://localhost:3000/users/${userID}/review?restaurantID=${restaurantID}`, {
             headers: {
                 'Authorization': token
@@ -347,14 +363,25 @@
                 mediaLink.href = '';
                 mediaLink.textContent = 'No Media';
             }
-            // Show view section, hide edit form
             document.getElementById('view-review-section').style.display = 'block';
             document.getElementById('edit-review-form').style.display = 'none';
+
+            // Update the Edit button based on order status
+            const editButton = document.getElementById('edit-button');
+            if (orderStatus < 5) {
+                editButton.disabled = true;
+                editButton.style.color = 'grey';
+                editButton.style.cursor = 'not-allowed';
+            } else {
+                editButton.disabled = false;
+                editButton.style.color = ''; // Reset to default color
+                editButton.style.cursor = ''; // Reset to default cursor
+            }
+
             $('#viewEditReviewModal').modal('show');
         })
         .catch(error => {
             console.error('Error:', error);
-            // Handle error
         });
     }
 
@@ -513,12 +540,11 @@
         const editButton = document.getElementById('edit-button');
         const saveEditButton = document.getElementById('save-edit-button');
 
-        if (viewSection.style.display === 'none') {
-            viewSection.style.display = 'block';
-            editForm.style.display = 'none';
-            editButton.style.display = 'block';
-            saveEditButton.style.display = 'none';
+        if (editForm.style.display === 'block') {
+            // Switch to view mode using resetModalToViewMode
+            resetModalToViewMode();
         } else {
+            // Populate form fields for editing
             document.getElementById('edit-review-title').value = document.getElementById('view-review-title').textContent;
             document.getElementById('edit-review-description').value = document.getElementById('view-review-description').textContent;
             setEditStarRating(document.getElementById('view-review-stars').textContent.length); // Function to set stars
@@ -652,6 +678,24 @@
         event.preventDefault();
         window.location.href = '/home';
     }
+
+    function resetModalToViewMode() {
+        const viewSection = document.getElementById('view-review-section');
+        const editForm = document.getElementById('edit-review-form');
+        const editButton = document.getElementById('edit-button');
+        const saveEditButton = document.getElementById('save-edit-button');
+
+        viewSection.style.display = 'block';
+        editForm.style.display = 'none';
+        editButton.style.display = 'block';
+        saveEditButton.style.display = 'none';
+    }
+
+    $(document).ready(function() {
+        $('#viewEditReviewModal').on('hidden.bs.modal', function () {
+            resetModalToViewMode();
+        });
+    });
 
     window.onload = () => {
         loadToken();
