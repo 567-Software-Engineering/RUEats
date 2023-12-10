@@ -73,7 +73,8 @@ module.exports = class RUEatsRepository {
         const query = `SELECT orders.order_id, orders.order_date, orders.total_amount, orders.restaurant_id, orders.status, restaurants.name AS restaurant_name 
                        FROM orders 
                        JOIN restaurants ON orders.restaurant_id = restaurants.restaurant_id 
-                       WHERE orders.user_id = ?`;
+                       WHERE orders.user_id = ?
+                       ORDER BY orders.order_date DESC`;
 
         this.connection.query(query, [userID], function (error, results) {
             if (error) {
