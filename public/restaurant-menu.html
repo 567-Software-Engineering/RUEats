@@ -313,13 +313,15 @@
             reviewCard.innerHTML = `
                 <div class="card-body">
                     <h5 class="card-title">${review.review_title}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Review by User ${review.author_id} on ${new Date(review.date_created).toLocaleDateString()}</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">Review by User ${review.user_name} on ${new Date(review.date_created).toLocaleDateString()}</h6>
                     <p class="card-text">${review.description}</p>
                     <p class="card-text"><small class="text-muted">${'★'.repeat(parseInt(review.stars))}</small></p>
+                    ${review.response ? `<div class="card-text mt-3"><strong>Response:</strong> ${review.response}</div>` : ''}
                 </div>
             `;
             reviewsContainer.appendChild(reviewCard);
         });
+
 
         container.appendChild(reviewsContainer);
     })();

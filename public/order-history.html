@@ -357,6 +357,7 @@
         .then(review => {
             document.getElementById('view-review-title').textContent = review.review_title;
             document.getElementById('view-review-description').textContent = review.description;
+            document.getElementById('view-review-response').textContent = review.response;
             document.getElementById('view-review-stars').innerHTML = getStarsHTML(parseInt(review.stars));
             reviewID = review_id;
             const mediaLink = document.getElementById('view-review-media');
@@ -819,6 +820,7 @@
                     <h6>Title: <span id="view-review-title"></span></h6>
                     <p>Description: <span id="view-review-description"></span></p>
                     <p>Rating: <span id="view-review-stars"></span></p>
+                    <p>Response: <span id="view-review-response"></span> </p>
                     <p>Media: <a id="view-review-media" href="" target="_blank"></a></p>
                 </div>
 

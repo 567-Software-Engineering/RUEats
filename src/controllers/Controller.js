@@ -614,7 +614,7 @@ module.exports = class Controller {
           response(res, { status: 401, data: { message: 'Unauthorized' } });
         } else {
 
-          if (decoded.restaurant_id !== parseInt(restaurantID)) {
+          if (decoded.restaurant_id !== parseInt(restaurant_id)) {
             response(res, { status: 403, data: { message: 'Forbidden: Cannot view notifications for other restaurants.' } });
             return;
           }
@@ -635,15 +635,15 @@ module.exports = class Controller {
       const { restaurantID } = req.params;
       const token = req.headers.authorization;
 
-      jwt.verify(token, secretKey, async (err, decoded) => {
-        if (err) {
-          response(res, { status: 401, data: { message: 'Unauthorized' } });
-        } else {
-          const orders = await dbRepo.getOrdersByRestaurantID(restaurantID);
-          const data = orders.length ? orders : `No orders found for Restaurant ID: ${restaurantID}`;
-          response(res, { data });
-        }
-      });
+        jwt.verify(token, secretKey, async (err, decoded) => {
+            if (err) {
+                response(res, { status: 401, data: { message: 'Unauthorized' } });
+            } else {
+                const orders = await dbRepo.getOrdersByRestaurantID(restaurantID);
+                const data = orders.length ? orders : `No order history found for Restaurant ID: ${restaurantID}`;
+                response(res, { data });
+            }
+        });
     } catch (error) {
       response(res, { status: 400, data: error.message });
     }

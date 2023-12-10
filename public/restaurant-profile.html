@@ -66,30 +66,33 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light">
-    <a class="navbar-brand" href="#">
-        RUEats
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="redirectRestaurant()">Restaurant</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="redirectMenu()">Menu</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="redirectOrders()">Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
-            </li>
-        </ul>
-    </div>
-</nav>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background: linear-gradient(45deg, #d32f2f, #B71C1C); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <a class="navbar-brand" href="#" style="color: black; font-weight: bold;">
+            RUEats
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectRestaurant()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Restaurant <i class="fas fa-utensils"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectMenu()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Menu <i class="fas fa-concierge-bell"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectOrders()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Orders <i class="fas fa-receipt"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectReviewsPage()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Reviews <i class="fas fa-star"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="handleLogout()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Logout <i class="fas fa-sign-out-alt"></i></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
 <div class="container mt-4">
     <div class="row">
@@ -200,6 +203,10 @@
 
     function redirectOrders() {
         window.location.href = `http://localhost:3000/app/restaurants-orders/${restaurant_id}`;
+    }
+
+    function redirectReviewsPage() {
+        window.location.href = `http://localhost:3000/app/check-reviews/${restaurant_id}`;
     }
 
     async function getRestaurantData(serverURL, jwtToken, restaurantId) {

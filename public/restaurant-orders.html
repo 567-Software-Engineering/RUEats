@@ -18,6 +18,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-...your-integrity-hash-here..." crossorigin="anonymous" />
     <style>
         body {
             background-color: #f8f9fa;
@@ -72,8 +74,8 @@
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <a class="navbar-brand" href="#">
+    <nav class="navbar navbar-expand-lg navbar-light" style="background: linear-gradient(45deg, #d32f2f, #B71C1C); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <a class="navbar-brand" href="#" style="color: black; font-weight: bold;">
             RUEats
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,16 +84,19 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="redirectRestaurant()">Restaurant</a>
+                    <a class="nav-link" href="#" onclick="redirectRestaurant()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Restaurant <i class="fas fa-utensils"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="redirectMenu()">Menu</a>
+                    <a class="nav-link" href="#" onclick="redirectMenu()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Menu <i class="fas fa-concierge-bell"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="redirectOrders()">Orders</a>
+                    <a class="nav-link" href="#" onclick="redirectOrders()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Orders <i class="fas fa-receipt"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
+                    <a class="nav-link" href="#" onclick="redirectReviewsPage()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Reviews <i class="fas fa-star"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="handleLogout()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Logout <i class="fas fa-sign-out-alt"></i></a>
                 </li>
             </ul>
         </div>
@@ -546,6 +551,10 @@
 
         function redirectOrders() {
             window.location.href = `http://localhost:3000/app/restaurants-orders/${restaurant_id}`;
+        }
+
+        function redirectReviewsPage() {
+            window.location.href = `http://localhost:3000/app/check-reviews/${restaurant_id}`;
         }
 
         window.onload = function() {

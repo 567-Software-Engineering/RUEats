@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Profile</title>
+    <!-- Include necessary CSS and JavaScript libraries -->
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- Bootstrap JavaScript dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+     <!-- Font Awesome CSS -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-...your-integrity-hash-here..." crossorigin="anonymous" />
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        .navbar {
+            background-color: #dc3545;
+        }
+
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .navbar-toggler-icon {
+            background-color: #fff;
+        }
+
+        .nav-link {
+            color: #fff;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        #restaurant-profile {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #access-denied {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        strong {
+            color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light" style="background: linear-gradient(45deg, #d32f2f, #B71C1C); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <a class="navbar-brand" href="#" style="color: black; font-weight: bold;">
+            RUEats
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectRestaurant()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Restaurant <i class="fas fa-utensils"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectMenu()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Menu <i class="fas fa-concierge-bell"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectOrders()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Orders <i class="fas fa-receipt"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="redirectReviewsPage()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Reviews <i class="fas fa-star"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="handleLogout()" style="color: black; padding: 8px 15px; transition: all 0.3s;">Logout <i class="fas fa-sign-out-alt"></i></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    
+    
+    <div class="container">
+        <div id="restaurant-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+    </div>
+    <script>
+        var jwtToken = '';
+        var restaurant_id = '';
+        let userName = '';
+        let userEmail = '';
+    
+        function loadToken() {
+            jwtToken = localStorage.getItem('jwtToken') || '';
+            userEmail = localStorage.getItem('email') || '';
+            userName = localStorage.getItem('name') || '';
+            restaurant_id = localStorage.getItem('restaurant_id') || '';
+            console.log('Token loaded:', jwtToken);
+        }
+    
+        function handleLogout() {
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('email');
+            localStorage.removeItem('name');
+            localStorage.removeItem('user_id');
+            event.preventDefault();
+            window.location.href = '/home';
+        }
+    
+        function redirectRestaurant() {
+            window.location.href = `http://localhost:3000/app/restaurants/${restaurant_id}`;
+        }
+    
+        function redirectMenu() {
+            window.location.href = `http://localhost:3000/app/restaurant-owner-menu/${restaurant_id}`;
+        }
+    
+        function redirectOrders() {
+            window.location.href = `http://localhost:3000/app/restaurants-orders/${restaurant_id}`;
+        }
+    
+        function redirectReviewsPage() {
+            window.location.href = `http://localhost:3000/app/check-reviews/${restaurant_id}`;
+        }
+
+        async function getData(serverURL, body) {
+        return new Promise((resolve, reject) => {
+            const urlFormat = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
+
+            if (!urlFormat.test(serverURL))
+                reject(`Invalid URL: ${serverURL}`);
+
+            fetch(serverURL, {
+                method: 'GET',
+            })
+                .then(response => response.text())
+                .then(data => resolve({ response: data }))
+                .catch(error => resolve({ response: error }));
+        });
+    }
+    (async () => {
+    let container = document.getElementById('restaurant-container');
+    
+    let reviewsResult = await getData('http://localhost:3000/restaurants-reviews/{{restaurantID}}', {});
+    let reviews = JSON.parse(reviewsResult.response);
+
+    // Heading for reviews section
+    let reviewsHeading = document.createElement('h2');
+    reviewsHeading.className = 'text-center my-5 fw-bold'; // Added font-weight
+
+    if (!Array.isArray(reviews) || reviews.length === 0) {
+        console.log('No reviews found for this restaurant.');
+        reviewsHeading.textContent = 'No Reviews Available';
+        container.appendChild(reviewsHeading);
+        return;
+    }
+
+    reviewsHeading.textContent = `Customer Reviews (${reviews.length})`;
+    container.appendChild(reviewsHeading);
+
+    reviews.forEach(review => {
+        let columnDiv = document.createElement('div');
+        columnDiv.className = 'col-lg-4 col-md-6 mb-4'; // Improved responsive layout
+
+        let reviewCard = document.createElement('div');
+        reviewCard.className = 'card h-100 shadow-sm'; // Added shadow
+        reviewCard.onmouseover = () => reviewCard.classList.add('shadow');
+        reviewCard.onmouseout = () => reviewCard.classList.remove('shadow');
+
+        let stars = '★'.repeat(parseInt(review.stars)) + '☆'.repeat(5 - parseInt(review.stars));
+
+        let buttonHtml = review.response 
+            ? `<button class="btn btn-outline-primary btn-sm mt-2" onclick="toggleResponseForm(${review.review_id}, '${review.response}')">Edit</button>
+               <button class="btn btn-outline-danger btn-sm mt-2" onclick="deleteResponse(${review.review_id})">Delete</button>`
+            : `<button class="btn btn-outline-primary btn-sm mt-2" onclick="toggleResponseForm(${review.review_id}, '')">Respond</button>`;
+
+        reviewCard.innerHTML = `
+            <div class="card-body">
+                <h5 class="card-title">${review.review_title}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Reviewed by User ${review.user_name} <span class="text-primary">•</span> ${new Date(review.date_created).toLocaleDateString()}</h6>
+                <p class="card-text">${review.description}</p>
+                <p class="card-text text-warning">${stars}</p>
+                <div id="response-container-${review.review_id}" class="mb-2">
+                    ${review.response ? `<p class="card-text"><strong>Response:</strong> ${review.response}</p>` : ''}
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <div id="buttons-container-${review.review_id}" class="text-center">${buttonHtml}</div>
+                <div class="response-form mt-2" id="response-form-${review.review_id}" style="display: none;">
+                    <textarea class="form-control" id="response-${review.review_id}" rows="3" placeholder="Write your response...">${review.response ? review.response : ''}</textarea>
+                    <button class="btn btn-primary btn-sm mt-2" onclick="respondToReview(${review.review_id})">Submit</button>
+                </div>
+            </div>
+        `;
+
+        columnDiv.appendChild(reviewCard);
+        container.appendChild(columnDiv);
+    });
+})();
+
+
+
+
+async function respondToReview(reviewID) {
+    // Make sure restaurant_id and jwtToken are properly initialized and accessible here
+    let responseText = document.getElementById(`response-${reviewID}`).value;
+    let serverURL = `http://localhost:3000/respond-feedback/${restaurant_id}`; 
+
+    try {
+        let response = await postData(serverURL, {
+            restaurant_id,
+            reviewID,
+            response: responseText
+        }, jwtToken);
+
+        if (response.error) {
+            alert('Failed to submit response: ' + response.error);
+            return;
+        }
+
+        document.getElementById(`response-container-${reviewID}`).innerHTML = `<p class="card-text"><strong>Response:</strong> ${responseText}</p>`;
+        document.getElementById(`response-form-${reviewID}`).style.display = 'none';
+
+        // Update only the buttons with uniform style
+        let buttonContainer = document.getElementById(`buttons-container-${reviewID}`);
+        buttonContainer.innerHTML = `
+            <button class="btn btn-outline-primary btn-sm mt-2" onclick="toggleResponseForm(${reviewID}, '${responseText}')">Edit</button>
+            <button class="btn btn-outline-danger btn-sm mt-2" onclick="deleteResponse(${reviewID})">Delete</button>
+        `;
+
+        alert('Response submitted successfully');
+    } catch (error) {
+        console.error('Error submitting response:', error);
+    }
+}
+
+
+async function deleteResponse(reviewID) {
+    // Make sure restaurant_id and jwtToken are properly initialized and accessible here
+    let serverURL = `http://localhost:3000/respond-feedback/${restaurant_id}`;
+
+    try {
+        let response = await postData(serverURL, {
+            restaurant_id,
+            reviewID,
+            response: '' // Sending an empty string to indicate deletion
+        }, jwtToken);
+
+        if (response.error) {
+            alert('Failed to delete response: ' + response.error);
+            return;
+        }
+
+        document.getElementById(`response-container-${reviewID}`).innerHTML = '';
+
+        // Update only the buttons with uniform style
+        let buttonContainer = document.getElementById(`buttons-container-${reviewID}`);
+        buttonContainer.innerHTML = `
+            <button class="btn btn-outline-primary btn-sm mt-2" onclick="toggleResponseForm(${reviewID}, '')">Respond</button>
+        `;
+
+        document.getElementById(`response-form-${reviewID}`).style.display = 'none';
+
+        alert('Response deleted successfully');
+    } catch (error) {
+        console.error('Error deleting response:', error);
+    }
+}
+
+async function postData(serverURL, data, jwtToken) {
+    try {
+        const response = await fetch(serverURL, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': jwtToken
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        return { error: error.message };
+    }
+}
+
+function toggleResponseForm(reviewID, response) {
+    let form = document.getElementById(`response-form-${reviewID}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    if (response) {
+        document.getElementById(`response-${reviewID}`).value = response;
+    }
+}
+
+
+    
+        window.onload = function() {
+       loadToken();// Load token first// Then load user profile
+       
+   }; 
+    </script>
+
+
+</body>
