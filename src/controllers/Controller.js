@@ -1097,9 +1097,10 @@ module.exports = class Controller {
           const orders = await dbRepo.getDeliveryAssociateOrder(associateID);
           if(orders){
             data_interim.order = orders
-            data_interim.user = await dbRepo.getDeliveryAssociateByID(associateID);
+            data_interim.user = await dbRepo.getUserByIdDB(orders.user_id);
             data_interim.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(orders.order_id);
-            
+            data_interim.restaurant_details = await dbRepo.getRestaurantById(orders.restaurant_id);
+            console.log(data_interim);
           }
           
           if (data_interim != null) {
@@ -1301,6 +1302,32 @@ module.exports = class Controller {
           else {
             response(res, { data: {message: 'Error adding order' } });
           }
+        }
+      });
+    } catch (error) {
+      response(res, { status: 400, data: error.message });
+    }
+  }
+
+  async checkInventory(req, res) {
+    try {
+      const token = req.headers.authorization;
+      const { userID } = req.params;
+
+      jwt.verify(token, secretKey, async (err, decoded) => {
+        if (err) {
+          response(res, {status: 401, data: {message: 'Unauthorized'} });
+        }
+        else {
+          const unavailableItems = await dbRepo.checkInventory(userID);
+          response(res, { data: unavailableItems });
+
+          // if (unavailableItems.length > 0) {
+          //   response(res, { data: unavailableItems });
+          // }
+          // else {
+          //   response(res, { data: {message: 'All items available' } });
+          // }
         }
       });
     } catch (error) {
@@ -1881,6 +1908,7 @@ async getPreviousDeliveryAssignments(req, res) {
       } else {
         const data_interim = []
         const previousOrders = await dbRepo.getDeliveryAssociatePreviousOrders(associateID);
+        if(previousOrders){
         for(let i=0; i<previousOrders.length; i++){
           let temp_data = {}
           temp_data.order = previousOrders[i]
@@ -1888,7 +1916,10 @@ async getPreviousDeliveryAssignments(req, res) {
           temp_data.order_item_names = await dbRepo.getOrderItemsNamesPriceFromOrder(previousOrders[i].order_id);
           data_interim.push(temp_data);
         }
-        console.log(data_interim);
+      }
+      // else{
+      //   response(res, { data: 'No orders found for the given user' });
+      // };
         
         if (data_interim != null) {
         const data = data_interim;

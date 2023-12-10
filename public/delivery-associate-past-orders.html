@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>User Profile</title>
+    <title>RU Eats</title>
     <!-- Include necessary CSS and JavaScript libraries -->
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
@@ -146,9 +146,15 @@
             console.log("Hello", associateURL)
 
             let previousOrders = await getData(associateURL, token);
+
             let orderDetailsDiv = document.getElementById('user-profile');
+            console.log(previousOrders);
+            if (previousOrders.length === 0) {
+                orderDetailsDiv.innerHTML = "You have no previous orders";
+                console.log("You have no previous orders");
+            }
             orderDetailsDiv.style.display = 'block';
-            for(let i=0; i<previousOrders.length; i++){
+            for (let i = 0; i < previousOrders.length; i++) {
                 orderID = previousOrders[i].order.order_id;
                 if (previousOrders[i].error) {
                     // Handle error fetching user profile or invalid token
@@ -160,7 +166,7 @@
                 // Display user profile data
                 let orderDetailsInnerDiv = document.createElement('order-details-inner-div')
                 orderDetailsInnerDiv.style.display = 'block';
-                
+
                 order_status_map = {
                     '0': 'Order Placed',
                     '1': 'Preparing Order',
@@ -184,7 +190,7 @@
                 row.className = 'row-cols-1 row-cols-md-3 g-4';
                 let orderItems = previousOrders[i].order_item_names
 
-                if(orderItems){
+                if (orderItems) {
                     orderItems.forEach(orderItem => {
                         let card = document.createElement('item');
                         card.className = 'row-md-4 mb-4';
@@ -201,7 +207,7 @@
                         row.appendChild(card);
                     });
                 }
-                
+
                 orderDetailsInnerDiv.appendChild(row);
                 orderDetailsInnerDiv.style.backgroundColor = '#fff';
                 orderDetailsInnerDiv.style.borderRadius = '10px';
@@ -320,7 +326,7 @@
 
         function redirectToTrackingPage() {
             // Perform the redirection here
-            window.location.href = "http://localhost:3000/app/orders/"+orderID+"/associate-tracking"; // Replace with your actual URL
+            window.location.href = "http://localhost:3000/app/orders/" + orderID + "/associate-tracking"; // Replace with your actual URL
         }
 
         window.onload = loadPreviousOrders;
@@ -330,4 +336,5 @@
         <div id="order-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
     </div>
 </body>
+
 </html>

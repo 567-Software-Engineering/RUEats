@@ -135,14 +135,7 @@
                     <label for="state">State:</label>
                     <input type="text" id="state" name="state" required><br>
 
-                    <label for="latitude">Latitude:</label>
-                    <input type="text" id="latitude" name="latitude" required><br>
-
-                    <label for="longitude">Longitude:</label>
-                    <input type="text" id="longitude" name="longitude" required><br>
-
-                    <label for="delivery_in_progress">Delivery in Progress:</label>
-                    <input type="checkbox" id="delivery_in_progress" name="delivery_in_progress"><br>
+                    <input type="checkbox" id="delivery_in_progress" name="delivery_in_progress" hidden><br>
 
                     <button type="submit">Register</button>
                 </form>
@@ -166,8 +159,8 @@
             zip_code: document.getElementById('zip_code').value,
             city: document.getElementById('city').value,
             state: document.getElementById('state').value,
-            latitude: document.getElementById('latitude').value,
-            longitude: document.getElementById('longitude').value,
+            latitude: '0',
+            longitude: '0',
             delivery_in_progress: document.getElementById('delivery_in_progress').checked
         };
 
@@ -196,7 +189,7 @@
 </script>
 
 <div class="footer">
-    &copy; 2023 YourCompany. All rights reserved.
+    &copy; 2023 RUEats. All rights reserved.
 </div>
 
 </body>

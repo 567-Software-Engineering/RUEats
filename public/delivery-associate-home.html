@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>User Profile</title>
+    <title>RU Eats</title>
     <!-- Include necessary CSS and JavaScript libraries -->
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
@@ -82,7 +82,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav id="delivery-nav" class="navbar navbar-expand-lg navbar-light">
         <a class="navbar-brand" href="#">
             RUEats
         </a>
@@ -92,8 +92,11 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link" href="#" onclick="loadUserProfile()">Account</a>
+                </li> -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/home" onclick="handleLogout()">Logout</a>
                 </li>
             </ul>
         </div>
@@ -107,7 +110,8 @@
                 </div>
                 <br>
                 <div id="begin-tracking" style="display: none">
-                    <button class="btn btn-success btn-cancel" onclick="redirectToTrackingPage()">Begin Tracking</button>
+                    <button class="btn btn-success btn-cancel" onclick="redirectToTrackingPage()">Begin
+                        Tracking</button>
                 </div>
                 <br>
                 <div id="image-uploader">
@@ -120,9 +124,12 @@
                 </div>
                 <br>
                 <div id="btn-group">
-                    <button class="btn btn-danger btn-cancel" onclick="cancelOrder()">Cancel Order</button>
-                    <button class="btn btn-success btn-validate" onclick="completeOrder(); validateOrder(); ">Validate
+                    <button class="btn btn-info" onclick="pickupOrder()">Pick Up Order</button>
+                    <button id="complete-order-button" class="btn btn-success btn-validate"
+                        onclick="validateOrder();">Complete
                         Order</button>
+                    <button class="btn btn-danger btn-cancel" onclick="cancelOrder()">Cancel Order</button>
+
                     <!-- User Profile content will be displayed here -->
                 </div>
                 <br>
@@ -144,12 +151,25 @@
     </div>
 
     <script>
-        let token = localStorage.getItem('jwtToken') || '';
 
+        navBar = document.getElementById("delivery-nav");
+
+
+        document.getElementById("image-uploader").style.display = "none";
+        document.getElementById("btn-group").style.display = "none";
+
+
+        let fileInput = null;
+        let token = localStorage.getItem('jwtToken') || '';
+        let status = "";
         let fileName = "";
         let orderID = "";
         let associateID = "";
- 
+
+        function handleLogout() {
+            localStorage.clear();
+        }
+
         async function getData(serverURL, token) {
             try {
                 const response = await fetch(serverURL, {
@@ -168,6 +188,7 @@
         }
 
         async function loadCurrentOrder() {
+
             event.preventDefault();
             console.log(token)
             if (!token) {
@@ -177,9 +198,11 @@
             }
 
             const associateURL = `http://localhost:3000/get-delivery-assignment/{{associateID}}`;
-            console.log("Hello", associateURL)
+
 
             const currentOrder = await getData(associateURL, token);
+
+            status = currentOrder.order.status;
             console.log("Current order_names is", currentOrder);
             if (currentOrder.error) {
                 // Handle error fetching user profile or invalid token
@@ -187,7 +210,10 @@
                 document.getElementById('access-denied').style.display = 'block';
                 return;
             }
-            if(currentOrder.order){
+            if (currentOrder.order) {
+
+                document.getElementById("image-uploader").style.display = "inline";
+                document.getElementById("btn-group").style.display = "inline";
                 orderID = currentOrder.order.order_id;
                 const trackingBtn = document.getElementById('begin-tracking');
                 trackingBtn.style.display = 'flex';
@@ -206,8 +232,10 @@
                 }
                 orderDetailsDiv.innerHTML = `
                     <h3>Current Order Details</h3>
-                    <p><strong>Name:</strong> ${currentOrder.user.name}</p>
-                    <p><strong>Address:</strong> ${currentOrder.order.delivery_address}</p>
+                    <p><strong>Delivery for:</strong> ${currentOrder.user.name}</p>
+                    <p><strong>Pickup At:</strong> ${currentOrder.restaurant_details[0].name}</p>
+                    <p><strong>Pickup Address:</strong> ${currentOrder.restaurant_details[0].address}</p>
+                    <p><strong>Delivery Address:</strong> ${currentOrder.order.delivery_address}</p>
                     <p><strong>Special Instructions:</strong> ${currentOrder.order.special_instructions}</p>
                     <p><strong>Status:</strong> ${order_status_map[currentOrder.order.status]}</p>
                 `;
@@ -235,10 +263,11 @@
 
                 orderDetailsDiv.appendChild(row);
             }
+            decideCompleteButtonStatus()
         }
 
         function handleFileSelect(event) {
-            const fileInput = event.target;
+            fileInput = event.target;
             const file = fileInput.files[0];
 
             if (file && file.type.startsWith('image/')) {
@@ -266,10 +295,13 @@
 
         async function validateOrder() {
             event.preventDefault()
+
+            if (!fileInput) {
+                alert('Please Upload an Image Proof before Completing the Order');
+                return 0;
+            }
             serverURL2 = `http://localhost:3000/validate-delivery/${orderID}`;
             console.log("URL2", serverURL2, fileName);
-
-            console.log("here");
 
             try {
                 const response = await fetch(serverURL2, {
@@ -284,7 +316,8 @@
                 if (!response.ok) {
                     throw new Error('Network response was not ok.');
                 };
-                alert('Order Validated!');
+                completeOrder()
+                alert('Delivery Successful !');
                 window.location.reload();
             } catch (error) {
                 console.error('Error:', error);
@@ -293,7 +326,10 @@
         }
 
         async function completeOrder() {
+
+
             serverURL1 = `http://localhost:3000/update-delivery-status/{{associateID}}`;
+
             try {
                 const response = await fetch(serverURL1, {
 
@@ -302,7 +338,7 @@
                         'Content-Type': "application/json",
                         'Authorization': `${token}`
                     },
-                    body: JSON.stringify({ "status": 3 })
+                    body: JSON.stringify({ "status": 5 })
                 });
                 if (!response.ok) {
                     throw new Error('Network response was not ok.');
@@ -315,9 +351,42 @@
             };
         };
 
+        function decideCompleteButtonStatus() {
+            if (status === 4) {
+                document.getElementById("complete-order-button").disabled = false;
+            } else {
+                document.getElementById("complete-order-button").disabled = true;
+            }
+
+        };
+
+        async function pickupOrder() {
+            serverURL1 = `http://localhost:3000/update-delivery-status/{{associateID}}`;
+
+            try {
+                const response = await fetch(serverURL1, {
+
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': "application/json",
+                        'Authorization': `${token}`
+                    },
+                    body: JSON.stringify({ "status": 4 })
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                window.location.reload();
+
+                return await response.json();
+            } catch (error) {
+                console.error('Error:', error);
+                return { error: error.message };
+            };
+        };
+
         async function cancelOrder() {
             serverURL = `http://localhost:3000/update-delivery-status/{{associateID}}`;
-            console.log("hello again")
             try {
                 const response = await fetch(serverURL, {
 
@@ -344,7 +413,7 @@
 
         function redirectToTrackingPage() {
             // Perform the redirection here
-            window.location.href = "http://localhost:3000/app/orders/"+orderID+"/associate-tracking"; // Replace with your actual URL
+            window.location.href = "http://localhost:3000/app/orders/" + orderID + "/associate-tracking"; // Replace with your actual URL
         }
 
         function redirectToPastOrdersPage() {
@@ -359,4 +428,5 @@
         <div id="order-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
     </div>
 </body>
+
 </html>
