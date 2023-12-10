@@ -25,6 +25,8 @@
   },
   "devDependencies": {
     "jasmine": "^5.1.0",
+    "jasmine-ajax": "^4.0.0",
+    "jsdom": "^23.0.0",
     "nodemon": "^3.0.1"
   }
 }
