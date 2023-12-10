@@ -74,7 +74,7 @@ module.exports = class RUEatsRepository {
                        FROM orders 
                        JOIN restaurants ON orders.restaurant_id = restaurants.restaurant_id 
                        WHERE orders.user_id = ?
-                       ORDER BY orders.order_id DESC`;
+                       ORDER BY orders.order_date DESC`;
 
         this.connection.query(query, [userID], function (error, results) {
             if (error) {
