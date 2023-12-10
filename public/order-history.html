@@ -278,45 +278,49 @@
     let completedOrdersHTML = '<h4>Completed Orders</h4>';
     let failedOrdersHTML = '<h4>Failed Orders</h4>';
 
-    for (const order of orders) {
-        const review = await checkIfReviewExists(userID, order.restaurant_id);
-        let reviewButtonHTML;
-        if (review) {
-            reviewButtonHTML = `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id}, ${order.status})">View Written Review</button>`;
-        } else if (order.status < 5) {
-            reviewButtonHTML = `<button disabled style="color: grey; cursor: not-allowed;">Add Review</button>`;
-        } else {
-            reviewButtonHTML = `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
-        }
+    if(typeof orders != 'string'){
+        for (const order of orders) {
+            const review = await checkIfReviewExists(userID, order.restaurant_id);
+            let reviewButtonHTML;
+            if (review) {
+                reviewButtonHTML = `<button onclick="viewReview(${userID}, ${order.order_id}, ${order.restaurant_id}, ${review.review_id}, ${order.status})">View Written Review</button>`;
+            } else if (order.status < 5) {
+                reviewButtonHTML = `<button disabled style="color: grey; cursor: not-allowed;">Add Review</button>`;
+            } else {
+                reviewButtonHTML = `<button onclick="addReview(${order.restaurant_id})">Add Review</button>`;
+            }
 
-        let orderStatusText = getCondensedOrderStatus(order.status);
-        let trackOrderButtonHTML = order.status === 4 ? `<button onclick="window.open('http://localhost:3000/app/orders/${order.order_id}/user-tracking', '_blank')">Track Order</button>` : '';
+            let orderStatusText = getCondensedOrderStatus(order.status);
+            let trackOrderButtonHTML = order.status === 4 ? `<button onclick="window.open('http://localhost:3000/app/orders/${order.order_id}/user-tracking', '_blank')">Track Order</button>` : '';
 
-        let orderHTML = `
-            <div class="order d-flex justify-content-between align-items-center">
-                <div>
-                    <p>Restaurant: ${order.restaurant_name}</p>
-                    <p>Order Date: ${new Date(order.order_date).toLocaleDateString()}</p>
-                    <p>Total Amount: $${order.total_amount.toFixed(2)}</p>
-                    ${reviewButtonHTML}
-                    <button onclick="orderDetails(${order.order_id}, ${order.restaurant_id}, this)">View Details</button>
-                    <div id="order-details-${order.order_id}" class="order-details" style="display: none;"></div>
+            let orderHTML = `
+                <div class="order d-flex justify-content-between align-items-center">
+                    <div>
+                        <p>Restaurant: ${order.restaurant_name}</p>
+                        <p>Order Date: ${new Date(order.order_date).toLocaleDateString()}</p>
+                        <p>Total Amount: $${order.total_amount.toFixed(2)}</p>
+                        ${reviewButtonHTML}
+                        <button onclick="orderDetails(${order.order_id}, ${order.restaurant_id}, this)">View Details</button>
+                        <div id="order-details-${order.order_id}" class="order-details" style="display: none;"></div>
+                        <button onclick="raiseIssue(${order.order_id}, ${userID}, ${order.restaurant_id}, ${order.associate_id}, this)">Raise an Issue</button>
+                        <div id="issue-${order.order_id}" class="issue" style="display: none;"></div>
+                    </div>
+                    <div>
+                        ${trackOrderButtonHTML && order.status === 4 ? `${trackOrderButtonHTML}<br>` : ''}
+                        <span class="badge badge-info">${orderStatusText}</span>
+                    </div>
                 </div>
-                <div>
-                    ${trackOrderButtonHTML && order.status === 4 ? `${trackOrderButtonHTML}<br>` : ''}
-                    <span class="badge badge-info">${orderStatusText}</span>
-                </div>
-            </div>
-            <hr>`;
+                <hr>`;
 
-        if (order.status === 4) {
-            outForDeliveryHTML += orderHTML;
-        } else if (order.status < 4) {
-            activeOrdersHTML += orderHTML;
-        } else if (order.status === 5) {
-            completedOrdersHTML += orderHTML;
-        } else if (order.status === 6) {
-            failedOrdersHTML += orderHTML;
+            if (order.status === 4) {
+                outForDeliveryHTML += orderHTML;
+            } else if (order.status < 4) {
+                activeOrdersHTML += orderHTML;
+            } else if (order.status === 5) {
+                completedOrdersHTML += orderHTML;
+            } else if (order.status === 6) {
+                failedOrdersHTML += orderHTML;
+            }
         }
     }
 
@@ -696,6 +700,56 @@
             resetModalToViewMode();
         });
     });
+    async function raiseIssue(orderID, userID, restaurantID, associateID, buttonElement) {
+        const issueDiv = document.getElementById(`issue-${orderID}`);
+        issueDiv.innerHTML = `
+            <form id='raise-issue-${orderID}'>
+                <textarea rows=5 style='width: 100%;'></textarea>
+                <button onClick='submitIssue(${orderID}, ${userID}, ${restaurantID}, ${associateID})'>Submit Issue</button>
+            </form> 
+        `;
+        issueDiv.style.display = 'block';
+
+        const form = document.querySelector(`#raise-issue-${orderID}`);
+
+        form.addEventListener('submit', function(event) {
+            // Prevent the default form submission behavior
+            event.preventDefault();
+
+            window.alert('Issue submitted!');
+
+            const issueDiv = document.getElementById(`issue-${orderID}`);
+            issueDiv.style.display = 'none';
+        });
+    }
+
+    async function submitIssue(orderID, userID, restaurantID, associateID) {
+        // Get the textarea value
+        const textareaValue = document.querySelector(`#raise-issue-${orderID} textarea`).value;
+
+        formData = {
+            userID: userID,
+            restaurantID: restaurantID,
+            associateID: associateID,
+            issue: textareaValue
+        }
+        try{
+            const response = await fetch('http://localhost:3000/raise-issue', {
+                method: 'POST',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+        }catch(error){
+            console.error('Error submitting the issue:', error.message);
+            return;
+        }
+    }
 
     window.onload = () => {
         loadToken();
