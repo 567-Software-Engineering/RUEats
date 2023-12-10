@@ -85,6 +85,9 @@
                 <a class="nav-link" href="#" onclick="redirectOrders()">Orders</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="#" onclick="redirectReviewsPage()">Reviews</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#" onclick="handleLogout()">Logout</a>
             </li>
         </ul>
@@ -200,6 +203,10 @@
 
     function redirectOrders() {
         window.location.href = `http://localhost:3000/app/restaurants-orders/${restaurant_id}`;
+    }
+
+    function redirectReviewsPage() {
+        window.location.href = `http://localhost:3000/app/check-reviews/${restaurant_id}`;
     }
 
     async function getRestaurantData(serverURL, jwtToken, restaurantId) {

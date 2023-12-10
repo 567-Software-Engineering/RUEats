@@ -252,6 +252,19 @@ const uiRoutes = {
             });
         }
     },
+    "/app/check-reviews/:restaurantID" : {
+        GET:(_req, res) =>{
+            fs.readFile('./public/restaurant-reviews.html', 'utf8', function (error, data) {
+                if (error) {
+                    response(res, {data: "Page not Found!", status : 404})
+                } else {
+                    const { restaurantID } = _req.params;
+                    data = data.replace(/{{restaurantID}}/g, restaurantID);
+                    response(res,{data : data, contentType:'text/html'});
+                }
+            });
+        }
+    },
 
 }
 module.exports = uiRoutes
