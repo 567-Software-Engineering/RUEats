@@ -1326,4 +1326,17 @@ module.exports = class RUEatsRepository {
     });
   }
 
+  async checkInventory(userID) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT c.item_id, m.item_name FROM cart c INNER JOIN menu m ON c.item_id = m.item_id WHERE c.user_id = ? and m.is_available = 0 and c.quantity > 0`;
+      this.connection.query(query, [userID], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+  }
+
 }
