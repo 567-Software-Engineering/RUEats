@@ -274,7 +274,7 @@
                         <h5 class="card-title">${menuItem.item_name}</h5>
                         <img src=${menuItem.image_url} width="100px" height="100px">
                         <p class="card-text">${menuItem.description}</p>
-                        <p class="card-text">$${menuItem.price}</p>
+                        <p class="card-text">Unit Item Price: $${menuItem.price}</p>
                         <div class="input-group">
                             <span class="input-group-btn">
                                 <button type="button" class="btn btn-danger" onclick="decrementQuantity(this, '${menuItem.price}')">-</button>
@@ -358,6 +358,11 @@
         // let userID = localStorage.getItem('user_id') || '';
         // let token = localStorage.getItem('jwtToken') || '';
 
+        if (token == '') {
+            alert('Please login to add items to cart');
+            window.location.href = '/app/login';
+            return;
+        }
         if (!isNaN(price) && !isNaN(quantity)) {
             let totalPrice = price * quantity;
 

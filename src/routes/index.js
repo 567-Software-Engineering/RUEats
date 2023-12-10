@@ -255,6 +255,10 @@ const routes = {
       GET: controller.getCart,
     },
 
+    "/check-inventory/:userID": {
+      GET: controller.checkInventory,
+    },
+    
     "/add-order": {
       POST: (req, res) => {
         validatePostRequests(req, res, controller.addOrder);
