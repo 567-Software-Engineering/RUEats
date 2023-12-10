@@ -2016,4 +2016,22 @@ async getPreviousDeliveryAssignments(req, res) {
   };
   
 
+async raiseIssue(req, res){
+  try {
+    const token = req.headers.authorization;
+        
+    jwt.verify(token, secretKey, async (err, decoded) => {
+      if (err) {
+        console.log(err)
+        response(res, { status: 401, data: { message: 'Unauthorized' } });
+      } else {
+        const status = await dbRepo.raiseIssue(req.body);
+      }
+    });
+
+  } catch (error) {
+    response(res, { status: 400, data: error.message });
+  }
+}
+
 }

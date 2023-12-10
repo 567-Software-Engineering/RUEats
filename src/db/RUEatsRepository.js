@@ -71,7 +71,7 @@ module.exports = class RUEatsRepository {
 
   getOrderHistoryByUserID(userID) {
     return new Promise((resolve, reject) => {
-        const query = `SELECT orders.order_id, orders.order_date, orders.total_amount, orders.restaurant_id, orders.status, restaurants.name AS restaurant_name 
+        const query = `SELECT orders.order_id, orders.order_date, orders.total_amount, orders.restaurant_id, orders.status, orders.associate_id, restaurants.name AS restaurant_name 
                        FROM orders 
                        JOIN restaurants ON orders.restaurant_id = restaurants.restaurant_id 
                        WHERE orders.user_id = ?
@@ -1404,4 +1404,29 @@ module.exports = class RUEatsRepository {
     });
   }
   
+  raiseIssue(issue) {
+    return new Promise((resolve, reject) => {
+      try {
+        const query = 'INSERT INTO chats (user_id, restaurant_id, associate_id, message, timestamp, is_user) VALUES (?, ?, ?, ?, ?, ?)';
+        const values = [
+          issue.userID,
+          issue.restaurantID,
+          issue.associateID,
+          issue.issue,
+          new Date().toISOString().slice(0, 19).replace('T', ' '),
+          1
+        ];
+
+        this.connection.query(query, values, (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 }

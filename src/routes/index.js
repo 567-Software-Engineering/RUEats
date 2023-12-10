@@ -326,6 +326,12 @@ const routes = {
       POST : controller.failOrder
     },
     
+    "/raise-issue":{
+      POST: (req, res) => {
+        validatePostRequests(req, res, controller.raiseIssue);
+      },
+    },
+
     notFound: (_req, res) => {
         response(res, { status: 404, data: "Requested URL not found" });
 
