@@ -133,9 +133,6 @@
                     <label for="cuisine_type">Cuisine Type:</label>
                     <input type="text" id="cuisine_type" name="cuisine_type" required><br>
 
-                    <label for="rating">Rating:</label>
-                    <input type="text" id="rating" name="rating" required><br>
-
                     <label for="operating_hours">Operating Hours:</label>
                     <input type="text" id="operating_hours" name="operating_hours" required><br>
 
@@ -165,7 +162,7 @@
             phone_number: document.getElementById('phone_number').value,
             address: document.getElementById('address').value,
             cuisine_type: document.getElementById('cuisine_type').value,
-            rating: document.getElementById('rating').value,
+            rating: '0', //document.getElementById('rating').value,
             operating_hours: document.getElementById('operating_hours').value,
             is_active: document.getElementById('is_active').checked,
             password: document.getElementById('password').value
@@ -196,7 +193,7 @@
 </script>
 
 <div class="footer">
-    &copy; 2023 YourRestaurantApp. All rights reserved.
+    &copy; 2023 RUEats. All rights reserved.
 </div>
 
 </body>

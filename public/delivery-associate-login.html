@@ -156,7 +156,9 @@
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok.');
+                const message = await response.json();
+                console.log(message);
+                throw new Error(message.message || message);
             }
 
             const data = await response.json();
@@ -180,7 +182,7 @@
             }
         } catch (error) {
             console.error('Error during delivery associate login:', error.message);
-            window.alert('Error during login. Please try again.');
+            window.alert('Error during login. Please try again. '+ error.message);
         }
     }
 
