@@ -193,7 +193,7 @@
         reviewCard.innerHTML = `
             <div class="card-body">
                 <h5 class="card-title">${review.review_title}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Reviewed by User ${review.author_id} <span class="text-primary">•</span> ${new Date(review.date_created).toLocaleDateString()}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Reviewed by User ${review.user_name} <span class="text-primary">•</span> ${new Date(review.date_created).toLocaleDateString()}</h6>
                 <p class="card-text">${review.description}</p>
                 <p class="card-text text-warning">${stars}</p>
                 <div id="response-container-${review.review_id}" class="mb-2">
