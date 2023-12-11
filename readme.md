@@ -29,6 +29,39 @@
 
 ```git pull origin main```
 
+# Setting up the Application locally for running and testing.
+
+## Prerequisites
+Install Node.js and npm.
+- Download and install Node.js from https://nodejs.org/en/download
+- Downlaod and install npm following the documentation https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+
+## Update environment variable
+
+Update all the environment variables provided in the application documentation:
+```
+DB_HOST=your_database_host
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_NAME=your_database_name
+GOOGLE_API_KEY=your_google_cloud_api_key
+PAYMENT_SECRET_KEY = payment_key
+EMAIL_USER=official_email
+EMAIL_PASS=official_email_passkey
+```
+
+## Installation Steps
+Open a terminal in the project directory.
+
+Run:
+- ```npm install```
+After all dependencies are installed run:
+- ```npm run devStart``` or ```node app.js```
+
+RUEats should be up and running on the localhost 3000 port.
+Home page url: ```http://localhost:3000/home```
+
+# Developer Instructions
 
 ## Create a New Branch for every new Feature
 
